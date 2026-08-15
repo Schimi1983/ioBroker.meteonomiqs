@@ -165,6 +165,17 @@ Weather data © [wetter.com GmbH / Meteonomiqs](https://www.meteonomiqs.com). Th
 
 ## Changelog
 
+<!--
+    Placeholder for the next version (at the beginning of the line):
+    ### **WORK IN PROGRESS**
+-->
+### **WORK IN PROGRESS**
+
+- Decoupled `tsconfig.json` from `@tsconfig/node22`; all compiler options are now declared explicitly
+- Raised TypeScript to 5.9.3
+- Restored `mocha` and `chai` in the devDependencies so `npm test` resolves the mocha binary
+- CI: `testing-action-check@v2`, type check enabled, and the 25 unit tests are no longer skipped
+
 ### 0.1.1
 
 - Renamed the adapter to `meteonomiqs` (npm blocks names similar to the existing `iobroker.wettercom`)
