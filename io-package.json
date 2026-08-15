@@ -44,17 +44,17 @@
       "zh-cn": "wetter.com 天气预报"
     },
     "desc": {
-      "en": "Weather forecast from wetter.com via the Meteonomiqs Public Weather API v4.0 — up to 14 days, day sections, hourly values, current hour, weather warnings and astronomy. Includes budget management for limited API plans.",
-      "de": "Wettervorhersage von wetter.com über die Meteonomiqs Public Weather API v4.0 — bis zu 14 Tage, Tagesabschnitte, Stundenwerte, aktuelle Stunde, Wetterwarnungen und Astronomie. Mit Budgetverwaltung für begrenzte API-Kontingente.",
-      "ru": "Прогноз погоды wetter.com через Meteonomiqs Public Weather API v4.0 — до 14 дней, части суток, почасовые значения, текущий час, метеопредупреждения и астрономия. С управлением лимитом запросов API.",
-      "pt": "Previsão do tempo da wetter.com através da Meteonomiqs Public Weather API v4.0 — até 14 dias, períodos do dia, valores horários, hora atual, avisos meteorológicos e astronomia. Com gestão do limite de pedidos à API.",
-      "nl": "Weersverwachting van wetter.com via de Meteonomiqs Public Weather API v4.0 — tot 14 dagen, dagdelen, uurwaarden, huidig uur, weerwaarschuwingen en astronomie. Met beheer van het API-limiet.",
-      "fr": "Prévisions météo de wetter.com via l'API Meteonomiqs Public Weather v4.0 — jusqu'à 14 jours, périodes de la journée, valeurs horaires, heure actuelle, alertes météo et astronomie. Avec gestion du quota d'appels API.",
-      "it": "Previsioni meteo di wetter.com tramite la Meteonomiqs Public Weather API v4.0 — fino a 14 giorni, fasce orarie, valori orari, ora corrente, allerte meteo e astronomia. Con gestione del limite di chiamate API.",
-      "es": "Pronóstico del tiempo de wetter.com mediante la Meteonomiqs Public Weather API v4.0 — hasta 14 días, franjas del día, valores horarios, hora actual, avisos meteorológicos y astronomía. Con gestión del límite de llamadas a la API.",
-      "pl": "Prognoza pogody z wetter.com przez Meteonomiqs Public Weather API v4.0 — do 14 dni, pory dnia, wartości godzinowe, bieżąca godzina, ostrzeżenia pogodowe i astronomia. Z zarządzaniem limitem zapytań API.",
-      "uk": "Прогноз погоди від wetter.com через Meteonomiqs Public Weather API v4.0 — до 14 днів, частини доби, погодинні значення, поточна година, попередження про погоду та астрономія. З керуванням лімітом запитів API.",
-      "zh-cn": "通过 Meteonomiqs Public Weather API v4.0 获取 wetter.com 天气预报——最多 14 天、时段预报、逐小时数据、当前小时、天气警报和天文数据，并内置 API 配额管理。"
+      "en": "Weather forecast from wetter.com — 14 days, hourly values, weather warnings.",
+      "de": "Wettervorhersage von wetter.com — 14 Tage, Stundenwerte, Wetterwarnungen.",
+      "ru": "Прогноз погоды wetter.com — 14 дней, почасовые данные, метеопредупреждения.",
+      "pt": "Previsão do tempo da wetter.com — 14 dias, valores horários, avisos meteorológicos.",
+      "nl": "Weersverwachting van wetter.com — 14 dagen, uurwaarden, weerwaarschuwingen.",
+      "fr": "Prévisions météo de wetter.com — 14 jours, valeurs horaires, alertes météo.",
+      "it": "Previsioni meteo di wetter.com — 14 giorni, valori orari, allerte meteo.",
+      "es": "Pronóstico del tiempo de wetter.com — 14 días, valores horarios, avisos.",
+      "pl": "Prognoza pogody z wetter.com — 14 dni, wartości godzinowe, ostrzeżenia.",
+      "uk": "Прогноз погоди wetter.com — 14 днів, погодинні дані, попередження.",
+      "zh-cn": "wetter.com 天气预报——14 天、逐小时数据、天气警报。"
     },
     "authors": [
       "Schimi <szymon.haiduk@world-mg.de>"
