@@ -47,7 +47,6 @@ const RETRY_DELAY_MS = 30000;
 class WetterComAdapter extends utils.Adapter {
     private timers: TimerHandle[] = [];
     private ensured = new Set<string>();
-    private lastPayload: ApiForecast | null = null;
     private isFetching = false;
     private authFailed = false;
     private unloaded = false;
@@ -566,7 +565,6 @@ class WetterComAdapter extends utils.Adapter {
                 return;
             }
 
-            this.lastPayload = payload;
             this.authFailed = false;
 
             const now = new Date();
