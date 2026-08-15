@@ -169,7 +169,7 @@ Weather data © [wetter.com GmbH / Meteonomiqs](https://www.meteonomiqs.com). Th
     Placeholder for the next version (at the beginning of the line):
     ### **WORK IN PROGRESS**
 -->
-### **WORK IN PROGRESS**
+### 0.1.2 (2026-08-15)
 
 - Decoupled `tsconfig.json` from `@tsconfig/node22`; all compiler options are now declared explicitly
 - Raised TypeScript to 5.9.3

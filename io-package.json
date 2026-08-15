@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "meteonomiqs",
-    "version": "0.1.1",
+    "version": "0.1.2",
     "news": {
+      "0.1.2": {
+        "en": "Decoupled `tsconfig.json` from `@tsconfig/node22`; all compiler options are now declared explicitly\nRaised TypeScript to 5.9.3\nRestored `mocha` and `chai` in the devDependencies so `npm test` resolves the mocha binary\nCI: `testing-action-check@v2`, type check enabled, and the 25 unit tests are no longer skipped",
+        "de": "Die Datei `tsconfig.json` wurde von `@tsconfig/node22` entkoppelt; alle Compileroptionen werden nun explizit deklariert.\nTypeScript auf Version 5.9.3 aktualisiert.\nDie Abhängigkeiten `mocha` und `chai` wurden wiederhergestellt, sodass `npm test` die Mocha-Binärdatei auflöst.\nCI: `testing-action-check@v2`, Typüberprüfung aktiviert, und die 25 Unit-Tests werden nicht mehr übersprungen.",
+        "ru": "Разделение `tsconfig.json` и `@tsconfig/node22`; теперь все параметры компилятора объявляются явно.\nВерсия TypeScript повышена до 5.9.3.\nВосстановлены зависимости `mocha` и `chai` в devDependencies, так что `npm test` разрешает исполняемый файл mocha.\nCI: `testing-action-check@v2`, включена проверка типов, и 25 модульных тестов больше не пропускаются.",
+        "pt": "O arquivo `tsconfig.json` foi desacoplado do arquivo `@tsconfig/node22`; todas as opções do compilador agora são declaradas explicitamente.\nAtualização do TypeScript para a versão 5.9.3\nRestaurei as dependências `mocha` e `chai` nas devDependencies para que `npm test` resolva o binário do mocha.\nCI: `testing-action-check@v2`, verificação de tipo ativada e os 25 testes unitários não são mais ignorados.",
+        "nl": "`tsconfig.json` is losgekoppeld van `@tsconfig/node22`; alle compileropties worden nu expliciet gedeclareerd.\nTypeScript is bijgewerkt naar 5.9.3.\n`mocha` en `chai` zijn weer toegevoegd aan de devDependencies, zodat `npm test` het mocha-binair bestand kan vinden.\nCI: `testing-action-check@v2`, typecontrole ingeschakeld, en de 25 unit tests worden niet langer overgeslagen.",
+        "fr": "Le fichier `tsconfig.json` a été dissocié de `@tsconfig/node22` ; toutes les options du compilateur sont désormais déclarées explicitement.\nTypeScript a été mis à jour vers la version 5.9.3.\nLes dépendances `mocha` et `chai` ont été rétablies dans les dépendances de développement afin que `npm test` résolve le binaire mocha.\nCI : `testing-action-check@v2`, la vérification des types est activée et les 25 tests unitaires ne sont plus ignorés.",
+        "it": "Disaccoppiato `tsconfig.json` da `@tsconfig/node22`; tutte le opzioni del compilatore sono ora dichiarate esplicitamente\nVersione di TypeScript aggiornata alla 5.9.3\nRipristinati `mocha` e `chai` nelle devDependencies in modo che `npm test` risolva il binario mocha\nCI: `testing-action-check@v2`, controllo del tipo abilitato e i 25 test unitari non vengono più saltati",
+        "es": "Se ha desacoplado `tsconfig.json` de `@tsconfig/node22`; ahora todas las opciones del compilador se declaran explícitamente.\nSe actualizó TypeScript a la versión 5.9.3.\nSe restauraron `mocha` y `chai` en devDependencies para que `npm test` resuelva el binario de mocha.\nCI: `testing-action-check@v2`, comprobación de tipos habilitada y las 25 pruebas unitarias ya no se omiten.",
+        "pl": "Oddzielono `tsconfig.json` od `@tsconfig/node22`; wszystkie opcje kompilatora są teraz deklarowane jawnie\nPodniesiono wersję TypeScript do 5.9.3\nPrzywrócono `mocha` i `chai` w devDependencies, dzięki czemu `npm test` rozwiązuje plik binarny mocha\nCI: `testing-action-check@v2`, włączono sprawdzanie typu i 25 testów jednostkowych nie jest już pomijanych",
+        "uk": "Відокремлено `tsconfig.json` від `@tsconfig/node22`; усі параметри компілятора тепер оголошуються явно.\nПідвищено TypeScript до версії 5.9.3\nВідновлено `mocha` та `chai` у devDependencies, щоб `npm test` розв'язував бінарний файл mocha.\nCI: `testing-action-check@v2`, перевірка типів увімкнена, а 25 модульних тестів більше не пропускаються.",
+        "zh-cn": "将 `tsconfig.json` 与 `@tsconfig/node22` 解耦；所有编译器选项现在都已显式声明。\n已将 TypeScript 版本提升至 5.9.3\n已在 devDependencies 中恢复 `mocha` 和 `chai`，以便 `npm test` 可以解析 mocha 二进制文件。\nCI：`testing-action-check@v2`，类型检查已启用，并且不再跳过 25 个单元测试。"
+      },
       "0.1.1": {
         "en": "Renamed to meteonomiqs, ESLint and JSDoc clean-up",
         "de": "Umbenennung auf meteonomiqs, ESLint- und JSDoc-Bereinigung",
