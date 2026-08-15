@@ -1,0 +1,11 @@
+# Einheitliche Zeilenenden, unabhängig vom Betriebssystem des Entwicklers
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.svg text eol=lf
+*.json text eol=lf
+*.ts   text eol=lf
+*.js   text eol=lf
+*.md   text eol=lf
+*.yml  text eol=lf
