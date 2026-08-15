@@ -2,6 +2,11 @@ name: Test and Release
 
 # Uses the official ioBroker testing actions. The repository checker expects
 # these (W3013 / W3015 / W3017) and they bring the whole matrix along.
+#
+# Version pinning: only testing-action-check has a v2 (which moved to
+# actions/checkout@v6 and actions/setup-node@v6). testing-action-adapter and
+# testing-action-deploy are still on v1 upstream — v1.1.2 resp. v1.5.2 — and
+# already use checkout@v6 internally, so they cause no Node 20 warning.
 
 on:
   push:
@@ -24,9 +29,11 @@ jobs:
     if: contains(github.event.head_commit.message, '[skip ci]') == false
     runs-on: ubuntu-latest
     steps:
-      - uses: ioBroker/testing-action-check@v1
+      - uses: ioBroker/testing-action-check@v2
         with:
           node-version: '22.x'
+          # Runs "npm run check" (tsc --noEmit). Off by default upstream.
+          type-checking: true
           lint: true
 
   # Unit and integration tests on all supported platforms.
@@ -47,6 +54,11 @@ jobs:
           node-version: ${{ matrix.node-version }}
           os: ${{ matrix.os }}
           build: true
+          # The action looks for a "test:unit" script by default. This adapter
+          # calls its unit tests "test:ts", so without these two inputs the
+          # 25 tests in src/lib/helpers.test.ts are silently skipped in CI.
+          unit-test-check-pattern: 'test:ts'
+          unit-test-command: 'npm run test:ts'
 
   # Publish to npm on a version tag
   deploy:
