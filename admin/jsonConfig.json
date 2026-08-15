@@ -12,7 +12,11 @@
           "size": 2,
           "text": "header_access",
           "newLine": true,
-          "xs": 12
+          "xs": 12,
+          "sm": 12,
+          "md": 12,
+          "lg": 12,
+          "xl": 12
         },
         "apiKey": {
           "type": "password",
@@ -24,7 +28,8 @@
           "xs": 12,
           "sm": 12,
           "md": 8,
-          "lg": 6
+          "lg": 6,
+          "xl": 6
         },
         "_linkRegister": {
           "type": "staticLink",
@@ -36,14 +41,19 @@
           "xs": 12,
           "sm": 6,
           "md": 4,
-          "lg": 3
+          "lg": 3,
+          "xl": 3
         },
         "_headerLocation": {
           "type": "header",
           "size": 2,
           "text": "header_location",
           "newLine": true,
-          "xs": 12
+          "xs": 12,
+          "sm": 12,
+          "md": 12,
+          "lg": 12,
+          "xl": 12
         },
         "useSystemLocation": {
           "type": "checkbox",
@@ -54,7 +64,8 @@
           "xs": 12,
           "sm": 12,
           "md": 8,
-          "lg": 6
+          "lg": 6,
+          "xl": 6
         },
         "latitude": {
           "type": "number",
@@ -62,13 +73,14 @@
           "help": "latitude_help",
           "min": -90,
           "max": 90,
-          "step": 0.000001,
+          "step": 1e-06,
           "hidden": "!!data.useSystemLocation",
           "newLine": true,
           "xs": 12,
           "sm": 6,
           "md": 4,
-          "lg": 3
+          "lg": 3,
+          "xl": 3
         },
         "longitude": {
           "type": "number",
@@ -76,13 +88,14 @@
           "help": "longitude_help",
           "min": -180,
           "max": 180,
-          "step": 0.000001,
+          "step": 1e-06,
           "hidden": "!!data.useSystemLocation",
           "newLine": false,
           "xs": 12,
           "sm": 6,
           "md": 4,
-          "lg": 3
+          "lg": 3,
+          "xl": 3
         },
         "language": {
           "type": "select",
@@ -90,32 +103,76 @@
           "help": "language_help",
           "default": "",
           "options": [
-            { "label": "lang_system", "value": "" },
-            { "label": "Deutsch", "value": "de" },
-            { "label": "English", "value": "en" },
-            { "label": "Français", "value": "fr" },
-            { "label": "Italiano", "value": "it" },
-            { "label": "Español", "value": "es" },
-            { "label": "Nederlands", "value": "nl" },
-            { "label": "Polski", "value": "pl" },
-            { "label": "Čeština", "value": "cs" },
-            { "label": "Dansk", "value": "da" },
-            { "label": "Română", "value": "ro" },
-            { "label": "Slovenčina", "value": "sk" },
-            { "label": "Svenska", "value": "sv" }
+            {
+              "label": "lang_system",
+              "value": ""
+            },
+            {
+              "label": "Deutsch",
+              "value": "de"
+            },
+            {
+              "label": "English",
+              "value": "en"
+            },
+            {
+              "label": "Français",
+              "value": "fr"
+            },
+            {
+              "label": "Italiano",
+              "value": "it"
+            },
+            {
+              "label": "Español",
+              "value": "es"
+            },
+            {
+              "label": "Nederlands",
+              "value": "nl"
+            },
+            {
+              "label": "Polski",
+              "value": "pl"
+            },
+            {
+              "label": "Čeština",
+              "value": "cs"
+            },
+            {
+              "label": "Dansk",
+              "value": "da"
+            },
+            {
+              "label": "Română",
+              "value": "ro"
+            },
+            {
+              "label": "Slovenčina",
+              "value": "sk"
+            },
+            {
+              "label": "Svenska",
+              "value": "sv"
+            }
           ],
           "newLine": true,
           "xs": 12,
           "sm": 6,
           "md": 4,
-          "lg": 3
+          "lg": 3,
+          "xl": 3
         },
         "_headerScope": {
           "type": "header",
           "size": 2,
           "text": "header_scope",
           "newLine": true,
-          "xs": 12
+          "xs": 12,
+          "sm": 12,
+          "md": 12,
+          "lg": 12,
+          "xl": 12
         },
         "forecastDays": {
           "type": "number",
@@ -128,11 +185,11 @@
           "xs": 12,
           "sm": 6,
           "md": 4,
-          "lg": 3
+          "lg": 3,
+          "xl": 3
         }
       }
     },
-
     "tabSchedule": {
       "type": "panel",
       "label": "tab_schedule",
@@ -142,7 +199,11 @@
           "type": "staticText",
           "text": "info_schedule",
           "newLine": true,
-          "xs": 12
+          "xs": 12,
+          "sm": 12,
+          "md": 12,
+          "lg": 12,
+          "xl": 12
         },
         "updateTimes": {
           "type": "table",
@@ -170,13 +231,18 @@
           "xs": 12,
           "sm": 12,
           "md": 10,
-          "lg": 8
+          "lg": 8,
+          "xl": 8
         },
         "_infoTier": {
           "type": "staticText",
           "text": "info_tier",
           "newLine": true,
-          "xs": 12
+          "xs": 12,
+          "sm": 12,
+          "md": 12,
+          "lg": 12,
+          "xl": 12
         },
         "minHoursBetweenUpdates": {
           "type": "number",
@@ -189,11 +255,11 @@
           "xs": 12,
           "sm": 6,
           "md": 4,
-          "lg": 3
+          "lg": 3,
+          "xl": 3
         }
       }
     },
-
     "tabBudget": {
       "type": "panel",
       "label": "tab_budget",
@@ -203,7 +269,11 @@
           "type": "staticText",
           "text": "info_budget",
           "newLine": true,
-          "xs": 12
+          "xs": 12,
+          "sm": 12,
+          "md": 12,
+          "lg": 12,
+          "xl": 12
         },
         "monthlyLimit": {
           "type": "number",
@@ -216,7 +286,8 @@
           "xs": 12,
           "sm": 6,
           "md": 4,
-          "lg": 3
+          "lg": 3,
+          "xl": 3
         },
         "reserveCalls": {
           "type": "number",
@@ -229,7 +300,8 @@
           "xs": 12,
           "sm": 6,
           "md": 4,
-          "lg": 3
+          "lg": 3,
+          "xl": 3
         },
         "httpTimeout": {
           "type": "number",
@@ -242,7 +314,8 @@
           "xs": 12,
           "sm": 6,
           "md": 4,
-          "lg": 3
+          "lg": 3,
+          "xl": 3
         },
         "maxRetries": {
           "type": "number",
@@ -255,11 +328,11 @@
           "xs": 12,
           "sm": 6,
           "md": 4,
-          "lg": 3
+          "lg": 3,
+          "xl": 3
         }
       }
     },
-
     "tabData": {
       "type": "panel",
       "label": "tab_data",
@@ -269,7 +342,11 @@
           "type": "staticText",
           "text": "info_data",
           "newLine": true,
-          "xs": 12
+          "xs": 12,
+          "sm": 12,
+          "md": 12,
+          "lg": 12,
+          "xl": 12
         },
         "enableSpaces": {
           "type": "checkbox",
@@ -279,7 +356,9 @@
           "newLine": true,
           "xs": 12,
           "sm": 6,
-          "md": 4
+          "md": 4,
+          "lg": 4,
+          "xl": 4
         },
         "enableHourly": {
           "type": "checkbox",
@@ -289,7 +368,9 @@
           "newLine": false,
           "xs": 12,
           "sm": 6,
-          "md": 4
+          "md": 4,
+          "lg": 4,
+          "xl": 4
         },
         "hourlyDays": {
           "type": "number",
@@ -302,7 +383,9 @@
           "newLine": false,
           "xs": 12,
           "sm": 6,
-          "md": 4
+          "md": 4,
+          "lg": 4,
+          "xl": 4
         },
         "enableCurrent": {
           "type": "checkbox",
@@ -313,7 +396,9 @@
           "newLine": true,
           "xs": 12,
           "sm": 6,
-          "md": 4
+          "md": 4,
+          "lg": 4,
+          "xl": 4
         },
         "enableJson": {
           "type": "checkbox",
@@ -323,14 +408,20 @@
           "newLine": false,
           "xs": 12,
           "sm": 6,
-          "md": 4
+          "md": 4,
+          "lg": 4,
+          "xl": 4
         },
         "_headerExtras": {
           "type": "header",
           "size": 2,
           "text": "header_extras",
           "newLine": true,
-          "xs": 12
+          "xs": 12,
+          "sm": 12,
+          "md": 12,
+          "lg": 12,
+          "xl": 12
         },
         "enableWarnings": {
           "type": "checkbox",
@@ -340,7 +431,9 @@
           "newLine": true,
           "xs": 12,
           "sm": 6,
-          "md": 3
+          "md": 3,
+          "lg": 3,
+          "xl": 3
         },
         "enableAstro": {
           "type": "checkbox",
@@ -350,7 +443,9 @@
           "newLine": false,
           "xs": 12,
           "sm": 6,
-          "md": 3
+          "md": 3,
+          "lg": 3,
+          "xl": 3
         },
         "enableExtended": {
           "type": "checkbox",
@@ -360,7 +455,9 @@
           "newLine": false,
           "xs": 12,
           "sm": 6,
-          "md": 3
+          "md": 3,
+          "lg": 3,
+          "xl": 3
         },
         "enableSnow": {
           "type": "checkbox",
@@ -370,7 +467,9 @@
           "newLine": false,
           "xs": 12,
           "sm": 6,
-          "md": 3
+          "md": 3,
+          "lg": 3,
+          "xl": 3
         }
       }
     }

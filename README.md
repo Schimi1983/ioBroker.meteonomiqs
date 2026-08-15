@@ -31,15 +31,7 @@ Up to 14 days of forecast, day sections, hourly values, the hour currently in pr
 
 ## Installation
 
-Until the adapter is available in the official ioBroker repository, install it from GitHub:
-
-**Admin → Adapters → ⚙ (Expert mode) → Install from own URL → GitHub tab**
-
-```
-https://github.com/Schimi1983/ioBroker.wetter-com
-```
-
-Then create an instance and enter your API key.
+Install the adapter through the ioBroker admin interface.
 
 ### API key
 

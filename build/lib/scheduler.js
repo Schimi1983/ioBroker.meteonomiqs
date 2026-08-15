@@ -14,9 +14,10 @@ exports.scheduleHourly = scheduleHourly;
 /**
  * Milliseconds until the next occurrence of `hour:minute` in local time.
  *
- * @param hour
- * @param minute
- * @param now
+ * @param hour See parameter type.
+ * @param minute See parameter type.
+ * @param now See parameter type.
+ * @returns See return type.
  */
 function msUntilDaily(hour, minute, now = new Date()) {
     const next = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hour, minute, 0, 0);
@@ -28,8 +29,9 @@ function msUntilDaily(hour, minute, now = new Date()) {
 /**
  * Milliseconds until the next occurrence of :minute in local time.
  *
- * @param minute
- * @param now
+ * @param minute See parameter type.
+ * @param now See parameter type.
+ * @returns See return type.
  */
 function msUntilHourly(minute, now = new Date()) {
     const next = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), minute, 0, 0);
@@ -41,10 +43,11 @@ function msUntilHourly(minute, now = new Date()) {
 /**
  * Runs `callback` every day at the given local time.
  *
- * @param host
- * @param hour
- * @param minute
- * @param callback
+ * @param host See parameter type.
+ * @param hour See parameter type.
+ * @param minute See parameter type.
+ * @param callback See parameter type.
+ * @returns See return type.
  */
 function scheduleDaily(host, hour, minute, callback) {
     let handle = null;
@@ -74,9 +77,10 @@ function scheduleDaily(host, hour, minute, callback) {
 /**
  * Runs `callback` every hour at the given minute.
  *
- * @param host
- * @param minute
- * @param callback
+ * @param host See parameter type.
+ * @param minute See parameter type.
+ * @param callback See parameter type.
+ * @returns See return type.
  */
 function scheduleHourly(host, minute, callback) {
     let handle = null;
