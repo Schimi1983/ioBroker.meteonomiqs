@@ -11,7 +11,13 @@ exports.msUntilDaily = msUntilDaily;
 exports.msUntilHourly = msUntilHourly;
 exports.scheduleDaily = scheduleDaily;
 exports.scheduleHourly = scheduleHourly;
-/** Milliseconds until the next occurrence of `hour:minute` in local time. */
+/**
+ * Milliseconds until the next occurrence of `hour:minute` in local time.
+ *
+ * @param hour
+ * @param minute
+ * @param now
+ */
 function msUntilDaily(hour, minute, now = new Date()) {
     const next = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hour, minute, 0, 0);
     if (next.getTime() <= now.getTime()) {
@@ -19,7 +25,12 @@ function msUntilDaily(hour, minute, now = new Date()) {
     }
     return next.getTime() - now.getTime();
 }
-/** Milliseconds until the next occurrence of :minute in local time. */
+/**
+ * Milliseconds until the next occurrence of :minute in local time.
+ *
+ * @param minute
+ * @param now
+ */
 function msUntilHourly(minute, now = new Date()) {
     const next = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), minute, 0, 0);
     if (next.getTime() <= now.getTime()) {
@@ -27,7 +38,14 @@ function msUntilHourly(minute, now = new Date()) {
     }
     return next.getTime() - now.getTime();
 }
-/** Runs `callback` every day at the given local time. */
+/**
+ * Runs `callback` every day at the given local time.
+ *
+ * @param host
+ * @param hour
+ * @param minute
+ * @param callback
+ */
 function scheduleDaily(host, hour, minute, callback) {
     let handle = null;
     let cancelled = false;
@@ -53,7 +71,13 @@ function scheduleDaily(host, hour, minute, callback) {
         },
     };
 }
-/** Runs `callback` every hour at the given minute. */
+/**
+ * Runs `callback` every hour at the given minute.
+ *
+ * @param host
+ * @param minute
+ * @param callback
+ */
 function scheduleHourly(host, minute, callback) {
     let handle = null;
     let cancelled = false;
