@@ -60,6 +60,12 @@ const ICON_BASE_URL = 'https://cs3.wettercomassets.com/wcomv5/images/icons/weath
 const MAX_FORECAST_DAYS = 14;
 const CLEANUP_UP_TO_DAY = 25;
 const RETRY_DELAY_MS = 30000;
+/**
+ * How long a stored forecast still counts as usable after a restart. A day plus
+ * two hours of slack covers every normal schedule; anything older should show up
+ * as disconnected rather than pretending the data is current.
+ */
+const FORECAST_USABLE_FOR_MS = 26 * 60 * 60 * 1000;
 class WetterComAdapter extends utils.Adapter {
     timers = [];
     ensured = new Set();
@@ -105,6 +111,29 @@ class WetterComAdapter extends utils.Adapter {
         // `current` must not depend on the startup fetch: that fetch is skipped
         // whenever the cooldown, the budget or a missing key says so.
         await this.updateCurrent('startup');
+        await this.restoreConnectionAfterSkippedStartup();
+    }
+    /**
+     * Reports the instance as connected when the startup fetch was skipped but
+     * the stored forecast is still usable.
+     *
+     * A skipped fetch is not a failure: the cooldown and the budget tiers are
+     * meant to skip. Without this, every restart would leave the instance marked
+     * as offline in the admin until the next scheduled fetch, which can be more
+     * than ten hours away with the default schedule.
+     */
+    async restoreConnectionAfterSkippedStartup() {
+        const connection = await this.getStateAsync('info.connection');
+        if (connection?.val === true) {
+            return;
+        }
+        const lastSync = await this.getStateAsync('info.last_sync_ts');
+        const ts = typeof lastSync?.val === 'number' ? lastSync.val : 0;
+        if (ts <= 0 || Date.now() - ts > FORECAST_USABLE_FOR_MS) {
+            return;
+        }
+        await this.setStateAsync('info.connection', { val: true, ack: true });
+        this.log.debug('Startup fetch skipped, but the stored forecast is still current — reporting as connected.');
     }
     onUnload(callback) {
         try {
