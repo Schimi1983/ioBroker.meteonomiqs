@@ -1,7 +1,0 @@
-module.exports = {
-    plugins: [
-        '@alcalzone/release-script-plugin-iobroker',
-        '@alcalzone/release-script-plugin-license',
-        '@alcalzone/release-script-plugin-manual-review',
-    ],
-};

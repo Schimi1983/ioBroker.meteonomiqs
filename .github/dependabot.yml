@@ -3,20 +3,30 @@ updates:
   - package-ecosystem: npm
     directory: /
     schedule:
-      interval: monthly
-    open-pull-requests-limit: 5
-    # Nur Patch- und Minor-Updates automatisch vorschlagen.
-    # Major-Sprünge (TypeScript 5->7, chai 4->6 mit ESM-Zwang, @types/node 20->26)
-    # brechen den Build und werden bewusst von Hand entschieden.
+      interval: cron
+      cronjob: '17 4 * * 2'
+    open-pull-requests-limit: 15
+    # Mindestens 7 Tage warten, bevor eine neue Version vorgeschlagen wird.
+    # Reduziert das Risiko, eine kompromittierte Veröffentlichung einzuziehen.
+    cooldown:
+      default-days: 7
     ignore:
+      # Major-Sprünge brechen den Build (TypeScript 5->7, chai 4->6 mit ESM-Zwang)
+      # und werden bewusst von Hand entschieden.
       - dependency-name: '*'
+        update-types: ['version-update:semver-major']
+      # @types/node muss zur engines.node-Angabe passen, nicht zur neuesten Version.
+      - dependency-name: '@types/node'
         update-types: ['version-update:semver-major']
 
   - package-ecosystem: github-actions
     directory: /
     schedule:
-      interval: monthly
-    open-pull-requests-limit: 3
+      interval: cron
+      cronjob: '23 4 * * 2'
+    open-pull-requests-limit: 10
+    cooldown:
+      default-days: 7
     ignore:
       - dependency-name: '*'
         update-types: ['version-update:semver-major']
