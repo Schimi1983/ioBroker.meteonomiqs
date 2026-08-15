@@ -85,10 +85,10 @@ Everything comes out of the same API response, so enabling more groups costs **n
 
 | Configuration | Objects |
 |---|---|
-| Everything on, hourly for 2 days | ~2350 |
-| Hourly for 1 day | ~1700 |
-| Hourly off | ~1080 |
-| Daily values only | ~370 |
+| Everything on, hourly for 2 days | ~2430 |
+| Hourly for 1 day | ~1780 |
+| Hourly off | ~1130 |
+| Daily values only | ~380 |
 
 On a Raspberry Pi, hourly values for one day is a sensible compromise.
 
@@ -120,6 +120,12 @@ meteonomiqs.0
 ├── forecast_json
 └── hourly_json
 ```
+
+### Two things worth knowing about the tree
+
+**`day_N.spaces.night` is the night *after* that day.** Its minimum therefore comes from the early hours of `day_N+1`. Reading `day_0.spaces.night.temp_min` gives tonight's low, not last night's.
+
+**`wind_significant` explains the icon.** The API marks strong wind in the icon file name (`d_w_60.svg` instead of `d_60.svg`) independently of `warn_active`. A day can carry the wind variant without any official warning being issued, so the icon and the warning states are allowed to disagree.
 
 ### `current` — how it works
 
@@ -169,8 +175,13 @@ Weather data © [wetter.com GmbH / Meteonomiqs](https://www.meteonomiqs.com). Th
     Placeholder for the next version (at the beginning of the line):
     ### **WORK IN PROGRESS**
 -->
-### 0.1.2 (2026-08-15)
+### **WORK IN PROGRESS**
 
+- Fixed the German state labels in `current.*` — they carried the English prefix ("Now: Temperatur" instead of "Jetzt: Temperatur")
+- Object metadata (label, role, unit) is now updated on existing states instead of only on first creation, so corrections reach installed instances
+- **Breaking:** renamed `day_N.spaces.*.icon` to `weather_icon` and `.text` to `weather_text` for one naming scheme across the whole tree; the old states are removed automatically
+- Added `wind_significant` for day, day section and hour — the flag behind the `_w_` icon variant, which is not covered by the warning states
+- Raised the mocha timeout; the first `Intl` call is slow enough on cold Windows runners to trip the 2 s default
 - Decoupled `tsconfig.json` from `@tsconfig/node22`; all compiler options are now declared explicitly
 - Raised TypeScript to 5.9.3
 - Restored `mocha` and `chai` in the devDependencies so `npm test` resolves the mocha binary

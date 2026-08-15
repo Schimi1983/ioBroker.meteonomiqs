@@ -7,7 +7,7 @@
  * "write" list are maintained separately.
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.SPACE_LABELS = exports.SPACE_SEGMENTS = exports.CURRENT_EXTRA = exports.HOUR_FIELDS = exports.SPACE_FIELDS = exports.ASTRO_FIELDS = exports.DAY_FIELDS = void 0;
+exports.LEGACY_SPACE_FIELDS = exports.SPACE_LABELS = exports.SPACE_SEGMENTS = exports.CURRENT_EXTRA = exports.HOUR_FIELDS = exports.SPACE_FIELDS = exports.ASTRO_FIELDS = exports.DAY_FIELDS = void 0;
 const helpers_1 = require("./helpers");
 /**
  * DAY_FIELDS.
@@ -35,6 +35,7 @@ exports.DAY_FIELDS = [
     { id: 'wind_direction', name: 'Wind direction', nameDe: 'Windrichtung', type: 'string', role: 'weather.direction', get: (d) => d.wind?.direction },
     { id: 'wind_direction_short', name: 'Wind direction (short)', nameDe: 'Windrichtung (kurz)', type: 'string', role: 'weather.direction', get: (d) => d.wind?.text },
     { id: 'wind_degree', name: 'Wind direction (degrees)', nameDe: 'Windrichtung (Grad)', type: 'number', role: 'value.direction.wind', unit: '°', digits: 0, get: (d) => d.wind?.degree },
+    { id: 'wind_significant', name: 'Significant wind', nameDe: 'Signifikanter Wind', type: 'boolean', role: 'indicator', get: (d) => !!d.wind?.significantWind },
     { id: 'pressure', name: 'Air pressure', nameDe: 'Luftdruck', type: 'number', role: 'value.pressure', unit: 'hPa', digits: 0, group: 'extended', get: (d) => d.pressure },
     { id: 'windchill_min', name: 'Feels like min.', nameDe: 'Gefühlt min.', type: 'number', role: 'value.temperature.min', unit: '°C', digits: 1, group: 'extended', get: (d) => d.windchill?.min },
     { id: 'windchill_max', name: 'Feels like max.', nameDe: 'Gefühlt max.', type: 'number', role: 'value.temperature.max', unit: '°C', digits: 1, group: 'extended', get: (d) => d.windchill?.max },
@@ -76,8 +77,8 @@ exports.SPACE_FIELDS = [
     { id: 'temp_min', name: 'Temperature min.', nameDe: 'Temperatur min.', type: 'number', role: 'value.temperature.min', unit: '°C', digits: 1, get: (s) => s.temperature?.min },
     { id: 'temp_max', name: 'Temperature max.', nameDe: 'Temperatur max.', type: 'number', role: 'value.temperature.max', unit: '°C', digits: 1, get: (s) => s.temperature?.max },
     { id: 'weather_state', name: 'Weather code', nameDe: 'Wetter-Code', type: 'number', role: 'value', digits: 0, get: (s) => s.weather?.state },
-    { id: 'text', name: 'Weather', nameDe: 'Wetter', type: 'string', role: 'weather.state', get: (s) => s.weather?.text },
-    { id: 'icon', name: 'Icon URL', nameDe: 'Icon-URL', type: 'string', role: 'weather.icon', get: (s, c) => (0, helpers_1.iconUrl)(s.weather, c.iconBase, !!s.isNight) },
+    { id: 'weather_text', name: 'Weather', nameDe: 'Wetter', type: 'string', role: 'weather.state', get: (s) => s.weather?.text },
+    { id: 'weather_icon', name: 'Icon URL', nameDe: 'Icon-URL', type: 'string', role: 'weather.icon', get: (s, c) => (0, helpers_1.iconUrl)(s.weather, c.iconBase, !!s.isNight) },
     { id: 'is_night', name: 'Night', nameDe: 'Nacht', type: 'boolean', role: 'indicator', get: (s) => !!s.isNight },
     { id: 'prec_prob', name: 'Precipitation probability', nameDe: 'Regenrisiko', type: 'number', role: 'value.precipitation.probability', unit: '%', digits: 0, get: (s) => s.prec?.probability },
     { id: 'prec_sum', name: 'Precipitation amount', nameDe: 'Niederschlagsmenge', type: 'number', role: 'value.precipitation', unit: 'mm', digits: 2, get: (s) => s.prec?.sum },
@@ -85,6 +86,7 @@ exports.SPACE_FIELDS = [
     { id: 'wind_gusts', name: 'Wind gusts', nameDe: 'Windböen', type: 'number', role: 'value.speed.wind.gust', unit: 'km/h', digits: 1, get: (s) => s.wind?.gusts },
     { id: 'wind_direction_short', name: 'Wind direction (short)', nameDe: 'Windrichtung (kurz)', type: 'string', role: 'weather.direction', get: (s) => s.wind?.text },
     { id: 'wind_degree', name: 'Wind direction (degrees)', nameDe: 'Windrichtung (Grad)', type: 'number', role: 'value.direction.wind', unit: '°', digits: 0, get: (s) => s.wind?.degree },
+    { id: 'wind_significant', name: 'Significant wind', nameDe: 'Signifikanter Wind', type: 'boolean', role: 'indicator', get: (s) => !!s.wind?.significantWind },
     { id: 'clouds', name: 'Cloud cover', nameDe: 'Bewölkung', type: 'number', role: 'value.clouds', unit: '%', digits: 1, get: (s) => (0, helpers_1.cloudsPercent)(s.clouds) },
     { id: 'humidity', name: 'Relative humidity', nameDe: 'Relative Feuchte', type: 'number', role: 'value.humidity', unit: '%', digits: 0, get: (s) => s.relativeHumidity },
     { id: 'sun_hours', name: 'Sunshine hours', nameDe: 'Sonnenstunden', type: 'number', role: 'value.sun', unit: 'h', digits: 1, get: (s) => s.sunHours },
@@ -118,6 +120,7 @@ exports.HOUR_FIELDS = [
     { id: 'wind_dir', name: 'Wind direction', nameDe: 'Windrichtung', type: 'string', role: 'weather.direction', get: (h) => h.wind?.direction },
     { id: 'wind_dir_short', name: 'Wind direction (short)', nameDe: 'Windrichtung (kurz)', type: 'string', role: 'weather.direction', get: (h) => h.wind?.text },
     { id: 'wind_degree', name: 'Wind direction (degrees)', nameDe: 'Windrichtung (Grad)', type: 'number', role: 'value.direction.wind', unit: '°', digits: 0, get: (h) => h.wind?.degree },
+    { id: 'wind_significant', name: 'Significant wind', nameDe: 'Signifikanter Wind', type: 'boolean', role: 'indicator', get: (h) => !!h.wind?.significantWind },
     { id: 'humidity', name: 'Relative humidity', nameDe: 'Relative Feuchte', type: 'number', role: 'value.humidity', unit: '%', digits: 0, get: (h) => h.relativeHumidity },
     { id: 'clouds', name: 'Cloud cover', nameDe: 'Bewölkung', type: 'number', role: 'value.clouds', unit: '%', digits: 1, get: (h) => (0, helpers_1.cloudsPercent)(h.clouds) },
     { id: 'sun_hours', name: 'Sunshine hours', nameDe: 'Sonnenstunden', type: 'number', role: 'value.sun', unit: 'h', digits: 2, get: (h) => h.sunHours },
@@ -153,4 +156,10 @@ exports.SPACE_LABELS = {
     evening: { en: 'Evening', de: 'Abend' },
     night: { en: 'Night', de: 'Nacht' },
 };
+/**
+ * State ids inside a day section that earlier versions created and that are
+ * removed on startup. `icon` and `text` were renamed to `weather_icon` and
+ * `weather_text` in 0.1.3 so the tree uses one naming scheme throughout.
+ */
+exports.LEGACY_SPACE_FIELDS = ['icon', 'text'];
 //# sourceMappingURL=fields.js.map

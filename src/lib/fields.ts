@@ -35,6 +35,7 @@ export const DAY_FIELDS: FieldDef[] = [
     { id: 'wind_direction', name: 'Wind direction', nameDe: 'Windrichtung', type: 'string', role: 'weather.direction', get: (d: ApiSummaryItem) => d.wind?.direction },
     { id: 'wind_direction_short', name: 'Wind direction (short)', nameDe: 'Windrichtung (kurz)', type: 'string', role: 'weather.direction', get: (d: ApiSummaryItem) => d.wind?.text },
     { id: 'wind_degree', name: 'Wind direction (degrees)', nameDe: 'Windrichtung (Grad)', type: 'number', role: 'value.direction.wind', unit: '°', digits: 0, get: (d: ApiSummaryItem) => d.wind?.degree },
+    { id: 'wind_significant', name: 'Significant wind', nameDe: 'Signifikanter Wind', type: 'boolean', role: 'indicator', get: (d: ApiSummaryItem) => !!d.wind?.significantWind },
 
     { id: 'pressure', name: 'Air pressure', nameDe: 'Luftdruck', type: 'number', role: 'value.pressure', unit: 'hPa', digits: 0, group: 'extended', get: (d: ApiSummaryItem) => d.pressure },
     { id: 'windchill_min', name: 'Feels like min.', nameDe: 'Gefühlt min.', type: 'number', role: 'value.temperature.min', unit: '°C', digits: 1, group: 'extended', get: (d: ApiSummaryItem) => d.windchill?.min },
@@ -81,8 +82,8 @@ export const SPACE_FIELDS: FieldDef[] = [
     { id: 'temp_min', name: 'Temperature min.', nameDe: 'Temperatur min.', type: 'number', role: 'value.temperature.min', unit: '°C', digits: 1, get: (s: ApiSpaceItem) => s.temperature?.min },
     { id: 'temp_max', name: 'Temperature max.', nameDe: 'Temperatur max.', type: 'number', role: 'value.temperature.max', unit: '°C', digits: 1, get: (s: ApiSpaceItem) => s.temperature?.max },
     { id: 'weather_state', name: 'Weather code', nameDe: 'Wetter-Code', type: 'number', role: 'value', digits: 0, get: (s: ApiSpaceItem) => s.weather?.state },
-    { id: 'text', name: 'Weather', nameDe: 'Wetter', type: 'string', role: 'weather.state', get: (s: ApiSpaceItem) => s.weather?.text },
-    { id: 'icon', name: 'Icon URL', nameDe: 'Icon-URL', type: 'string', role: 'weather.icon', get: (s: ApiSpaceItem, c) => iconUrl(s.weather, c.iconBase, !!s.isNight) },
+    { id: 'weather_text', name: 'Weather', nameDe: 'Wetter', type: 'string', role: 'weather.state', get: (s: ApiSpaceItem) => s.weather?.text },
+    { id: 'weather_icon', name: 'Icon URL', nameDe: 'Icon-URL', type: 'string', role: 'weather.icon', get: (s: ApiSpaceItem, c) => iconUrl(s.weather, c.iconBase, !!s.isNight) },
     { id: 'is_night', name: 'Night', nameDe: 'Nacht', type: 'boolean', role: 'indicator', get: (s: ApiSpaceItem) => !!s.isNight },
     { id: 'prec_prob', name: 'Precipitation probability', nameDe: 'Regenrisiko', type: 'number', role: 'value.precipitation.probability', unit: '%', digits: 0, get: (s: ApiSpaceItem) => s.prec?.probability },
     { id: 'prec_sum', name: 'Precipitation amount', nameDe: 'Niederschlagsmenge', type: 'number', role: 'value.precipitation', unit: 'mm', digits: 2, get: (s: ApiSpaceItem) => s.prec?.sum },
@@ -90,6 +91,7 @@ export const SPACE_FIELDS: FieldDef[] = [
     { id: 'wind_gusts', name: 'Wind gusts', nameDe: 'Windböen', type: 'number', role: 'value.speed.wind.gust', unit: 'km/h', digits: 1, get: (s: ApiSpaceItem) => s.wind?.gusts },
     { id: 'wind_direction_short', name: 'Wind direction (short)', nameDe: 'Windrichtung (kurz)', type: 'string', role: 'weather.direction', get: (s: ApiSpaceItem) => s.wind?.text },
     { id: 'wind_degree', name: 'Wind direction (degrees)', nameDe: 'Windrichtung (Grad)', type: 'number', role: 'value.direction.wind', unit: '°', digits: 0, get: (s: ApiSpaceItem) => s.wind?.degree },
+    { id: 'wind_significant', name: 'Significant wind', nameDe: 'Signifikanter Wind', type: 'boolean', role: 'indicator', get: (s: ApiSpaceItem) => !!s.wind?.significantWind },
     { id: 'clouds', name: 'Cloud cover', nameDe: 'Bewölkung', type: 'number', role: 'value.clouds', unit: '%', digits: 1, get: (s: ApiSpaceItem) => cloudsPercent(s.clouds) },
     { id: 'humidity', name: 'Relative humidity', nameDe: 'Relative Feuchte', type: 'number', role: 'value.humidity', unit: '%', digits: 0, get: (s: ApiSpaceItem) => s.relativeHumidity },
     { id: 'sun_hours', name: 'Sunshine hours', nameDe: 'Sonnenstunden', type: 'number', role: 'value.sun', unit: 'h', digits: 1, get: (s: ApiSpaceItem) => s.sunHours },
@@ -127,6 +129,7 @@ export const HOUR_FIELDS: FieldDef[] = [
     { id: 'wind_dir', name: 'Wind direction', nameDe: 'Windrichtung', type: 'string', role: 'weather.direction', get: (h: ApiHourlyItem) => h.wind?.direction },
     { id: 'wind_dir_short', name: 'Wind direction (short)', nameDe: 'Windrichtung (kurz)', type: 'string', role: 'weather.direction', get: (h: ApiHourlyItem) => h.wind?.text },
     { id: 'wind_degree', name: 'Wind direction (degrees)', nameDe: 'Windrichtung (Grad)', type: 'number', role: 'value.direction.wind', unit: '°', digits: 0, get: (h: ApiHourlyItem) => h.wind?.degree },
+    { id: 'wind_significant', name: 'Significant wind', nameDe: 'Signifikanter Wind', type: 'boolean', role: 'indicator', get: (h: ApiHourlyItem) => !!h.wind?.significantWind },
     { id: 'humidity', name: 'Relative humidity', nameDe: 'Relative Feuchte', type: 'number', role: 'value.humidity', unit: '%', digits: 0, get: (h: ApiHourlyItem) => h.relativeHumidity },
     { id: 'clouds', name: 'Cloud cover', nameDe: 'Bewölkung', type: 'number', role: 'value.clouds', unit: '%', digits: 1, get: (h: ApiHourlyItem) => cloudsPercent(h.clouds) },
     { id: 'sun_hours', name: 'Sunshine hours', nameDe: 'Sonnenstunden', type: 'number', role: 'value.sun', unit: 'h', digits: 2, get: (h: ApiHourlyItem) => h.sunHours },
@@ -168,3 +171,10 @@ export const SPACE_LABELS: Record<string, { en: string; de: string }> = {
     evening: { en: 'Evening', de: 'Abend' },
     night: { en: 'Night', de: 'Nacht' },
 };
+
+/**
+ * State ids inside a day section that earlier versions created and that are
+ * removed on startup. `icon` and `text` were renamed to `weather_icon` and
+ * `weather_text` in 0.1.3 so the tree uses one naming scheme throughout.
+ */
+export const LEGACY_SPACE_FIELDS = ['icon', 'text'] as const;

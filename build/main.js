@@ -33,13 +33,23 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 }) : function(o, v) {
     o["default"] = v;
 });
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 Object.defineProperty(exports, "__esModule", { value: true });
 const utils = __importStar(require("@iobroker/adapter-core"));
 const fields_1 = require("./lib/fields");
@@ -214,27 +224,49 @@ class WetterComAdapter extends utils.Adapter {
         if (this.ensured.has(id)) {
             return;
         }
-        await this.setObjectNotExistsAsync(id, { type: 'channel', common: { name }, native: {} });
+        const existing = await this.getObjectAsync(id);
+        if (!existing) {
+            await this.setObjectNotExistsAsync(id, { type: 'channel', common: { name }, native: {} });
+        }
+        else if (!WetterComAdapter.sameLabel(existing.common?.name, name)) {
+            await this.extendObjectAsync(id, { common: { name } });
+        }
         this.ensured.add(id);
     }
     async ensureState(id, name, type, role, unit, write = false) {
         if (this.ensured.has(id)) {
             return;
         }
-        await this.setObjectNotExistsAsync(id, {
-            type: 'state',
-            common: {
-                name,
-                type,
-                role,
-                unit: unit || undefined,
-                read: true,
-                write,
-                def: WetterComAdapter.initValue(type),
-            },
-            native: {},
-        });
+        const common = { name, type, role, unit: unit || undefined, read: true, write };
+        const existing = await this.getObjectAsync(id);
+        if (!existing) {
+            await this.setObjectNotExistsAsync(id, {
+                type: 'state',
+                common: { ...common, def: WetterComAdapter.initValue(type) },
+                native: {},
+            });
+        }
+        else {
+            const c = existing.common ?? {};
+            const drifted = !WetterComAdapter.sameLabel(c.name, name) || c.type !== type || c.role !== role || (c.unit || undefined) !== common.unit || c.read !== true || c.write !== write;
+            if (drifted) {
+                // Metadata is owned by the adapter. Without this, a corrected
+                // label, role or unit would only ever reach fresh installations.
+                await this.extendObjectAsync(id, { common });
+                this.log.debug(`Updated object metadata: ${id}`);
+            }
+        }
         this.ensured.add(id);
+    }
+    /**
+     * Compares two state labels, which may be a plain string or a translation map.
+     *
+     * @param a First label.
+     * @param b Second label.
+     * @returns True when both describe the same label.
+     */
+    static sameLabel(a, b) {
+        return JSON.stringify(a ?? null) === JSON.stringify(b ?? null);
     }
     static initValue(type) {
         return type === 'number' ? 0 : type === 'boolean' ? false : '';
@@ -254,8 +286,19 @@ class WetterComAdapter extends utils.Adapter {
         }
         return '';
     }
-    fieldName(field, prefix) {
-        return { en: `${prefix}${field.name}`, de: `${prefix}${field.nameDe}` };
+    /**
+     * Builds the bilingual state label.
+     *
+     * Both prefixes must be passed separately — a single prefix would put the
+     * English wording into the German name.
+     *
+     * @param field Field definition carrying the English and German label.
+     * @param prefixEn English label prefix, e.g. "Now: ".
+     * @param prefixDe German label prefix, e.g. "Jetzt: ".
+     * @returns See return type.
+     */
+    fieldName(field, prefixEn, prefixDe) {
+        return { en: `${prefixEn}${field.name}`, de: `${prefixDe}${field.nameDe}` };
     }
     /**
      * Creates and writes all fields of a table in one place.
@@ -674,6 +717,7 @@ class WetterComAdapter extends utils.Adapter {
             await Promise.all([this.setStateChangedAsync('forecast_json', { val: JSON.stringify(jsonDays), ack: true }), this.setStateChangedAsync('hourly_json', { val: JSON.stringify(jsonHours), ack: true })]);
         }
         await this.cleanupObsoleteDays(maxDays);
+        await this.cleanupLegacySpaceFields(maxDays);
         await this.updateCurrent('after fetch');
         this.log.info(`Update finished: ${maxDays} days processed.`);
     }
@@ -691,6 +735,28 @@ class WetterComAdapter extends utils.Adapter {
                 }
             }
             this.log.debug(`Removed obsolete day folder: ${path}`);
+        }
+    }
+    /**
+     * Removes the day-section states that older versions created under their
+     * short names. Renaming them left the old ids behind as orphans, which show
+     * up in the object tree and in history selections.
+     *
+     * @param activeDays Number of day folders currently in use.
+     */
+    async cleanupLegacySpaceFields(activeDays) {
+        for (let index = 0; index < activeDays; index++) {
+            for (const segment of fields_1.SPACE_SEGMENTS) {
+                for (const legacy of fields_1.LEGACY_SPACE_FIELDS) {
+                    const path = `day_${index}.spaces.${segment}.${legacy}`;
+                    if (!(await this.getObjectAsync(path))) {
+                        continue;
+                    }
+                    await this.delObjectAsync(path);
+                    this.ensured.delete(path);
+                    this.log.debug(`Removed renamed state: ${path}`);
+                }
+            }
         }
     }
     // ------------------------------------------------------------------ current
@@ -719,13 +785,13 @@ class WetterComAdapter extends utils.Adapter {
             await this.ensureChannel(base, { en: 'Current hour', de: 'Aktuelle Stunde' });
             const hourFields = fields_1.HOUR_FIELDS.filter((f) => this.groupEnabled(f.group));
             for (const field of hourFields) {
-                await this.ensureState(`${base}.${field.id}`, this.fieldName(field, 'Now: '), field.type, field.role, field.unit);
+                await this.ensureState(`${base}.${field.id}`, this.fieldName(field, 'Now: ', 'Jetzt: '), field.type, field.role, field.unit);
             }
             for (const extra of fields_1.CURRENT_EXTRA) {
                 if (extra.astro && !this.config.enableAstro) {
                     continue;
                 }
-                await this.ensureState(`${base}.${extra.id}`, this.fieldName(extra, 'Now: '), extra.type, extra.role, extra.unit);
+                await this.ensureState(`${base}.${extra.id}`, this.fieldName(extra, 'Now: ', 'Jetzt: '), extra.type, extra.role, extra.unit);
             }
             await this.ensureState(`${base}.source`, { en: 'Now: source state', de: 'Jetzt: Quell-Datenpunkt' }, 'string', 'text');
             await this.ensureState(`${base}.updated`, { en: 'Now: last copied', de: 'Jetzt: zuletzt übernommen' }, 'string', 'text');

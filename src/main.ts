@@ -18,7 +18,7 @@
  */
 
 import * as utils from '@iobroker/adapter-core';
-import { ASTRO_FIELDS, CURRENT_EXTRA, DAY_FIELDS, HOUR_FIELDS, SPACE_FIELDS, SPACE_LABELS, SPACE_SEGMENTS } from './lib/fields';
+import { ASTRO_FIELDS, CURRENT_EXTRA, DAY_FIELDS, HOUR_FIELDS, LEGACY_SPACE_FIELDS, SPACE_FIELDS, SPACE_LABELS, SPACE_SEGMENTS } from './lib/fields';
 import { budgetAllows, cloudsPercent, dayKey, extractValue, formatDate, getDayName, iconUrl, isoTime, localParts, monthKey, pad, round, smallestGapHours, timeToMinutes } from './lib/helpers';
 import type { TimerHandle } from './lib/scheduler';
 import { scheduleDaily, scheduleHourly } from './lib/scheduler';
@@ -217,7 +217,12 @@ class WetterComAdapter extends utils.Adapter {
         if (this.ensured.has(id)) {
             return;
         }
-        await this.setObjectNotExistsAsync(id, { type: 'channel', common: { name }, native: {} });
+        const existing = await this.getObjectAsync(id);
+        if (!existing) {
+            await this.setObjectNotExistsAsync(id, { type: 'channel', common: { name }, native: {} });
+        } else if (!WetterComAdapter.sameLabel(existing.common?.name, name)) {
+            await this.extendObjectAsync(id, { common: { name } });
+        }
         this.ensured.add(id);
     }
 
@@ -225,20 +230,37 @@ class WetterComAdapter extends utils.Adapter {
         if (this.ensured.has(id)) {
             return;
         }
-        await this.setObjectNotExistsAsync(id, {
-            type: 'state',
-            common: {
-                name,
-                type,
-                role,
-                unit: unit || undefined,
-                read: true,
-                write,
-                def: WetterComAdapter.initValue(type),
-            },
-            native: {},
-        });
+        const common = { name, type, role, unit: unit || undefined, read: true, write };
+        const existing = await this.getObjectAsync(id);
+
+        if (!existing) {
+            await this.setObjectNotExistsAsync(id, {
+                type: 'state',
+                common: { ...common, def: WetterComAdapter.initValue(type) },
+                native: {},
+            });
+        } else {
+            const c = existing.common ?? ({} as ioBroker.StateCommon);
+            const drifted = !WetterComAdapter.sameLabel(c.name, name) || c.type !== type || c.role !== role || (c.unit || undefined) !== common.unit || c.read !== true || c.write !== write;
+            if (drifted) {
+                // Metadata is owned by the adapter. Without this, a corrected
+                // label, role or unit would only ever reach fresh installations.
+                await this.extendObjectAsync(id, { common });
+                this.log.debug(`Updated object metadata: ${id}`);
+            }
+        }
         this.ensured.add(id);
+    }
+
+    /**
+     * Compares two state labels, which may be a plain string or a translation map.
+     *
+     * @param a First label.
+     * @param b Second label.
+     * @returns True when both describe the same label.
+     */
+    private static sameLabel(a: unknown, b: unknown): boolean {
+        return JSON.stringify(a ?? null) === JSON.stringify(b ?? null);
     }
 
     private static initValue(type: ioBroker.CommonType): ioBroker.StateValue {
@@ -261,8 +283,19 @@ class WetterComAdapter extends utils.Adapter {
         return '';
     }
 
-    private fieldName(field: { name: string; nameDe: string }, prefix: string): ioBroker.StringOrTranslated {
-        return { en: `${prefix}${field.name}`, de: `${prefix}${field.nameDe}` };
+    /**
+     * Builds the bilingual state label.
+     *
+     * Both prefixes must be passed separately — a single prefix would put the
+     * English wording into the German name.
+     *
+     * @param field Field definition carrying the English and German label.
+     * @param prefixEn English label prefix, e.g. "Now: ".
+     * @param prefixDe German label prefix, e.g. "Jetzt: ".
+     * @returns See return type.
+     */
+    private fieldName(field: { name: string; nameDe: string }, prefixEn: string, prefixDe: string): ioBroker.StringOrTranslated {
+        return { en: `${prefixEn}${field.name}`, de: `${prefixDe}${field.nameDe}` };
     }
 
     /**
@@ -734,6 +767,7 @@ class WetterComAdapter extends utils.Adapter {
         }
 
         await this.cleanupObsoleteDays(maxDays);
+        await this.cleanupLegacySpaceFields(maxDays);
         await this.updateCurrent('after fetch');
         this.log.info(`Update finished: ${maxDays} days processed.`);
     }
@@ -752,6 +786,29 @@ class WetterComAdapter extends utils.Adapter {
                 }
             }
             this.log.debug(`Removed obsolete day folder: ${path}`);
+        }
+    }
+
+    /**
+     * Removes the day-section states that older versions created under their
+     * short names. Renaming them left the old ids behind as orphans, which show
+     * up in the object tree and in history selections.
+     *
+     * @param activeDays Number of day folders currently in use.
+     */
+    private async cleanupLegacySpaceFields(activeDays: number): Promise<void> {
+        for (let index = 0; index < activeDays; index++) {
+            for (const segment of SPACE_SEGMENTS) {
+                for (const legacy of LEGACY_SPACE_FIELDS) {
+                    const path = `day_${index}.spaces.${segment}.${legacy}`;
+                    if (!(await this.getObjectAsync(path))) {
+                        continue;
+                    }
+                    await this.delObjectAsync(path);
+                    this.ensured.delete(path);
+                    this.log.debug(`Removed renamed state: ${path}`);
+                }
+            }
         }
     }
 
@@ -784,13 +841,13 @@ class WetterComAdapter extends utils.Adapter {
 
             const hourFields = HOUR_FIELDS.filter((f) => this.groupEnabled(f.group));
             for (const field of hourFields) {
-                await this.ensureState(`${base}.${field.id}`, this.fieldName(field, 'Now: '), field.type, field.role, field.unit);
+                await this.ensureState(`${base}.${field.id}`, this.fieldName(field, 'Now: ', 'Jetzt: '), field.type, field.role, field.unit);
             }
             for (const extra of CURRENT_EXTRA) {
                 if (extra.astro && !this.config.enableAstro) {
                     continue;
                 }
-                await this.ensureState(`${base}.${extra.id}`, this.fieldName(extra, 'Now: '), extra.type, extra.role, extra.unit);
+                await this.ensureState(`${base}.${extra.id}`, this.fieldName(extra, 'Now: ', 'Jetzt: '), extra.type, extra.role, extra.unit);
             }
             await this.ensureState(`${base}.source`, { en: 'Now: source state', de: 'Jetzt: Quell-Datenpunkt' }, 'string', 'text');
             await this.ensureState(`${base}.updated`, { en: 'Now: last copied', de: 'Jetzt: zuletzt übernommen' }, 'string', 'text');
