@@ -165,6 +165,12 @@ Weather data © [wetter.com GmbH / Meteonomiqs](https://www.meteonomiqs.com). Th
 
 ## Changelog
 
+### 0.1.1
+
+- Renamed the adapter to `meteonomiqs` (npm blocks names similar to the existing `iobroker.wettercom`)
+- Resolved all ESLint errors: `no-base-to-string`, empty JSDoc blocks, unused type import
+- Restricted Dependabot to patch and minor updates
+
 ### 0.1.0
 
 - Initial release

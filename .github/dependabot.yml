@@ -5,7 +5,18 @@ updates:
     schedule:
       interval: monthly
     open-pull-requests-limit: 5
+    # Nur Patch- und Minor-Updates automatisch vorschlagen.
+    # Major-Sprünge (TypeScript 5->7, chai 4->6 mit ESM-Zwang, @types/node 20->26)
+    # brechen den Build und werden bewusst von Hand entschieden.
+    ignore:
+      - dependency-name: '*'
+        update-types: ['version-update:semver-major']
+
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: monthly
+    open-pull-requests-limit: 3
+    ignore:
+      - dependency-name: '*'
+        update-types: ['version-update:semver-major']

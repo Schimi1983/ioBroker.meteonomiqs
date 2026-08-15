@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "meteonomiqs",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "news": {
+      "0.1.1": {
+        "en": "Renamed to meteonomiqs, ESLint and JSDoc clean-up",
+        "de": "Umbenennung auf meteonomiqs, ESLint- und JSDoc-Bereinigung",
+        "ru": "Переименование в meteonomiqs, чистка ESLint и JSDoc",
+        "pt": "Renomeado para meteonomiqs, limpeza de ESLint e JSDoc",
+        "nl": "Hernoemd naar meteonomiqs, ESLint- en JSDoc-opschoning",
+        "fr": "Renommé en meteonomiqs, nettoyage ESLint et JSDoc",
+        "it": "Rinominato in meteonomiqs, pulizia ESLint e JSDoc",
+        "es": "Renombrado a meteonomiqs, limpieza de ESLint y JSDoc",
+        "pl": "Zmiana nazwy na meteonomiqs, porządki w ESLint i JSDoc",
+        "uk": "Перейменовано на meteonomiqs, очищення ESLint і JSDoc",
+        "zh-cn": "更名为 meteonomiqs，清理 ESLint 与 JSDoc"
+      },
       "0.1.0": {
         "en": "Initial release: forecast, day sections, hourly values, current hour, weather warnings, astronomy and API budget management",
         "de": "Erstes Release: Vorhersage, Tagesabschnitte, Stundenwerte, aktuelle Stunde, Wetterwarnungen, Astronomie und API-Budgetverwaltung",

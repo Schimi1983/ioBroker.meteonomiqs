@@ -1,20 +1,36 @@
+"use strict";
 /**
  * Pure helper functions. No adapter dependency on purpose — everything in here
  * is directly unit-testable (see helpers.test.ts).
  */
-
-import type { ApiWeather } from './types';
-
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.MOON_ZODIAC = exports.MOON_PHASE = void 0;
+exports.pad = pad;
+exports.round = round;
+exports.extractValue = extractValue;
+exports.parseApiDate = parseApiDate;
+exports.formatDate = formatDate;
+exports.getDayName = getDayName;
+exports.localParts = localParts;
+exports.isoTime = isoTime;
+exports.dayLength = dayLength;
+exports.iconUrl = iconUrl;
+exports.cloudsPercent = cloudsPercent;
+exports.lookupTable = lookupTable;
+exports.timeToMinutes = timeToMinutes;
+exports.smallestGapHours = smallestGapHours;
+exports.monthKey = monthKey;
+exports.dayKey = dayKey;
+exports.budgetAllows = budgetAllows;
 /**
  * pad.
  *
  * @param n See parameter type.
  * @returns See return type.
  */
-export function pad(n: number | string): string {
+function pad(n) {
     return String(n).padStart(2, '0');
 }
-
 /**
  * Rounds and swallows NaN/Infinity. Keeps float noise out of the states.
  *
@@ -22,14 +38,13 @@ export function pad(n: number | string): string {
  * @param digits See parameter type.
  * @returns See return type.
  */
-export function round(value: number, digits = 1): number {
+function round(value, digits = 1) {
     if (typeof value !== 'number' || !isFinite(value)) {
         return 0;
     }
     const factor = Math.pow(10, digits);
     return Math.round(value * factor) / factor;
 }
-
 /**
  * Extracts a number from the API's nested value objects.
  * The API returns plain numbers in some places and `{value|avg|sum|max|min}`
@@ -38,7 +53,7 @@ export function round(value: number, digits = 1): number {
  * @param value See parameter type.
  * @returns See return type.
  */
-export function extractValue(value: unknown): number {
+function extractValue(value) {
     if (value === null || value === undefined) {
         return 0;
     }
@@ -49,7 +64,7 @@ export function extractValue(value: unknown): number {
         return value ? 1 : 0;
     }
     if (typeof value === 'object') {
-        const obj = value as Record<string, unknown>;
+        const obj = value;
         for (const key of ['value', 'avg', 'sum', 'max', 'min']) {
             if (obj[key] !== undefined && obj[key] !== null) {
                 return extractValue(obj[key]);
@@ -63,7 +78,6 @@ export function extractValue(value: unknown): number {
     }
     return 0;
 }
-
 /**
  * Parses API date strings. A bare "YYYY-MM-DD" is deliberately interpreted as
  * LOCAL midnight — `new Date('2026-08-06')` would be UTC midnight and therefore
@@ -72,7 +86,7 @@ export function extractValue(value: unknown): number {
  * @param input See parameter type.
  * @returns See return type.
  */
-export function parseApiDate(input: string | Date | null | undefined): Date | null {
+function parseApiDate(input) {
     if (!input) {
         return null;
     }
@@ -84,18 +98,16 @@ export function parseApiDate(input: string | Date | null | undefined): Date | nu
     const date = match ? new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3])) : new Date(text);
     return isNaN(date.getTime()) ? null : date;
 }
-
 /**
  * Formats as DD.MM.YYYY.
  *
  * @param input See parameter type.
  * @returns See return type.
  */
-export function formatDate(input: string | Date | null | undefined): string {
+function formatDate(input) {
     const date = parseApiDate(input);
     return date ? `${pad(date.getDate())}.${pad(date.getMonth() + 1)}.${date.getFullYear()}` : '';
 }
-
 /**
  * Weekday name in the given locale.
  *
@@ -103,18 +115,18 @@ export function formatDate(input: string | Date | null | undefined): string {
  * @param locale See parameter type.
  * @returns See return type.
  */
-export function getDayName(input: string | null | undefined, locale: string): string {
+function getDayName(input, locale) {
     const date = parseApiDate(input);
     if (!date) {
         return '';
     }
     try {
         return date.toLocaleDateString(locale, { weekday: 'long' });
-    } catch {
+    }
+    catch {
         return date.toLocaleDateString('en', { weekday: 'long' });
     }
 }
-
 /**
  * Converts a UTC timestamp into the local date and hour AT THE FORECAST LOCATION.
  * Uses the time zone reported by the API, so the hourly states stay correct even
@@ -124,7 +136,7 @@ export function getDayName(input: string | null | undefined, locale: string): st
  * @param tz See parameter type.
  * @returns See return type.
  */
-export function localParts(utcIso: string | null | undefined, tz: string): { date: string; hour: string } | null {
+function localParts(utcIso, tz) {
     if (!utcIso) {
         return null;
     }
@@ -133,7 +145,7 @@ export function localParts(utcIso: string | null | undefined, tz: string): { dat
         return null;
     }
     try {
-        const parts: Record<string, string> = {};
+        const parts = {};
         const formatter = new Intl.DateTimeFormat('en-GB', {
             timeZone: tz,
             year: 'numeric',
@@ -147,25 +159,24 @@ export function localParts(utcIso: string | null | undefined, tz: string): { dat
         }
         const hour = parts.hour === '24' ? '00' : parts.hour;
         return { date: `${parts.year}-${parts.month}-${parts.day}`, hour };
-    } catch {
+    }
+    catch {
         return {
             date: `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`,
             hour: pad(date.getHours()),
         };
     }
 }
-
 /**
  * Pulls "HH:MM" out of an ISO string that carries its own offset.
  *
  * @param iso See parameter type.
  * @returns See return type.
  */
-export function isoTime(iso: string | null | undefined): string {
+function isoTime(iso) {
     const match = /T(\d{2}):(\d{2})/.exec(iso ?? '');
     return match ? `${match[1]}:${match[2]}` : '';
 }
-
 /**
  * Daylight duration in hours from sunrise and sunset.
  *
@@ -173,7 +184,7 @@ export function isoTime(iso: string | null | undefined): string {
  * @param sunset See parameter type.
  * @returns See return type.
  */
-export function dayLength(sunrise: string | null | undefined, sunset: string | null | undefined): number {
+function dayLength(sunrise, sunset) {
     const a = new Date(sunrise ?? '');
     const b = new Date(sunset ?? '');
     if (isNaN(a.getTime()) || isNaN(b.getTime())) {
@@ -181,7 +192,6 @@ export function dayLength(sunrise: string | null | undefined, sunset: string | n
     }
     return round((b.getTime() - a.getTime()) / 3600000, 2);
 }
-
 /**
  * Full icon URL. Prefers the file name delivered by the API — it already accounts
  * for day/night (d_/n_), severe weather warnings (d_e_) and wind warnings (d_w_).
@@ -192,27 +202,26 @@ export function dayLength(sunrise: string | null | undefined, sunset: string | n
  * @param isNight See parameter type.
  * @returns See return type.
  */
-export function iconUrl(weather: ApiWeather | null | undefined, iconBase: string, isNight = false): string {
+function iconUrl(weather, iconBase, isNight = false) {
     const raw = weather && typeof weather.icon === 'string' ? weather.icon.trim() : '';
     const state = weather && weather.state !== undefined && weather.state !== null ? weather.state : 999;
     const file = raw !== '' ? raw : `${isNight ? 'n' : 'd'}_${state}.svg`;
     return `${iconBase}/${file}`;
 }
-
 /**
  * Cloud coverage as a percentage. Hourly data arrives in oktas (`eights`).
  *
  * @param clouds See parameter type.
  * @returns See return type.
  */
-export function cloudsPercent(clouds: unknown): number {
+function cloudsPercent(clouds) {
     if (clouds === null || clouds === undefined) {
         return 0;
     }
     if (typeof clouds === 'number') {
         return clouds;
     }
-    const obj = clouds as Record<string, unknown>;
+    const obj = clouds;
     if (typeof obj.avg === 'number') {
         return obj.avg;
     }
@@ -224,11 +233,10 @@ export function cloudsPercent(clouds: unknown): number {
     }
     return extractValue(clouds);
 }
-
 /**
  * MOON_PHASE.
  */
-export const MOON_PHASE: Record<string, string[]> = {
+exports.MOON_PHASE = {
     de: ['', 'Neumond', 'Zunehmender Sichelmond', 'Zunehmender Halbmond', 'Zunehmender Dreiviertelmond', 'Vollmond', 'Abnehmender Dreiviertelmond', 'Abnehmender Halbmond', 'Abnehmender Sichelmond'],
     en: ['', 'New Moon', 'Waxing Crescent', 'First Quarter', 'Waxing Gibbous', 'Full Moon', 'Waning Gibbous', 'Last Quarter', 'Waning Crescent'],
     nl: ['', 'Nieuwe maan', 'Wassende maansikkel', 'Eerste kwartier', 'Wassende maan', 'Volle maan', 'Afnemende maan', 'Laatste kwartier', 'Afnemende maansikkel'],
@@ -241,11 +249,10 @@ export const MOON_PHASE: Record<string, string[]> = {
     uk: ['', 'Молодий місяць', 'Зростаючий серп', 'Перша чверть', 'Зростаючий місяць', 'Повний місяць', 'Спадний місяць', 'Остання чверть', 'Спадний серп'],
     'zh-cn': ['', '新月', '娥眉月', '上弦月', '盈凸月', '满月', '亏凸月', '下弦月', '残月'],
 };
-
 /**
  * MOON_ZODIAC.
  */
-export const MOON_ZODIAC: Record<string, string[]> = {
+exports.MOON_ZODIAC = {
     de: ['', 'Widder', 'Stier', 'Zwillinge', 'Krebs', 'Löwe', 'Jungfrau', 'Waage', 'Skorpion', 'Schütze', 'Steinbock', 'Wassermann', 'Fische'],
     en: ['', 'Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'],
     nl: ['', 'Ram', 'Stier', 'Tweelingen', 'Kreeft', 'Leeuw', 'Maagd', 'Weegschaal', 'Schorpioen', 'Boogschutter', 'Steenbok', 'Waterman', 'Vissen'],
@@ -258,7 +265,6 @@ export const MOON_ZODIAC: Record<string, string[]> = {
     uk: ['', 'Овен', 'Телець', 'Близнюки', 'Рак', 'Лев', 'Діва', 'Терези', 'Скорпіон', 'Стрілець', 'Козоріг', 'Водолій', 'Риби'],
     'zh-cn': ['', '白羊座', '金牛座', '双子座', '巨蟹座', '狮子座', '处女座', '天秤座', '天蝎座', '射手座', '摩羯座', '水瓶座', '双鱼座'],
 };
-
 /**
  * lookupTable.
  *
@@ -267,20 +273,19 @@ export const MOON_ZODIAC: Record<string, string[]> = {
  * @param index See parameter type.
  * @returns See return type.
  */
-export function lookupTable(table: Record<string, string[]>, lang: string, index: unknown): string {
+function lookupTable(table, lang, index) {
     const key = String(lang || 'en').toLowerCase();
     const list = table[key] || table[key.slice(0, 2)] || table.en;
     const i = Number(index);
     return Number.isInteger(i) && i > 0 && i < list.length ? list[i] : '';
 }
-
 /**
  * "HH:MM" → minutes since midnight, or null if malformed.
  *
  * @param time See parameter type.
  * @returns See return type.
  */
-export function timeToMinutes(time: string): number | null {
+function timeToMinutes(time) {
     const match = /^(\d{1,2}):(\d{2})$/.exec(String(time).trim());
     if (!match) {
         return null;
@@ -292,14 +297,13 @@ export function timeToMinutes(time: string): number | null {
     }
     return h * 60 + m;
 }
-
 /**
  * Smallest gap in hours between the given times, measured around the 24 h clock.
  *
  * @param times See parameter type.
  * @returns See return type.
  */
-export function smallestGapHours(times: number[]): number {
+function smallestGapHours(times) {
     if (times.length < 2) {
         return 24;
     }
@@ -312,27 +316,24 @@ export function smallestGapHours(times: number[]): number {
     }
     return min / 60;
 }
-
 /**
  * monthKey.
  *
  * @param date See parameter type.
  * @returns See return type.
  */
-export function monthKey(date: Date): string {
+function monthKey(date) {
     return `${date.getFullYear()}-${pad(date.getMonth() + 1)}`;
 }
-
 /**
  * dayKey.
  *
  * @param date See parameter type.
  * @returns See return type.
  */
-export function dayKey(date: Date): string {
+function dayKey(date) {
     return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
 }
-
 /**
  * Decides whether a fetch of the given priority tier fits into the remaining
  * monthly budget.
@@ -347,17 +348,15 @@ export function dayKey(date: Date): string {
  * @param now Reference point for the remaining days of the month.
  * @returns Whether the fetch may run, plus the mode that decided it.
  */
-export function budgetAllows(usage: number, limit: number, tier: number, now: Date): { allowed: boolean; mode: 'ok' | 'saving' | 'emergency' | 'limit' } {
+function budgetAllows(usage, limit, tier, now) {
     // The hard cap lives here on purpose: a caller that only asks this function
     // must not be able to blow past the monthly limit.
     if (limit > 0 && usage >= limit) {
         return { allowed: false, mode: 'limit' };
     }
-
     const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
     const daysLeft = daysInMonth - now.getDate();
     const needed = tier * (daysLeft + 1);
-
     if (limit <= 0 || usage + needed <= limit) {
         return { allowed: true, mode: 'ok' };
     }
@@ -367,3 +366,4 @@ export function budgetAllows(usage: number, limit: number, tier: number, now: Da
     // Tier 1 is the last one standing: rather every other day than not at all.
     return { allowed: now.getDate() % 2 === 0, mode: 'emergency' };
 }
+//# sourceMappingURL=helpers.js.map

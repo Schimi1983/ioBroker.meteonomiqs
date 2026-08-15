@@ -1,3 +1,4 @@
+"use strict";
 /*
  * ioBroker.meteonomiqs
  *
@@ -16,79 +17,86 @@
  *    from the cached payload. That way it survives an adapter restart and never
  *    triggers a request.
  */
-
-import * as utils from '@iobroker/adapter-core';
-import { ASTRO_FIELDS, CURRENT_EXTRA, DAY_FIELDS, HOUR_FIELDS, SPACE_FIELDS, SPACE_LABELS, SPACE_SEGMENTS } from './lib/fields';
-import { budgetAllows, cloudsPercent, dayKey, extractValue, formatDate, getDayName, iconUrl, isoTime, localParts, monthKey, pad, round, smallestGapHours, timeToMinutes } from './lib/helpers';
-import type { TimerHandle } from './lib/scheduler';
-import { scheduleDaily, scheduleHourly } from './lib/scheduler';
-import type { ApiForecast, ApiHourlyItem, ApiSpacesDay, ApiSummaryItem, FetchReason, FieldDef, FieldGroup, RenderContext, UpdateTime } from './lib/types';
-
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const utils = __importStar(require("@iobroker/adapter-core"));
+const fields_1 = require("./lib/fields");
+const helpers_1 = require("./lib/helpers");
+const scheduler_1 = require("./lib/scheduler");
 const BASE_URL = 'https://forecast.meteonomiqs.com/v4_0';
 const ICON_BASE_URL = 'https://cs3.wettercomassets.com/wcomv5/images/icons/weather';
 const MAX_FORECAST_DAYS = 14;
 const CLEANUP_UP_TO_DAY = 25;
 const RETRY_DELAY_MS = 30000;
-
 class WetterComAdapter extends utils.Adapter {
-    private timers: TimerHandle[] = [];
-    private ensured = new Set<string>();
-    private isFetching = false;
-    private authFailed = false;
-    private unloaded = false;
-
-    public constructor(options: Partial<utils.AdapterOptions> = {}) {
+    timers = [];
+    ensured = new Set();
+    isFetching = false;
+    authFailed = false;
+    unloaded = false;
+    constructor(options = {}) {
         super({ ...options, name: 'meteonomiqs' });
         this.on('ready', this.onReady.bind(this));
         this.on('stateChange', this.onStateChange.bind(this));
         this.on('unload', this.onUnload.bind(this));
     }
-
     // ---------------------------------------------------------------- lifecycle
-
-    private async onReady(): Promise<void> {
+    async onReady() {
         await this.setStateAsync('info.connection', { val: false, ack: true });
-
         const times = this.parseUpdateTimes();
         if (times.length === 0) {
             this.log.error('No valid update times configured. Please check the instance settings.');
             return;
         }
-
         this.validateSchedule(times);
-
         await this.ensureInfoStates();
         this.subscribeStates('info.force_update');
         this.subscribeStates('info.reset_counter');
-
         for (const entry of times) {
-            const minutes = timeToMinutes(entry.time);
+            const minutes = (0, helpers_1.timeToMinutes)(entry.time);
             if (minutes === null) {
                 continue;
             }
-            const handle = scheduleDaily(this, Math.floor(minutes / 60), minutes % 60, () => {
+            const handle = (0, scheduler_1.scheduleDaily)(this, Math.floor(minutes / 60), minutes % 60, () => {
                 void this.fetchForecast('scheduled', entry.tier, entry.time);
             });
             this.timers.push(handle);
         }
-
         // Daily period roll so the counters flip over promptly in the UI. The
         // actual reset is additionally done lazily on every budget check, so a
         // host that was switched off at midnight does not break the counters.
-        this.timers.push(scheduleDaily(this, 0, 1, () => void this.rollPeriods()));
-
+        this.timers.push((0, scheduler_1.scheduleDaily)(this, 0, 1, () => void this.rollPeriods()));
         if (this.config.enableCurrent) {
-            this.timers.push(scheduleHourly(this, 1, () => void this.updateCurrent('hourly')));
+            this.timers.push((0, scheduler_1.scheduleHourly)(this, 1, () => void this.updateCurrent('hourly')));
         }
-
         await this.fetchForecast('startup');
-
         // `current` must not depend on the startup fetch: that fetch is skipped
         // whenever the cooldown, the budget or a missing key says so.
         await this.updateCurrent('startup');
     }
-
-    private onUnload(callback: () => void): void {
+    onUnload(callback) {
         try {
             this.unloaded = true;
             for (const timer of this.timers) {
@@ -96,14 +104,15 @@ class WetterComAdapter extends utils.Adapter {
             }
             this.timers = [];
             void this.setState('info.connection', { val: false, ack: true });
-        } catch {
+        }
+        catch {
             // nothing we can do at this point
-        } finally {
+        }
+        finally {
             callback();
         }
     }
-
-    private onStateChange(id: string, state: ioBroker.State | null | undefined): void {
+    onStateChange(id, state) {
         if (!state || state.ack || state.val !== true) {
             return;
         }
@@ -112,21 +121,20 @@ class WetterComAdapter extends utils.Adapter {
             this.authFailed = false;
             this.log.info('Manual update triggered (bypasses the cooldown, the monthly limit still applies).');
             void this.fetchForecast('manual');
-        } else if (id.endsWith('info.reset_counter')) {
+        }
+        else if (id.endsWith('info.reset_counter')) {
             void this.setStateAsync('info.reset_counter', { val: false, ack: true });
             this.log.warn('Monthly request counter reset to 0 by user request.');
             void this.setStateAsync('info.requests_month', { val: 0, ack: true });
-            void this.setStateAsync('info.requests_month_period', { val: monthKey(new Date()), ack: true });
+            void this.setStateAsync('info.requests_month_period', { val: (0, helpers_1.monthKey)(new Date()), ack: true });
         }
     }
-
     // ------------------------------------------------------------- configuration
-
-    private parseUpdateTimes(): UpdateTime[] {
+    parseUpdateTimes() {
         const raw = Array.isArray(this.config.updateTimes) ? this.config.updateTimes : [];
-        const result: UpdateTime[] = [];
+        const result = [];
         for (const entry of raw) {
-            const minutes = timeToMinutes(String(entry?.time ?? ''));
+            const minutes = (0, helpers_1.timeToMinutes)(String(entry?.time ?? ''));
             if (minutes === null) {
                 this.log.warn(`Ignoring invalid update time "${String(entry?.time)}" (expected HH:MM).`);
                 continue;
@@ -136,11 +144,9 @@ class WetterComAdapter extends utils.Adapter {
         }
         return result;
     }
-
-    private get maxTier(): number {
+    get maxTier() {
         return this.parseUpdateTimes().reduce((max, entry) => Math.max(max, entry.tier), 1);
     }
-
     /**
      * Two checks that would otherwise only show up as "no data arrives":
      * is the cooldown shorter than the smallest gap between two fetches, and
@@ -148,35 +154,30 @@ class WetterComAdapter extends utils.Adapter {
      *
      * @param times The configured update times with their priority tiers.
      */
-    private validateSchedule(times: UpdateTime[]): void {
-        const minutes = times.map((t) => timeToMinutes(t.time)).filter((m): m is number => m !== null);
+    validateSchedule(times) {
+        const minutes = times.map((t) => (0, helpers_1.timeToMinutes)(t.time)).filter((m) => m !== null);
         const plan = times.map((t) => `${t.time} (tier ${t.tier})`).join(' | ');
         this.log.info(`Update schedule: ${plan}`);
-
-        const gap = smallestGapHours(minutes);
+        const gap = (0, helpers_1.smallestGapHours)(minutes);
         const cooldown = Number(this.config.minHoursBetweenUpdates) || 0;
         if (times.length > 1 && cooldown >= gap) {
-            this.log.error(
-                `Configuration problem: the cooldown (${cooldown} h) is greater than or equal to the smallest gap between two update times (${gap.toFixed(1)} h). ` +
-                    'At least one fetch will always be skipped. Please lower "Minimum hours between updates".',
-            );
+            this.log.error(`Configuration problem: the cooldown (${cooldown} h) is greater than or equal to the smallest gap between two update times (${gap.toFixed(1)} h). ` +
+                'At least one fetch will always be skipped. Please lower "Minimum hours between updates".');
         }
-
         const perDay = this.maxTier;
         const limit = Number(this.config.monthlyLimit) || 0;
         const worstCase = perDay * 31;
         if (limit > 0 && worstCase > limit) {
             this.log.warn(`Budget warning: ${perDay} fetches per day add up to ${worstCase} calls in a 31-day month, but the limit is ${limit}. ` + 'The priority tiers will start dropping fetches towards the end of the month.');
-        } else if (limit > 0) {
+        }
+        else if (limit > 0) {
             this.log.info(`Budget: ${perDay} fetches/day = at most ${worstCase} calls/month out of ${limit} (${limit - worstCase} spare).`);
         }
     }
-
-    private async resolveLocation(): Promise<{ lat: string; lon: string; lang: string } | null> {
+    async resolveLocation() {
         const system = await this.getForeignObjectAsync('system.config');
-        const sysLang = (system?.common as any)?.language || 'en';
+        const sysLang = system?.common?.language || 'en';
         const lang = String(this.config.language || '').trim() || sysLang;
-
         if (!this.config.useSystemLocation) {
             const lat = Number(this.config.latitude);
             const lon = Number(this.config.longitude);
@@ -186,19 +187,16 @@ class WetterComAdapter extends utils.Adapter {
             }
             return { lat: lat.toFixed(3), lon: lon.toFixed(3), lang };
         }
-
-        const lat = Number((system?.common as any)?.latitude);
-        const lon = Number((system?.common as any)?.longitude);
+        const lat = Number(system?.common?.latitude);
+        const lon = Number(system?.common?.longitude);
         if (!isFinite(lat) || !isFinite(lon)) {
             this.log.error('No location configured in the ioBroker system settings (Settings → System → Location).');
             return null;
         }
         return { lat: lat.toFixed(3), lon: lon.toFixed(3), lang };
     }
-
     // -------------------------------------------------------------- object tree
-
-    private groupEnabled(group?: FieldGroup): boolean {
+    groupEnabled(group) {
         switch (group) {
             case 'warn':
                 return !!this.config.enableWarnings;
@@ -212,16 +210,14 @@ class WetterComAdapter extends utils.Adapter {
                 return true;
         }
     }
-
-    private async ensureChannel(id: string, name: ioBroker.StringOrTranslated): Promise<void> {
+    async ensureChannel(id, name) {
         if (this.ensured.has(id)) {
             return;
         }
         await this.setObjectNotExistsAsync(id, { type: 'channel', common: { name }, native: {} });
         this.ensured.add(id);
     }
-
-    private async ensureState(id: string, name: ioBroker.StringOrTranslated, type: ioBroker.CommonType, role: string, unit?: string, write = false): Promise<void> {
+    async ensureState(id, name, type, role, unit, write = false) {
         if (this.ensured.has(id)) {
             return;
         }
@@ -240,14 +236,12 @@ class WetterComAdapter extends utils.Adapter {
         });
         this.ensured.add(id);
     }
-
-    private static initValue(type: ioBroker.CommonType): ioBroker.StateValue {
+    static initValue(type) {
         return type === 'number' ? 0 : type === 'boolean' ? false : '';
     }
-
-    private static coerce(raw: unknown, field: FieldDef): ioBroker.StateValue {
+    static coerce(raw, field) {
         if (field.type === 'number') {
-            return round(extractValue(raw), field.digits ?? 1);
+            return (0, helpers_1.round)((0, helpers_1.extractValue)(raw), field.digits ?? 1);
         }
         if (field.type === 'boolean') {
             return !!raw;
@@ -260,11 +254,9 @@ class WetterComAdapter extends utils.Adapter {
         }
         return '';
     }
-
-    private fieldName(field: { name: string; nameDe: string }, prefix: string): ioBroker.StringOrTranslated {
+    fieldName(field, prefix) {
         return { en: `${prefix}${field.name}`, de: `${prefix}${field.nameDe}` };
     }
-
     /**
      * Creates and writes all fields of a table in one place.
      *
@@ -276,28 +268,25 @@ class WetterComAdapter extends utils.Adapter {
      * @param ctx Language, time zone and icon base URL.
      * @param buffer Collects the pending writes so they can be awaited together.
      */
-    private async renderFields(basePath: string, prefixEn: string, prefixDe: string, fields: FieldDef[], source: unknown, ctx: RenderContext, buffer: Promise<unknown>[]): Promise<void> {
+    async renderFields(basePath, prefixEn, prefixDe, fields, source, ctx, buffer) {
         const active = fields.filter((f) => this.groupEnabled(f.group));
-
         for (const field of active) {
             await this.ensureState(`${basePath}.${field.id}`, { en: `${prefixEn}${field.name}`, de: `${prefixDe}${field.nameDe}` }, field.type, field.role, field.unit);
         }
-
         for (const field of active) {
-            let raw: unknown;
+            let raw;
             try {
                 raw = field.get(source, ctx);
-            } catch (e) {
+            }
+            catch (e) {
                 raw = null;
                 this.log.debug(`Field "${field.id}" could not be read: ${String(e)}`);
             }
             buffer.push(this.setStateChangedAsync(`${basePath}.${field.id}`, { val: WetterComAdapter.coerce(raw, field), ack: true }));
         }
     }
-
-    private async ensureInfoStates(): Promise<void> {
-        const s = (id: string, en: string, de: string, type: ioBroker.CommonType, role: string, unit?: string, write = false): Promise<void> => this.ensureState(`info.${id}`, { en, de }, type, role, unit, write);
-
+    async ensureInfoStates() {
+        const s = (id, en, de, type, role, unit, write = false) => this.ensureState(`info.${id}`, { en, de }, type, role, unit, write);
         await s('last_sync', 'Last update', 'Letztes Update', 'string', 'text');
         await s('last_sync_ts', 'Last update (timestamp)', 'Letztes Update (Timestamp)', 'number', 'value.time');
         await s('requests_month', 'Requests this month', 'Anfragen Monat', 'number', 'value');
@@ -314,29 +303,24 @@ class WetterComAdapter extends utils.Adapter {
         await s('elevation', 'Elevation', 'Höhe über NN', 'number', 'value', 'm');
         await s('force_update', 'Update now', 'Jetzt aktualisieren', 'boolean', 'button', undefined, true);
         await s('reset_counter', 'Reset monthly counter', 'Monatszähler zurücksetzen', 'boolean', 'button', undefined, true);
-
         if (this.config.enableJson) {
             await this.ensureState('forecast_json', { en: 'Forecast (JSON)', de: 'Vorhersage (JSON)' }, 'string', 'json');
             await this.ensureState('hourly_json', { en: 'Hourly values (JSON)', de: 'Stundenwerte (JSON)' }, 'string', 'json');
         }
     }
-
     // ------------------------------------------------------------------- budget
-
-    private async getNumber(id: string, fallback = 0): Promise<number> {
+    async getNumber(id, fallback = 0) {
         const state = await this.getStateAsync(id);
         return state && state.val !== null && state.val !== undefined ? Number(state.val) : fallback;
     }
-
     /**
      * Resets the monthly and daily counters using period markers rather than a
      * midnight trigger — a host that is off at the turn of the month would
      * otherwise keep a stale counter and stall for the whole next month.
      */
-    private async rollPeriods(): Promise<void> {
+    async rollPeriods() {
         const now = new Date();
-
-        const month = monthKey(now);
+        const month = (0, helpers_1.monthKey)(now);
         const storedMonth = await this.getStateAsync('info.requests_month_period');
         if (String(storedMonth?.val ?? '') !== month) {
             if (storedMonth?.val) {
@@ -345,32 +329,26 @@ class WetterComAdapter extends utils.Adapter {
             await this.setStateAsync('info.requests_month', { val: 0, ack: true });
             await this.setStateAsync('info.requests_month_period', { val: month, ack: true });
         }
-
-        const day = dayKey(now);
+        const day = (0, helpers_1.dayKey)(now);
         const storedDay = await this.getStateAsync('info.requests_today_date');
         if (String(storedDay?.val ?? '') !== day) {
             await this.setStateAsync('info.requests_today', { val: 0, ack: true });
             await this.setStateAsync('info.requests_today_date', { val: day, ack: true });
         }
     }
-
-    private async checkBudget(reason: FetchReason, tier: number, label: string): Promise<boolean> {
+    async checkBudget(reason, tier, label) {
         await this.rollPeriods();
-
         const limit = Number(this.config.monthlyLimit) || 0;
         const usage = await this.getNumber('info.requests_month');
-
         if (limit > 0 && usage >= limit) {
             this.log.warn(`Monthly limit reached (${usage}/${limit}). Paused until the 1st of next month.`);
             await this.setStateAsync('info.status', { val: 'monthly limit reached', ack: true });
             return false;
         }
-
         const automatic = reason === 'scheduled' || reason === 'startup';
         if (!automatic) {
             return true;
         }
-
         const cooldown = Number(this.config.minHoursBetweenUpdates) || 0;
         const lastTs = await this.getNumber('info.last_sync_ts');
         if (cooldown > 0 && lastTs > 0) {
@@ -380,39 +358,35 @@ class WetterComAdapter extends utils.Adapter {
                 return false;
             }
         }
-
         if (limit <= 0) {
             return true;
         }
-
         // A startup fetch is treated as the lowest priority so it can never eat
         // into the reserve that keeps the scheduled fetches alive.
         const effectiveTier = reason === 'startup' ? this.maxTier : tier;
-        const verdict = budgetAllows(usage, limit, effectiveTier, new Date());
-
+        const verdict = (0, helpers_1.budgetAllows)(usage, limit, effectiveTier, new Date());
         if (!verdict.allowed) {
             if (verdict.mode === 'saving') {
                 this.log.warn(`Saving mode: "${label}" skipped — the remaining budget no longer carries ${effectiveTier} fetches/day until the end of the month (${usage}/${limit}).`);
-            } else if (verdict.mode === 'emergency') {
+            }
+            else if (verdict.mode === 'emergency') {
                 this.log.warn(`Emergency mode: "${label}" skipped, budget critical (${usage}/${limit}). Fetching on even days only.`);
-            } else {
+            }
+            else {
                 this.log.warn(`"${label}" skipped, monthly limit reached (${usage}/${limit}).`);
             }
         }
         return verdict.allowed;
     }
-
-    private async countRequest(): Promise<void> {
+    async countRequest() {
         const limit = Number(this.config.monthlyLimit) || 0;
         await this.setStateAsync('info.requests_today', { val: (await this.getNumber('info.requests_today')) + 1, ack: true });
         const month = (await this.getNumber('info.requests_month')) + 1;
         await this.setStateAsync('info.requests_month', { val: month, ack: true });
         await this.setStateAsync('info.requests_left', { val: limit > 0 ? Math.max(0, limit - month) : 0, ack: true });
     }
-
     // -------------------------------------------------------------------- fetch
-
-    private async httpGetJson(url: string, apiKey: string, lang: string): Promise<{ status: number; body: string }> {
+    async httpGetJson(url, apiKey, lang) {
         const timeoutMs = Math.max(5, Number(this.config.httpTimeout) || 20) * 1000;
         const controller = new AbortController();
         // this.setTimeout instead of the bare global: the adapter clears its own
@@ -426,64 +400,54 @@ class WetterComAdapter extends utils.Adapter {
             });
             const body = await response.text();
             return { status: response.status, body };
-        } finally {
+        }
+        finally {
             this.clearTimeout(timer);
         }
     }
-
-    private async fetchForecast(reason: FetchReason, tier = 1, label = ''): Promise<void> {
+    async fetchForecast(reason, tier = 1, label = '') {
         if (this.isFetching || this.unloaded) {
             this.log.debug('Fetch already running or adapter shutting down — skipped.');
             return;
         }
         this.isFetching = true;
-
         try {
             await this.ensureInfoStates();
-
             if (this.authFailed && (reason === 'scheduled' || reason === 'startup')) {
                 this.log.warn('Fetch skipped: the API key was rejected previously. Please correct it in the instance settings.');
                 return;
             }
-
             const apiKey = String(this.config.apiKey || '').trim();
             if (apiKey.length < 10) {
                 this.log.error('No valid API key configured. Get one at https://www.meteonomiqs.com and enter it in the instance settings.');
                 await this.setStateAsync('info.status', { val: 'no API key', ack: true });
                 return;
             }
-
             if (!(await this.checkBudget(reason, tier, label || reason))) {
                 return;
             }
-
             const location = await this.resolveLocation();
             if (!location) {
                 await this.setStateAsync('info.status', { val: 'no location', ack: true });
                 return;
             }
-
             const forecastDays = Math.max(1, Math.min(Math.round(Number(this.config.forecastDays) || 7), MAX_FORECAST_DAYS));
             const url = `${BASE_URL}/forecast/${location.lat}/${location.lon}`;
             this.log.info(`Fetching forecast (${label || reason}) for ${location.lat}/${location.lon}, ${forecastDays} days.`);
-
             const maxRetries = Math.max(0, Math.round(Number(this.config.maxRetries) || 0));
             const reserve = Math.max(0, Number(this.config.reserveCalls) || 0);
-            let payload: ApiForecast | null = null;
-
+            let payload = null;
             for (let attempt = 0; attempt <= maxRetries; attempt++) {
-                let result: { status: number; body: string } | null = null;
-                let networkError: unknown = null;
-
+                let result = null;
+                let networkError = null;
                 try {
                     result = await this.httpGetJson(url, apiKey, location.lang);
-                } catch (e) {
+                }
+                catch (e) {
                     networkError = e;
                 }
-
                 // Retries must not eat the emergency reserve.
                 const mayRetry = attempt < maxRetries && (await this.getNumber('info.requests_left', Number(this.config.monthlyLimit) || 0)) > reserve;
-
                 if (networkError || !result) {
                     const message = networkError instanceof Error ? networkError.message : String(networkError);
                     this.log[mayRetry ? 'warn' : 'error'](`Network error: ${message}`);
@@ -496,12 +460,10 @@ class WetterComAdapter extends utils.Adapter {
                     await this.setStateAsync('info.connection', { val: false, ack: true });
                     return;
                 }
-
                 // 401/403 are rejected by the gateway before metering, so they do not count.
                 if (result.status !== 401 && result.status !== 403) {
                     await this.countRequest();
                 }
-
                 if (result.status === 429) {
                     this.log.error('API quota exhausted (HTTP 429). Setting the local counter to the configured limit.');
                     await this.setStateAsync('info.requests_month', { val: Number(this.config.monthlyLimit) || 0, ack: true });
@@ -529,52 +491,46 @@ class WetterComAdapter extends utils.Adapter {
                     await this.setStateAsync('info.status', { val: `HTTP ${result.status}`, ack: true });
                     return;
                 }
-
                 try {
-                    payload = JSON.parse(result.body) as ApiForecast;
-                } catch {
+                    payload = JSON.parse(result.body);
+                }
+                catch {
                     this.log.error('The API response could not be parsed as JSON.');
                     await this.setStateAsync('info.status', { val: 'JSON parse error', ack: true });
                     return;
                 }
                 break;
             }
-
             if (!payload || !Array.isArray(payload.summary) || payload.summary.length === 0) {
                 this.log.error('The API response contains no forecast data.');
                 await this.setStateAsync('info.status', { val: 'empty response', ack: true });
                 return;
             }
-
             this.authFailed = false;
-
             const now = new Date();
             await this.setStateAsync('info.last_sync', {
-                val: `${pad(now.getDate())}.${pad(now.getMonth() + 1)}.${now.getFullYear()} ${pad(now.getHours())}:${pad(now.getMinutes())}`,
+                val: `${(0, helpers_1.pad)(now.getDate())}.${(0, helpers_1.pad)(now.getMonth() + 1)}.${now.getFullYear()} ${(0, helpers_1.pad)(now.getHours())}:${(0, helpers_1.pad)(now.getMinutes())}`,
                 ack: true,
             });
             await this.setStateAsync('info.last_sync_ts', { val: now.getTime(), ack: true });
-
             await this.processForecast(payload, location.lang, forecastDays);
-
             await this.setStateAsync('info.status', { val: 'ok', ack: true });
             await this.setStateAsync('info.last_error', { val: '', ack: true });
             await this.setStateAsync('info.connection', { val: true, ack: true });
-        } catch (e) {
+        }
+        catch (e) {
             const message = e instanceof Error ? e.message : String(e);
             this.log.error(`Unexpected error: ${message}`);
             await this.setStateAsync('info.last_error', { val: message, ack: true });
-        } finally {
+        }
+        finally {
             this.isFetching = false;
         }
     }
-
     // ------------------------------------------------------------------ process
-
-    private async processForecast(data: ApiForecast, lang: string, forecastDays: number): Promise<void> {
+    async processForecast(data, lang, forecastDays) {
         const tz = data.location?.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
-        const ctx: RenderContext = { lang, tz, iconBase: ICON_BASE_URL };
-
+        const ctx = { lang, tz, iconBase: ICON_BASE_URL };
         await Promise.all([
             this.setStateChangedAsync('info.forecast_date', { val: String(data.forecastDate ?? ''), ack: true }),
             this.setStateChangedAsync('info.next_update', { val: String(data.nextUpdate ?? ''), ack: true }),
@@ -583,24 +539,21 @@ class WetterComAdapter extends utils.Adapter {
                 val: data.location?.coordinates ? `${data.location.coordinates.latitude}, ${data.location.coordinates.longitude}` : '',
                 ack: true,
             }),
-            this.setStateChangedAsync('info.elevation', { val: round(extractValue(data.location?.coordinates?.elevation), 0), ack: true }),
+            this.setStateChangedAsync('info.elevation', { val: (0, helpers_1.round)((0, helpers_1.extractValue)(data.location?.coordinates?.elevation), 0), ack: true }),
         ]);
-
         const summary = data.summary ?? [];
         const maxDays = Math.min(summary.length, forecastDays);
-
         // Day sections are matched by date, not by array index — the two arrays
         // are not guaranteed to line up.
-        const spacesByDate = new Map<string, ApiSpacesDay>();
+        const spacesByDate = new Map();
         for (const entry of data.spaces ?? []) {
             if (entry?.date) {
                 spacesByDate.set(String(entry.date), entry);
             }
         }
-
-        const hourlyByDate = new Map<string, ApiHourlyItem[]>();
+        const hourlyByDate = new Map();
         for (const hour of data.hourly ?? []) {
-            const parts = localParts(hour.from ?? hour.dateWithTimezone ?? hour.date, tz);
+            const parts = (0, helpers_1.localParts)(hour.from ?? hour.dateWithTimezone ?? hour.date, tz);
             const key = parts ? parts.date : String(hour.date ?? '');
             if (!key) {
                 continue;
@@ -611,83 +564,74 @@ class WetterComAdapter extends utils.Adapter {
             list.push(hour);
             hourlyByDate.set(key, list);
         }
-
-        const jsonDays: Record<string, unknown>[] = [];
-        const jsonHours: Record<string, unknown>[] = [];
+        const jsonDays = [];
+        const jsonHours = [];
         const hourlyDays = Math.max(0, Math.min(Math.round(Number(this.config.hourlyDays) || 0), maxDays));
-
         for (let index = 0; index < maxDays; index++) {
-            const day: ApiSummaryItem | undefined = summary[index];
+            const day = summary[index];
             if (!day) {
                 continue;
             }
-
             const dayKeyIso = String(day.date ?? '');
             const dayPath = `day_${index}`;
-            const buffer: Promise<unknown>[] = [];
-
+            const buffer = [];
             await this.ensureChannel(dayPath, { en: `Day ${index}`, de: `Tag ${index}` });
-            await this.renderFields(dayPath, `Day ${index}: `, `Tag ${index}: `, DAY_FIELDS, day, ctx, buffer);
-
+            await this.renderFields(dayPath, `Day ${index}: `, `Tag ${index}: `, fields_1.DAY_FIELDS, day, ctx, buffer);
             if (this.config.enableAstro && day.astronomy) {
                 const astroPath = `${dayPath}.astro`;
                 await this.ensureChannel(astroPath, { en: 'Sun & moon', de: 'Sonne & Mond' });
-                await this.renderFields(astroPath, `Day ${index}: `, `Tag ${index}: `, ASTRO_FIELDS, day.astronomy, ctx, buffer);
+                await this.renderFields(astroPath, `Day ${index}: `, `Tag ${index}: `, fields_1.ASTRO_FIELDS, day.astronomy, ctx, buffer);
             }
-
             if (this.config.enableSpaces) {
                 const spaceDay = spacesByDate.get(dayKeyIso);
                 if (spaceDay) {
                     const spacesPath = `${dayPath}.spaces`;
                     await this.ensureChannel(spacesPath, { en: 'Day sections', de: 'Tagesabschnitte' });
-                    for (const segment of SPACE_SEGMENTS) {
+                    for (const segment of fields_1.SPACE_SEGMENTS) {
                         const segmentData = spaceDay[segment];
                         if (!segmentData) {
                             continue;
                         }
                         const segmentPath = `${spacesPath}.${segment}`;
-                        await this.ensureChannel(segmentPath, SPACE_LABELS[segment]);
-                        await this.renderFields(segmentPath, `Day ${index} ${SPACE_LABELS[segment].en}: `, `Tag ${index} ${SPACE_LABELS[segment].de}: `, SPACE_FIELDS, segmentData, ctx, buffer);
+                        await this.ensureChannel(segmentPath, fields_1.SPACE_LABELS[segment]);
+                        await this.renderFields(segmentPath, `Day ${index} ${fields_1.SPACE_LABELS[segment].en}: `, `Tag ${index} ${fields_1.SPACE_LABELS[segment].de}: `, fields_1.SPACE_FIELDS, segmentData, ctx, buffer);
                     }
-                } else {
+                }
+                else {
                     this.log.debug(`No day sections for ${dayKeyIso} in the API response.`);
                 }
             }
-
             if (this.config.enableHourly && index < hourlyDays) {
                 const hourlyPath = `${dayPath}.hourly`;
                 await this.ensureChannel(hourlyPath, { en: 'Hourly', de: 'Stündlich' });
                 const hours = hourlyByDate.get(dayKeyIso) ?? [];
-                const delivered = new Set<string>();
-
+                const delivered = new Set();
                 for (const hour of hours) {
                     const label = hour.__hour ?? '00';
                     delivered.add(label);
                     const hourPath = `${hourlyPath}.${label}`;
                     await this.ensureChannel(hourPath, { en: `${label}:00`, de: `${label}:00 Uhr` });
-                    await this.renderFields(hourPath, `Day ${index} ${label}:00: `, `Tag ${index} ${label}:00: `, HOUR_FIELDS, hour, ctx, buffer);
-
+                    await this.renderFields(hourPath, `Day ${index} ${label}:00: `, `Tag ${index} ${label}:00: `, fields_1.HOUR_FIELDS, hour, ctx, buffer);
                     if (this.config.enableJson && index === 0) {
                         jsonHours.push({
                             date: dayKeyIso,
                             time: hour.__time,
                             from: hour.from ?? '',
-                            temp: round(extractValue(hour.temperature), 1),
-                            icon: iconUrl(hour.weather, ICON_BASE_URL, !!hour.isNight),
+                            temp: (0, helpers_1.round)((0, helpers_1.extractValue)(hour.temperature), 1),
+                            icon: (0, helpers_1.iconUrl)(hour.weather, ICON_BASE_URL, !!hour.isNight),
                             text: hour.weather?.text ?? '',
-                            precProb: round(extractValue(hour.prec?.probability), 0),
-                            precSum: round(extractValue(hour.prec?.sum), 2),
-                            wind: round(extractValue(hour.wind?.avg), 1),
-                            gusts: round(extractValue(hour.wind?.gusts), 1),
-                            humidity: round(extractValue(hour.relativeHumidity), 0),
+                            precProb: (0, helpers_1.round)((0, helpers_1.extractValue)(hour.prec?.probability), 0),
+                            precSum: (0, helpers_1.round)((0, helpers_1.extractValue)(hour.prec?.sum), 2),
+                            wind: (0, helpers_1.round)((0, helpers_1.extractValue)(hour.wind?.avg), 1),
+                            gusts: (0, helpers_1.round)((0, helpers_1.extractValue)(hour.wind?.gusts), 1),
+                            humidity: (0, helpers_1.round)((0, helpers_1.extractValue)(hour.relativeHumidity), 0),
                         });
                     }
                 }
-
                 // Hours no longer covered by the forecast keep their values but
                 // are flagged, so bindings do not silently show stale data.
                 for (let h = 0; h < 24; h++) {
-                    const label = pad(h);
+                    const label = (0, helpers_1.pad)(h);
                     if (delivered.has(label)) {
                         continue;
                     }
@@ -697,48 +641,43 @@ class WetterComAdapter extends utils.Adapter {
                     }
                 }
             }
-
             if (this.config.enableJson) {
                 jsonDays.push({
                     day: index,
-                    date: formatDate(day.date),
+                    date: (0, helpers_1.formatDate)(day.date),
                     dateIso: dayKeyIso,
-                    dayName: getDayName(day.date, lang),
-                    tempMin: round(extractValue(day.temperature?.min), 1),
-                    tempMax: round(extractValue(day.temperature?.max), 1),
+                    dayName: (0, helpers_1.getDayName)(day.date, lang),
+                    tempMin: (0, helpers_1.round)((0, helpers_1.extractValue)(day.temperature?.min), 1),
+                    tempMax: (0, helpers_1.round)((0, helpers_1.extractValue)(day.temperature?.max), 1),
                     text: day.weather?.text ?? '',
-                    icon: iconUrl(day.weather, ICON_BASE_URL, false),
-                    state: round(extractValue(day.weather?.state), 0),
-                    precProb: round(extractValue(day.prec?.probability), 0),
-                    precSum: round(extractValue(day.prec?.sum), 2),
-                    wind: round(extractValue(day.wind?.avg), 1),
-                    gusts: round(extractValue(day.wind?.gusts), 1),
+                    icon: (0, helpers_1.iconUrl)(day.weather, ICON_BASE_URL, false),
+                    state: (0, helpers_1.round)((0, helpers_1.extractValue)(day.weather?.state), 0),
+                    precProb: (0, helpers_1.round)((0, helpers_1.extractValue)(day.prec?.probability), 0),
+                    precSum: (0, helpers_1.round)((0, helpers_1.extractValue)(day.prec?.sum), 2),
+                    wind: (0, helpers_1.round)((0, helpers_1.extractValue)(day.wind?.avg), 1),
+                    gusts: (0, helpers_1.round)((0, helpers_1.extractValue)(day.wind?.gusts), 1),
                     windDir: day.wind?.text ?? '',
-                    sunHours: round(extractValue(day.sunHours), 1),
-                    clouds: round(cloudsPercent(day.clouds), 0),
-                    humidity: round(extractValue(day.relativeHumidity), 0),
-                    pressure: round(extractValue(day.pressure), 0),
-                    sunrise: isoTime(day.astronomy?.sunrise),
-                    sunset: isoTime(day.astronomy?.sunset),
+                    sunHours: (0, helpers_1.round)((0, helpers_1.extractValue)(day.sunHours), 1),
+                    clouds: (0, helpers_1.round)((0, helpers_1.cloudsPercent)(day.clouds), 0),
+                    humidity: (0, helpers_1.round)((0, helpers_1.extractValue)(day.relativeHumidity), 0),
+                    pressure: (0, helpers_1.round)((0, helpers_1.extractValue)(day.pressure), 0),
+                    sunrise: (0, helpers_1.isoTime)(day.astronomy?.sunrise),
+                    sunset: (0, helpers_1.isoTime)(day.astronomy?.sunset),
                     warnActive: !!day.highestWarning,
                     warnText: day.highestWarning?.text ?? '',
-                    warnSeverity: round(extractValue(day.highestWarning?.severityInt), 0),
+                    warnSeverity: (0, helpers_1.round)((0, helpers_1.extractValue)(day.highestWarning?.severityInt), 0),
                 });
             }
-
             await Promise.all(buffer);
         }
-
         if (this.config.enableJson) {
             await Promise.all([this.setStateChangedAsync('forecast_json', { val: JSON.stringify(jsonDays), ack: true }), this.setStateChangedAsync('hourly_json', { val: JSON.stringify(jsonHours), ack: true })]);
         }
-
         await this.cleanupObsoleteDays(maxDays);
         await this.updateCurrent('after fetch');
         this.log.info(`Update finished: ${maxDays} days processed.`);
     }
-
-    private async cleanupObsoleteDays(activeDays: number): Promise<void> {
+    async cleanupObsoleteDays(activeDays) {
         for (let index = activeDays; index <= CLEANUP_UP_TO_DAY; index++) {
             const path = `day_${index}`;
             const existing = await this.getObjectAsync(path);
@@ -754,9 +693,7 @@ class WetterComAdapter extends utils.Adapter {
             this.log.debug(`Removed obsolete day folder: ${path}`);
         }
     }
-
     // ------------------------------------------------------------------ current
-
     /**
      * Fills `current.*` with the values of the hour in progress.
      *
@@ -769,7 +706,7 @@ class WetterComAdapter extends utils.Adapter {
      *
      * @param reason What triggered the refresh; shown in the debug log.
      */
-    private async updateCurrent(reason: string): Promise<void> {
+    async updateCurrent(reason) {
         if (!this.config.enableCurrent) {
             return;
         }
@@ -777,16 +714,14 @@ class WetterComAdapter extends utils.Adapter {
             this.log.warn('The "current" folder needs hourly values for at least one day. Please enable them in the instance settings.');
             return;
         }
-
         try {
             const base = 'current';
             await this.ensureChannel(base, { en: 'Current hour', de: 'Aktuelle Stunde' });
-
-            const hourFields = HOUR_FIELDS.filter((f) => this.groupEnabled(f.group));
+            const hourFields = fields_1.HOUR_FIELDS.filter((f) => this.groupEnabled(f.group));
             for (const field of hourFields) {
                 await this.ensureState(`${base}.${field.id}`, this.fieldName(field, 'Now: '), field.type, field.role, field.unit);
             }
-            for (const extra of CURRENT_EXTRA) {
+            for (const extra of fields_1.CURRENT_EXTRA) {
                 if (extra.astro && !this.config.enableAstro) {
                     continue;
                 }
@@ -794,14 +729,12 @@ class WetterComAdapter extends utils.Adapter {
             }
             await this.ensureState(`${base}.source`, { en: 'Now: source state', de: 'Jetzt: Quell-Datenpunkt' }, 'string', 'text');
             await this.ensureState(`${base}.updated`, { en: 'Now: last copied', de: 'Jetzt: zuletzt übernommen' }, 'string', 'text');
-
             const tzState = await this.getStateAsync('info.timezone');
             const tz = String(tzState?.val || '') || Intl.DateTimeFormat().resolvedOptions().timeZone;
-            const now = localParts(new Date().toISOString(), tz);
+            const now = (0, helpers_1.localParts)(new Date().toISOString(), tz);
             if (!now) {
                 return;
             }
-
             let dayIndex = -1;
             const hourlyDays = Math.max(1, Math.round(Number(this.config.hourlyDays) || 1));
             for (let i = 0; i < hourlyDays; i++) {
@@ -811,44 +744,36 @@ class WetterComAdapter extends utils.Adapter {
                     break;
                 }
             }
-
-            const buffer: Promise<unknown>[] = [];
+            const buffer = [];
             const sourceHour = dayIndex >= 0 ? `day_${dayIndex}.hourly.${now.hour}` : '';
-
             if (!sourceHour || !(await this.getObjectAsync(`${sourceHour}.time`))) {
                 buffer.push(this.setStateChangedAsync(`${base}.valid`, { val: false, ack: true }));
                 await Promise.all(buffer);
                 this.log.debug(`current: no hourly data available for ${now.date} ${now.hour}:00.`);
                 return;
             }
-
             for (const field of hourFields) {
                 await this.copyState(`${sourceHour}.${field.id}`, `${base}.${field.id}`, buffer);
             }
-            for (const extra of CURRENT_EXTRA) {
+            for (const extra of fields_1.CURRENT_EXTRA) {
                 if (extra.astro && !this.config.enableAstro) {
                     continue;
                 }
                 await this.copyState(`day_${dayIndex}.${extra.from}`, `${base}.${extra.id}`, buffer);
             }
-
             const stamp = new Date();
-            buffer.push(
-                this.setStateChangedAsync(`${base}.source`, { val: `${this.namespace}.${sourceHour}`, ack: true }),
-                this.setStateAsync(`${base}.updated`, {
-                    val: `${pad(stamp.getDate())}.${pad(stamp.getMonth() + 1)}.${stamp.getFullYear()} ${pad(stamp.getHours())}:${pad(stamp.getMinutes())}`,
-                    ack: true,
-                }),
-            );
-
+            buffer.push(this.setStateChangedAsync(`${base}.source`, { val: `${this.namespace}.${sourceHour}`, ack: true }), this.setStateAsync(`${base}.updated`, {
+                val: `${(0, helpers_1.pad)(stamp.getDate())}.${(0, helpers_1.pad)(stamp.getMonth() + 1)}.${stamp.getFullYear()} ${(0, helpers_1.pad)(stamp.getHours())}:${(0, helpers_1.pad)(stamp.getMinutes())}`,
+                ack: true,
+            }));
             await Promise.all(buffer);
             this.log.debug(`current updated (${reason}): ${now.date} ${now.hour}:00 from day_${dayIndex}.`);
-        } catch (e) {
+        }
+        catch (e) {
             this.log.error(`current could not be updated: ${e instanceof Error ? e.message : String(e)}`);
         }
     }
-
-    private async copyState(from: string, to: string, buffer: Promise<unknown>[]): Promise<void> {
+    async copyState(from, to, buffer) {
         const state = await this.getStateAsync(from);
         if (!state || state.val === null || state.val === undefined) {
             return;
@@ -856,9 +781,10 @@ class WetterComAdapter extends utils.Adapter {
         buffer.push(this.setStateChangedAsync(to, { val: state.val, ack: true }));
     }
 }
-
 if (require.main !== module) {
-    module.exports = (options: Partial<utils.AdapterOptions> | undefined) => new WetterComAdapter(options);
-} else {
+    module.exports = (options) => new WetterComAdapter(options);
+}
+else {
     (() => new WetterComAdapter())();
 }
+//# sourceMappingURL=main.js.map
