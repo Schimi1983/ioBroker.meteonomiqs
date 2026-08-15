@@ -252,7 +252,13 @@ class WetterComAdapter extends utils.Adapter {
         if (field.type === 'boolean') {
             return !!raw;
         }
-        return raw === null || raw === undefined ? '' : String(raw);
+        if (typeof raw === 'string') {
+            return raw;
+        }
+        if (typeof raw === 'number' || typeof raw === 'boolean') {
+            return String(raw);
+        }
+        return '';
     }
 
     private fieldName(field: { name: string; nameDe: string }, prefix: string): ioBroker.StringOrTranslated {

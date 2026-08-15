@@ -38,7 +38,7 @@ export function round(value: number, digits = 1): number {
  * @param value See parameter type.
  * @returns See return type.
  */
-export function extractValue(value: ApiNumber | unknown): number {
+export function extractValue(value: unknown): number {
     if (value === null || value === undefined) {
         return 0;
     }
@@ -57,8 +57,11 @@ export function extractValue(value: ApiNumber | unknown): number {
         }
         return 0;
     }
-    const parsed = parseFloat(String(value));
-    return isNaN(parsed) ? 0 : parsed;
+    if (typeof value === 'string') {
+        const parsed = parseFloat(value);
+        return isNaN(parsed) ? 0 : parsed;
+    }
+    return 0;
 }
 
 /**
@@ -158,8 +161,8 @@ export function localParts(utcIso: string | null | undefined, tz: string): { dat
  * @param iso See parameter type.
  * @returns See return type.
  */
-export function isoTime(iso: unknown): string {
-    const match = /T(\d{2}):(\d{2})/.exec(String(iso ?? ''));
+export function isoTime(iso: string | null | undefined): string {
+    const match = /T(\d{2}):(\d{2})/.exec(iso ?? '');
     return match ? `${match[1]}:${match[2]}` : '';
 }
 
@@ -170,9 +173,9 @@ export function isoTime(iso: unknown): string {
  * @param sunset See parameter type.
  * @returns See return type.
  */
-export function dayLength(sunrise: unknown, sunset: unknown): number {
-    const a = new Date(String(sunrise ?? ''));
-    const b = new Date(String(sunset ?? ''));
+export function dayLength(sunrise: string | null | undefined, sunset: string | null | undefined): number {
+    const a = new Date(sunrise ?? '');
+    const b = new Date(sunset ?? '');
     if (isNaN(a.getTime()) || isNaN(b.getTime())) {
         return 0;
     }
@@ -338,10 +341,11 @@ export function dayKey(date: Date): string {
  * until the end of the month. When it gets tight the lowest priority drops out
  * first; tier 1 falls back to every other day rather than stopping entirely.
  *
- * @param usage
- * @param limit
- * @param tier
- * @param now
+ * @param usage Calls already spent this month.
+ * @param limit Monthly allowance; 0 disables the check.
+ * @param tier Priority of the fetch being considered.
+ * @param now Reference point for the remaining days of the month.
+ * @returns Whether the fetch may run, plus the mode that decided it.
  */
 export function budgetAllows(usage: number, limit: number, tier: number, now: Date): { allowed: boolean; mode: 'ok' | 'saving' | 'emergency' | 'limit' } {
     // The hard cap lives here on purpose: a caller that only asks this function

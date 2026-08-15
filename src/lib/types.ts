@@ -9,6 +9,7 @@
 /** A numeric API value that may arrive as a plain number or wrapped in an object. */
 export type ApiNumber = number | null | undefined | { value?: number | null; avg?: number | null; sum?: number | null; max?: number | null; min?: number | null };
 
+/** Weather block as delivered by the API, including the ready-made icon file name. */
 export interface ApiWeather {
     state?: number | null;
     text?: string | null;
@@ -16,6 +17,7 @@ export interface ApiWeather {
     icon?: string | null;
 }
 
+/** Highest-severity weather warning for a period, or null when there is none. */
 export interface ApiWarning {
     group?: string | null;
     text?: string | null;
@@ -24,6 +26,7 @@ export interface ApiWarning {
     severityInt?: number | null;
 }
 
+/** Wind block; gusts arrive wrapped in an object, speeds as plain numbers. */
 export interface ApiWind {
     unit?: string | null;
     /** Long form, e.g. "Nordostwind" */
@@ -41,6 +44,7 @@ export interface ApiWind {
     significantWind?: boolean | null;
 }
 
+/** Precipitation block, including snow and the proprietary class value. */
 export interface ApiPrec {
     sum?: number | null;
     probability?: number | null;
@@ -51,6 +55,7 @@ export interface ApiPrec {
     freshSnowRangeMax?: number | null;
 }
 
+/** Sun and moon times, delivered as ISO strings with the location's UTC offset. */
 export interface ApiAstronomy {
     dawn?: string | null;
     sunrise?: string | null;
@@ -64,6 +69,7 @@ export interface ApiAstronomy {
     moonzodiac?: number | null;
 }
 
+/** One forecast day. */
 export interface ApiSummaryItem {
     /** Local date, YYYY-MM-DD */
     date?: string | null;
@@ -95,6 +101,7 @@ export interface ApiSummaryItem {
     } | null;
 }
 
+/** One section of a day (morning, afternoon, evening or night). */
 export interface ApiSpaceItem {
     date?: string | null;
     isNight?: boolean | null;
@@ -121,6 +128,7 @@ export interface ApiSpaceItem {
     } | null;
 }
 
+/** The four day sections belonging to one date. */
 export interface ApiSpacesDay {
     date?: string | null;
     morning?: ApiSpaceItem | null;
@@ -129,6 +137,7 @@ export interface ApiSpacesDay {
     night?: ApiSpaceItem | null;
 }
 
+/** One forecast hour. */
 export interface ApiHourlyItem {
     date?: string | null;
     dateWithTimezone?: string | null;
@@ -163,6 +172,7 @@ export interface ApiHourlyItem {
     __time?: string;
 }
 
+/** Complete response of GET /forecast/{lat}/{lon}. */
 export interface ApiForecast {
     summary?: ApiSummaryItem[];
     spaces?: ApiSpacesDay[];
@@ -193,6 +203,7 @@ export interface RenderContext {
 
 export type FieldGroup = 'core' | 'warn' | 'astro' | 'extended' | 'snow';
 
+/** One row of a state definition table: how to create the state and how to fill it. */
 export interface FieldDef {
     id: string;
     /** English state label. */

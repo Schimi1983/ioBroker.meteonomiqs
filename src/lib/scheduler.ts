@@ -6,7 +6,9 @@
  * which also keeps them correct across daylight saving time changes.
  */
 
+/** Handle of a running schedule; call cancel() to stop it. */
 export type TimerHandle = {
+    /** Stops the schedule and clears any pending timer. */
     cancel: () => void;
 };
 
@@ -14,16 +16,13 @@ type TimeoutFn = (cb: () => void, ms: number) => any;
 type ClearFn = (handle: any) => void;
 
 /**
- *
+ * The subset of the adapter API these helpers need. Passing the adapter itself
+ * means its timers are cleared automatically when the instance stops.
  */
 export interface SchedulerHost {
-    /**
-     *
-     */
+    /** Registers a timer and returns its handle. */
     setTimeout: TimeoutFn;
-    /**
-     *
-     */
+    /** Cancels a timer previously returned by setTimeout. */
     clearTimeout: ClearFn;
 }
 
