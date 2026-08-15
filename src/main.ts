@@ -39,6 +39,11 @@ const FORECAST_USABLE_FOR_MS = 26 * 60 * 60 * 1000;
 class WetterComAdapter extends utils.Adapter {
     private timers: TimerHandle[] = [];
     private ensured = new Set<string>();
+    /**
+     * States whose next write must be unconditional because their stored value
+     * still carries a quality other than "good". See `writeState()`.
+     */
+    private pendingQualityFix = new Set<string>();
     private isFetching = false;
     private authFailed = false;
     private unloaded = false;
@@ -282,7 +287,35 @@ class WetterComAdapter extends utils.Adapter {
                 this.log.debug(`Updated object metadata: ${id}`);
             }
         }
+
+        // A state created from `common.def` is materialised with quality 0x20
+        // ("substitute initial value"). If the first real value happens to equal
+        // the default — 0 mm of rain, no warning, no snow — setStateChanged
+        // skips the write and the state keeps that quality forever. The admin
+        // then shows the value in orange and scripts reading `q` see it as not
+        // measured. Remember such states and write them unconditionally once.
+        const stored = await this.getStateAsync(id);
+        if (!stored || (stored.q ?? 0) !== 0) {
+            this.pendingQualityFix.add(id);
+        }
+
         this.ensured.add(id);
+    }
+
+    /**
+     * Writes a state value, forcing the write while the stored value still
+     * carries a substituted quality.
+     *
+     * @param id State id relative to the adapter namespace.
+     * @param val Value to store.
+     * @returns Promise that resolves once the value is written.
+     */
+    private writeState(id: string, val: ioBroker.StateValue): Promise<unknown> {
+        if (this.pendingQualityFix.has(id)) {
+            this.pendingQualityFix.delete(id);
+            return this.setStateAsync(id, { val, ack: true, q: 0 });
+        }
+        return this.setStateChangedAsync(id, { val, ack: true });
     }
 
     /**
@@ -357,7 +390,7 @@ class WetterComAdapter extends utils.Adapter {
                 raw = null;
                 this.log.debug(`Field "${field.id}" could not be read: ${String(e)}`);
             }
-            buffer.push(this.setStateChangedAsync(`${basePath}.${field.id}`, { val: WetterComAdapter.coerce(raw, field), ack: true }));
+            buffer.push(this.writeState(`${basePath}.${field.id}`, WetterComAdapter.coerce(raw, field)));
         }
     }
 
@@ -642,14 +675,11 @@ class WetterComAdapter extends utils.Adapter {
         const ctx: RenderContext = { lang, tz, iconBase: ICON_BASE_URL };
 
         await Promise.all([
-            this.setStateChangedAsync('info.forecast_date', { val: String(data.forecastDate ?? ''), ack: true }),
-            this.setStateChangedAsync('info.next_update', { val: String(data.nextUpdate ?? ''), ack: true }),
-            this.setStateChangedAsync('info.timezone', { val: tz, ack: true }),
-            this.setStateChangedAsync('info.location', {
-                val: data.location?.coordinates ? `${data.location.coordinates.latitude}, ${data.location.coordinates.longitude}` : '',
-                ack: true,
-            }),
-            this.setStateChangedAsync('info.elevation', { val: round(extractValue(data.location?.coordinates?.elevation), 0), ack: true }),
+            this.writeState('info.forecast_date', String(data.forecastDate ?? '')),
+            this.writeState('info.next_update', String(data.nextUpdate ?? '')),
+            this.writeState('info.timezone', tz),
+            this.writeState('info.location', data.location?.coordinates ? `${data.location.coordinates.latitude}, ${data.location.coordinates.longitude}` : ''),
+            this.writeState('info.elevation', round(extractValue(data.location?.coordinates?.elevation), 0)),
         ]);
 
         const summary = data.summary ?? [];
@@ -759,7 +789,7 @@ class WetterComAdapter extends utils.Adapter {
                     }
                     const validId = `${hourlyPath}.${label}.valid`;
                     if (this.ensured.has(validId)) {
-                        buffer.push(this.setStateChangedAsync(validId, { val: false, ack: true }));
+                        buffer.push(this.writeState(validId, false));
                     }
                 }
             }
@@ -796,7 +826,7 @@ class WetterComAdapter extends utils.Adapter {
         }
 
         if (this.config.enableJson) {
-            await Promise.all([this.setStateChangedAsync('forecast_json', { val: JSON.stringify(jsonDays), ack: true }), this.setStateChangedAsync('hourly_json', { val: JSON.stringify(jsonHours), ack: true })]);
+            await Promise.all([this.writeState('forecast_json', JSON.stringify(jsonDays)), this.writeState('hourly_json', JSON.stringify(jsonHours))]);
         }
 
         await this.cleanupObsoleteDays(maxDays);
@@ -906,7 +936,7 @@ class WetterComAdapter extends utils.Adapter {
             const sourceHour = dayIndex >= 0 ? `day_${dayIndex}.hourly.${now.hour}` : '';
 
             if (!sourceHour || !(await this.getObjectAsync(`${sourceHour}.time`))) {
-                buffer.push(this.setStateChangedAsync(`${base}.valid`, { val: false, ack: true }));
+                buffer.push(this.writeState(`${base}.valid`, false));
                 await Promise.all(buffer);
                 this.log.debug(`current: no hourly data available for ${now.date} ${now.hour}:00.`);
                 return;
@@ -924,7 +954,7 @@ class WetterComAdapter extends utils.Adapter {
 
             const stamp = new Date();
             buffer.push(
-                this.setStateChangedAsync(`${base}.source`, { val: `${this.namespace}.${sourceHour}`, ack: true }),
+                this.writeState(`${base}.source`, `${this.namespace}.${sourceHour}`),
                 this.setStateAsync(`${base}.updated`, {
                     val: `${pad(stamp.getDate())}.${pad(stamp.getMonth() + 1)}.${stamp.getFullYear()} ${pad(stamp.getHours())}:${pad(stamp.getMinutes())}`,
                     ack: true,
@@ -943,7 +973,7 @@ class WetterComAdapter extends utils.Adapter {
         if (!state || state.val === null || state.val === undefined) {
             return;
         }
-        buffer.push(this.setStateChangedAsync(to, { val: state.val, ack: true }));
+        buffer.push(this.writeState(to, state.val));
     }
 }
 

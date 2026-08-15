@@ -175,8 +175,9 @@ Weather data © [wetter.com GmbH / Meteonomiqs](https://www.meteonomiqs.com). Th
     Placeholder for the next version (at the beginning of the line):
     ### **WORK IN PROGRESS**
 -->
-### 0.1.4 (2026-08-15)
+### **WORK IN PROGRESS**
 
+- Values that match their default are no longer left with quality `0x20` ("substitute initial value"). A state created from `common.def` starts out substituted, and `setStateChanged` skipped the first write whenever the real value happened to be `0` or `false` — so states like `prec_sum`, `warn_active` or `sun_hours` stayed flagged as not-measured and showed up orange in the admin
 - `info.connection` is no longer reported as false after a restart whose startup fetch was skipped by the cooldown — a skipped fetch is not a failure, and the stored forecast stays usable for 26 hours
 - Fixed the German state labels in `current.*` — they carried the English prefix ("Now: Temperatur" instead of "Jetzt: Temperatur")
 - Object metadata (label, role, unit) is now updated on existing states instead of only on first creation, so corrections reach installed instances
