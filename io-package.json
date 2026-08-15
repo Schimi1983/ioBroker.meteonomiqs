@@ -1,6 +1,6 @@
 {
   "common": {
-    "name": "wetter-com",
+    "name": "meteonomiqs",
     "version": "0.1.0",
     "news": {
       "0.1.0": {
@@ -59,10 +59,10 @@
       "license": "MIT",
       "type": "free"
     },
-    "icon": "wetter-com.png",
+    "icon": "meteonomiqs.png",
     "enabled": true,
-    "extIcon": "https://raw.githubusercontent.com/Schimi1983/ioBroker.wetter-com/main/admin/wetter-com.png",
-    "readme": "https://github.com/Schimi1983/ioBroker.wetter-com/blob/main/README.md",
+    "extIcon": "https://raw.githubusercontent.com/Schimi1983/ioBroker.meteonomiqs/main/admin/meteonomiqs.png",
+    "readme": "https://github.com/Schimi1983/ioBroker.meteonomiqs/blob/main/README.md",
     "loglevel": "info",
     "mode": "daemon",
     "type": "weather",

@@ -1,6 +1,6 @@
 "use strict";
 /*
- * ioBroker.wetter-com
+ * ioBroker.meteonomiqs
  *
  * Weather forecast from wetter.com via the Meteonomiqs Public Weather API v4.0.
  * https://doc.meteonomiqs.com/doc/forecast_v4_0.html
@@ -57,7 +57,7 @@ class WetterComAdapter extends utils.Adapter {
     authFailed = false;
     unloaded = false;
     constructor(options = {}) {
-        super({ ...options, name: 'wetter-com' });
+        super({ ...options, name: 'meteonomiqs' });
         this.on('ready', this.onReady.bind(this));
         this.on('stateChange', this.onStateChange.bind(this));
         this.on('unload', this.onUnload.bind(this));
@@ -151,6 +151,8 @@ class WetterComAdapter extends utils.Adapter {
      * Two checks that would otherwise only show up as "no data arrives":
      * is the cooldown shorter than the smallest gap between two fetches, and
      * does the chosen cadence fit into the monthly budget at all?
+     *
+     * @param times
      */
     validateSchedule(times) {
         const minutes = times.map((t) => (0, helpers_1.timeToMinutes)(t.time)).filter((m) => m !== null);
@@ -166,8 +168,7 @@ class WetterComAdapter extends utils.Adapter {
         const limit = Number(this.config.monthlyLimit) || 0;
         const worstCase = perDay * 31;
         if (limit > 0 && worstCase > limit) {
-            this.log.warn(`Budget warning: ${perDay} fetches per day add up to ${worstCase} calls in a 31-day month, but the limit is ${limit}. ` +
-                'The priority tiers will start dropping fetches towards the end of the month.');
+            this.log.warn(`Budget warning: ${perDay} fetches per day add up to ${worstCase} calls in a 31-day month, but the limit is ${limit}. ` + 'The priority tiers will start dropping fetches towards the end of the month.');
         }
         else if (limit > 0) {
             this.log.info(`Budget: ${perDay} fetches/day = at most ${worstCase} calls/month out of ${limit} (${limit - worstCase} spare).`);
@@ -250,7 +251,17 @@ class WetterComAdapter extends utils.Adapter {
     fieldName(field, prefix) {
         return { en: `${prefix}${field.name}`, de: `${prefix}${field.nameDe}` };
     }
-    /** Creates and writes all fields of a table in one place. */
+    /**
+     * Creates and writes all fields of a table in one place.
+     *
+     * @param basePath
+     * @param prefixEn
+     * @param prefixDe
+     * @param fields
+     * @param source
+     * @param ctx
+     * @param buffer
+     */
     async renderFields(basePath, prefixEn, prefixDe, fields, source, ctx, buffer) {
         const active = fields.filter((f) => this.groupEnabled(f.group));
         for (const field of active) {
@@ -654,10 +665,7 @@ class WetterComAdapter extends utils.Adapter {
             await Promise.all(buffer);
         }
         if (this.config.enableJson) {
-            await Promise.all([
-                this.setStateChangedAsync('forecast_json', { val: JSON.stringify(jsonDays), ack: true }),
-                this.setStateChangedAsync('hourly_json', { val: JSON.stringify(jsonHours), ack: true }),
-            ]);
+            await Promise.all([this.setStateChangedAsync('forecast_json', { val: JSON.stringify(jsonDays), ack: true }), this.setStateChangedAsync('hourly_json', { val: JSON.stringify(jsonHours), ack: true })]);
         }
         await this.cleanupObsoleteDays(maxDays);
         await this.updateCurrent('after fetch');
@@ -689,6 +697,8 @@ class WetterComAdapter extends utils.Adapter {
      *
      * The day is resolved through `date_iso` instead of a fixed index — between
      * midnight and the first fetch of the day, "today" still lives in day_1.
+     *
+     * @param reason
      */
     async updateCurrent(reason) {
         if (!this.config.enableCurrent) {

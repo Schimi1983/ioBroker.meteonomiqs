@@ -6,13 +6,24 @@
  * which also keeps them correct across daylight saving time changes.
  */
 
-export type TimerHandle = { cancel: () => void };
+export type TimerHandle = {
+    cancel: () => void;
+};
 
 type TimeoutFn = (cb: () => void, ms: number) => any;
 type ClearFn = (handle: any) => void;
 
+/**
+ *
+ */
 export interface SchedulerHost {
+    /**
+     *
+     */
     setTimeout: TimeoutFn;
+    /**
+     *
+     */
     clearTimeout: ClearFn;
 }
 
@@ -64,12 +75,15 @@ export function scheduleDaily(host: SchedulerHost, hour: number, minute: number,
         if (cancelled) {
             return;
         }
-        handle = host.setTimeout(() => {
-            arm();
-            if (!cancelled) {
-                callback();
-            }
-        }, msUntilDaily(hour, minute));
+        handle = host.setTimeout(
+            () => {
+                arm();
+                if (!cancelled) {
+                    callback();
+                }
+            },
+            msUntilDaily(hour, minute),
+        );
     };
 
     arm();

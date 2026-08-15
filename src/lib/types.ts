@@ -34,7 +34,10 @@ export interface ApiWind {
     min?: number | null;
     max?: number | null;
     degree?: number | null;
-    gusts?: { value?: number | null; text?: string | null } | null;
+    gusts?: {
+        value?: number | null;
+        text?: string | null;
+    } | null;
     significantWind?: boolean | null;
 }
 
@@ -74,12 +77,22 @@ export interface ApiSummaryItem {
     clouds?: ApiNumber;
     weather?: ApiWeather | null;
     prec?: ApiPrec | null;
-    temperature?: { min?: number | null; max?: number | null; avg?: number | null } | null;
+    temperature?: {
+        min?: number | null;
+        max?: number | null;
+        avg?: number | null;
+    } | null;
     wind?: ApiWind | null;
-    windchill?: { min?: number | null; max?: number | null } | null;
+    windchill?: {
+        min?: number | null;
+        max?: number | null;
+    } | null;
     highestWarning?: ApiWarning | null;
     astronomy?: ApiAstronomy | null;
-    snowLine?: { min?: number | null; max?: number | null } | null;
+    snowLine?: {
+        min?: number | null;
+        max?: number | null;
+    } | null;
 }
 
 export interface ApiSpaceItem {
@@ -91,11 +104,21 @@ export interface ApiSpaceItem {
     clouds?: ApiNumber;
     weather?: ApiWeather | null;
     prec?: ApiPrec | null;
-    temperature?: { min?: number | null; max?: number | null; avg?: number | null } | null;
+    temperature?: {
+        min?: number | null;
+        max?: number | null;
+        avg?: number | null;
+    } | null;
     wind?: ApiWind | null;
-    windchill?: { min?: number | null; max?: number | null } | null;
+    windchill?: {
+        min?: number | null;
+        max?: number | null;
+    } | null;
     highestWarning?: ApiWarning | null;
-    snowLine?: { min?: number | null; max?: number | null } | null;
+    snowLine?: {
+        min?: number | null;
+        max?: number | null;
+    } | null;
 }
 
 export interface ApiSpacesDay {
@@ -118,10 +141,17 @@ export interface ApiHourlyItem {
     weather?: ApiWeather | null;
     sunHours?: number | null;
     prec?: ApiPrec | null;
-    temperature?: { avg?: number | null } | null;
+    temperature?: {
+        avg?: number | null;
+    } | null;
     relativeHumidity?: number | null;
     pressure?: number | null;
-    clouds?: { low?: number | null; middle?: number | null; high?: number | null; eights?: number | null } | null;
+    clouds?: {
+        low?: number | null;
+        middle?: number | null;
+        high?: number | null;
+        eights?: number | null;
+    } | null;
     wind?: ApiWind | null;
     windchill?: number | null;
     isNight?: boolean | null;
@@ -142,7 +172,11 @@ export interface ApiForecast {
     source?: string | null;
     location?: {
         timezone?: string | null;
-        coordinates?: { latitude?: number | null; longitude?: number | null; elevation?: number | null } | null;
+        coordinates?: {
+            latitude?: number | null;
+            longitude?: number | null;
+            elevation?: number | null;
+        } | null;
     } | null;
     fingerprint?: string | null;
 }

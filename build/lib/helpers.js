@@ -92,9 +92,7 @@ function parseApiDate(input) {
     }
     const text = String(input).trim();
     const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(text);
-    const date = match
-        ? new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]))
-        : new Date(text);
+    const date = match ? new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3])) : new Date(text);
     return isNaN(date.getTime()) ? null : date;
 }
 /**
@@ -340,6 +338,11 @@ function dayKey(date) {
  * A tier-N fetch is only allowed while the budget still carries N calls per day
  * until the end of the month. When it gets tight the lowest priority drops out
  * first; tier 1 falls back to every other day rather than stopping entirely.
+ *
+ * @param usage
+ * @param limit
+ * @param tier
+ * @param now
  */
 function budgetAllows(usage, limit, tier, now) {
     // The hard cap lives here on purpose: a caller that only asks this function

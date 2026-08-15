@@ -10,7 +10,7 @@ Voraussetzungen: Node.js ≥ 20, npm ≥ 9, git, ein GitHub-Account.
 An drei Stellen steht `Schimi1983`. Einmal ersetzen:
 
 ```bash
-cd ioBroker.wetter-com
+cd ioBroker.meteonomiqs
 # macOS:  sed -i '' 's/Schimi1983/deinuser/g' package.json io-package.json README.md
 sed -i 's/Schimi1983/deinuser/g' package.json io-package.json README.md
 grep -rn Schimi1983 . || echo "alle ersetzt"
@@ -58,7 +58,7 @@ Update finished: 7 days processed.
 
 ## 4. Auf GitHub veröffentlichen
 
-Repository **`ioBroker.wetter-com`** anlegen (öffentlich, ohne README/Lizenz —
+Repository **`ioBroker.meteonomiqs`** anlegen (öffentlich, ohne README/Lizenz —
 beides ist schon da), dann:
 
 ```bash
@@ -66,7 +66,7 @@ git init
 git add .
 git commit -m "feat: initial release 0.1.0"
 git branch -M main
-git remote add origin https://github.com/deinuser/ioBroker.wetter-com.git
+git remote add origin https://github.com/deinuser/ioBroker.meteonomiqs.git
 git push -u origin main
 ```
 
@@ -90,7 +90,7 @@ Errors schon.
 
 ```bash
 npm login
-npm publish        # veröffentlicht als iobroker.wetter-com
+npm publish        # veröffentlicht als iobroker.meteonomiqs
 ```
 
 Für die automatische Veröffentlichung per Tag liegt der Workflow bereits unter

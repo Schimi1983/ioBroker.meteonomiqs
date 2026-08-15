@@ -1,18 +1,5 @@
 import { expect } from 'chai';
-import {
-    budgetAllows,
-    cloudsPercent,
-    dayLength,
-    extractValue,
-    formatDate,
-    iconUrl,
-    isoTime,
-    localParts,
-    parseApiDate,
-    round,
-    smallestGapHours,
-    timeToMinutes,
-} from './helpers';
+import { budgetAllows, cloudsPercent, dayLength, extractValue, formatDate, iconUrl, isoTime, localParts, parseApiDate, round, smallestGapHours, timeToMinutes } from './helpers';
 
 const ICONS = 'https://cs3.wettercomassets.com/wcomv5/images/icons/weather';
 

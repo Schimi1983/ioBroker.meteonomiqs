@@ -1,12 +1,12 @@
 {
-  "name": "iobroker.wetter-com",
+  "name": "iobroker.meteonomiqs",
   "version": "0.1.0",
   "description": "Weather forecast from wetter.com (Meteonomiqs Public Weather API v4.0)",
   "author": {
     "name": "Schimi",
     "email": "szymon.haiduk@world-mg.de"
   },
-  "homepage": "https://github.com/Schimi1983/ioBroker.wetter-com",
+  "homepage": "https://github.com/Schimi1983/ioBroker.meteonomiqs",
   "license": "MIT",
   "keywords": [
     "ioBroker",
@@ -19,7 +19,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/Schimi1983/ioBroker.wetter-com.git"
+    "url": "https://github.com/Schimi1983/ioBroker.meteonomiqs.git"
   },
   "engines": {
     "node": ">=22"
@@ -69,7 +69,7 @@
     "prepublishOnly": "npm run build"
   },
   "bugs": {
-    "url": "https://github.com/Schimi1983/ioBroker.wetter-com/issues"
+    "url": "https://github.com/Schimi1983/ioBroker.meteonomiqs/issues"
   },
   "readmeFilename": "README.md"
 }

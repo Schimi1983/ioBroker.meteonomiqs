@@ -12,7 +12,7 @@ tests.integration(path.join(__dirname, '..'), {
                 this.timeout(60000);
                 const harness = getHarness();
 
-                await harness.changeAdapterConfig('wetter-com', {
+                await harness.changeAdapterConfig('meteonomiqs', {
                     native: {
                         apiKey: '',
                         useSystemLocation: true,

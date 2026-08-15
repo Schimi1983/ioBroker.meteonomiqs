@@ -78,9 +78,7 @@ export function parseApiDate(input: string | Date | null | undefined): Date | nu
     }
     const text = String(input).trim();
     const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(text);
-    const date = match
-        ? new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]))
-        : new Date(text);
+    const date = match ? new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3])) : new Date(text);
     return isNaN(date.getTime()) ? null : date;
 }
 
@@ -339,13 +337,13 @@ export function dayKey(date: Date): string {
  * A tier-N fetch is only allowed while the budget still carries N calls per day
  * until the end of the month. When it gets tight the lowest priority drops out
  * first; tier 1 falls back to every other day rather than stopping entirely.
+ *
+ * @param usage
+ * @param limit
+ * @param tier
+ * @param now
  */
-export function budgetAllows(
-    usage: number,
-    limit: number,
-    tier: number,
-    now: Date,
-): { allowed: boolean; mode: 'ok' | 'saving' | 'emergency' | 'limit' } {
+export function budgetAllows(usage: number, limit: number, tier: number, now: Date): { allowed: boolean; mode: 'ok' | 'saving' | 'emergency' | 'limit' } {
     // The hard cap lives here on purpose: a caller that only asks this function
     // must not be able to blow past the monthly limit.
     if (limit > 0 && usage >= limit) {

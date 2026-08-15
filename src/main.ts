@@ -1,5 +1,5 @@
 /*
- * ioBroker.wetter-com
+ * ioBroker.meteonomiqs
  *
  * Weather forecast from wetter.com via the Meteonomiqs Public Weather API v4.0.
  * https://doc.meteonomiqs.com/doc/forecast_v4_0.html
@@ -19,23 +19,9 @@
 
 import * as utils from '@iobroker/adapter-core';
 import { ASTRO_FIELDS, CURRENT_EXTRA, DAY_FIELDS, HOUR_FIELDS, SPACE_FIELDS, SPACE_LABELS, SPACE_SEGMENTS } from './lib/fields';
-import {
-    budgetAllows,
-    cloudsPercent,
-    dayKey,
-    extractValue,
-    formatDate,
-    getDayName,
-    iconUrl,
-    isoTime,
-    localParts,
-    monthKey,
-    pad,
-    round,
-    smallestGapHours,
-    timeToMinutes,
-} from './lib/helpers';
-import { scheduleDaily, scheduleHourly, TimerHandle } from './lib/scheduler';
+import { budgetAllows, cloudsPercent, dayKey, extractValue, formatDate, getDayName, iconUrl, isoTime, localParts, monthKey, pad, round, smallestGapHours, timeToMinutes } from './lib/helpers';
+import type { TimerHandle } from './lib/scheduler';
+import { scheduleDaily, scheduleHourly } from './lib/scheduler';
 import type { ApiForecast, ApiHourlyItem, ApiSpacesDay, ApiSummaryItem, FetchReason, FieldDef, FieldGroup, RenderContext, UpdateTime } from './lib/types';
 
 const BASE_URL = 'https://forecast.meteonomiqs.com/v4_0';
@@ -52,7 +38,7 @@ class WetterComAdapter extends utils.Adapter {
     private unloaded = false;
 
     public constructor(options: Partial<utils.AdapterOptions> = {}) {
-        super({ ...options, name: 'wetter-com' });
+        super({ ...options, name: 'meteonomiqs' });
         this.on('ready', this.onReady.bind(this));
         this.on('stateChange', this.onStateChange.bind(this));
         this.on('unload', this.onUnload.bind(this));
@@ -159,6 +145,8 @@ class WetterComAdapter extends utils.Adapter {
      * Two checks that would otherwise only show up as "no data arrives":
      * is the cooldown shorter than the smallest gap between two fetches, and
      * does the chosen cadence fit into the monthly budget at all?
+     *
+     * @param times
      */
     private validateSchedule(times: UpdateTime[]): void {
         const minutes = times.map((t) => timeToMinutes(t.time)).filter((m): m is number => m !== null);
@@ -178,10 +166,7 @@ class WetterComAdapter extends utils.Adapter {
         const limit = Number(this.config.monthlyLimit) || 0;
         const worstCase = perDay * 31;
         if (limit > 0 && worstCase > limit) {
-            this.log.warn(
-                `Budget warning: ${perDay} fetches per day add up to ${worstCase} calls in a 31-day month, but the limit is ${limit}. ` +
-                    'The priority tiers will start dropping fetches towards the end of the month.',
-            );
+            this.log.warn(`Budget warning: ${perDay} fetches per day add up to ${worstCase} calls in a 31-day month, but the limit is ${limit}. ` + 'The priority tiers will start dropping fetches towards the end of the month.');
         } else if (limit > 0) {
             this.log.info(`Budget: ${perDay} fetches/day = at most ${worstCase} calls/month out of ${limit} (${limit - worstCase} spare).`);
         }
@@ -236,14 +221,7 @@ class WetterComAdapter extends utils.Adapter {
         this.ensured.add(id);
     }
 
-    private async ensureState(
-        id: string,
-        name: ioBroker.StringOrTranslated,
-        type: ioBroker.CommonType,
-        role: string,
-        unit?: string,
-        write = false,
-    ): Promise<void> {
+    private async ensureState(id: string, name: ioBroker.StringOrTranslated, type: ioBroker.CommonType, role: string, unit?: string, write = false): Promise<void> {
         if (this.ensured.has(id)) {
             return;
         }
@@ -278,29 +256,25 @@ class WetterComAdapter extends utils.Adapter {
     }
 
     private fieldName(field: { name: string; nameDe: string }, prefix: string): ioBroker.StringOrTranslated {
-        return { en: `${prefix}${field.name}`, de: `${prefix}${field.nameDe}` } as ioBroker.StringOrTranslated;
+        return { en: `${prefix}${field.name}`, de: `${prefix}${field.nameDe}` };
     }
 
-    /** Creates and writes all fields of a table in one place. */
-    private async renderFields(
-        basePath: string,
-        prefixEn: string,
-        prefixDe: string,
-        fields: FieldDef[],
-        source: unknown,
-        ctx: RenderContext,
-        buffer: Promise<unknown>[],
-    ): Promise<void> {
+    /**
+     * Creates and writes all fields of a table in one place.
+     *
+     * @param basePath
+     * @param prefixEn
+     * @param prefixDe
+     * @param fields
+     * @param source
+     * @param ctx
+     * @param buffer
+     */
+    private async renderFields(basePath: string, prefixEn: string, prefixDe: string, fields: FieldDef[], source: unknown, ctx: RenderContext, buffer: Promise<unknown>[]): Promise<void> {
         const active = fields.filter((f) => this.groupEnabled(f.group));
 
         for (const field of active) {
-            await this.ensureState(
-                `${basePath}.${field.id}`,
-                { en: `${prefixEn}${field.name}`, de: `${prefixDe}${field.nameDe}` } as ioBroker.StringOrTranslated,
-                field.type,
-                field.role,
-                field.unit,
-            );
+            await this.ensureState(`${basePath}.${field.id}`, { en: `${prefixEn}${field.name}`, de: `${prefixDe}${field.nameDe}` }, field.type, field.role, field.unit);
         }
 
         for (const field of active) {
@@ -316,8 +290,7 @@ class WetterComAdapter extends utils.Adapter {
     }
 
     private async ensureInfoStates(): Promise<void> {
-        const s = (id: string, en: string, de: string, type: ioBroker.CommonType, role: string, unit?: string, write = false): Promise<void> =>
-            this.ensureState(`info.${id}`, { en, de } as ioBroker.StringOrTranslated, type, role, unit, write);
+        const s = (id: string, en: string, de: string, type: ioBroker.CommonType, role: string, unit?: string, write = false): Promise<void> => this.ensureState(`info.${id}`, { en, de }, type, role, unit, write);
 
         await s('last_sync', 'Last update', 'Letztes Update', 'string', 'text');
         await s('last_sync_ts', 'Last update (timestamp)', 'Letztes Update (Timestamp)', 'number', 'value.time');
@@ -337,8 +310,8 @@ class WetterComAdapter extends utils.Adapter {
         await s('reset_counter', 'Reset monthly counter', 'Monatszähler zurücksetzen', 'boolean', 'button', undefined, true);
 
         if (this.config.enableJson) {
-            await this.ensureState('forecast_json', { en: 'Forecast (JSON)', de: 'Vorhersage (JSON)' } as ioBroker.StringOrTranslated, 'string', 'json');
-            await this.ensureState('hourly_json', { en: 'Hourly values (JSON)', de: 'Stundenwerte (JSON)' } as ioBroker.StringOrTranslated, 'string', 'json');
+            await this.ensureState('forecast_json', { en: 'Forecast (JSON)', de: 'Vorhersage (JSON)' }, 'string', 'json');
+            await this.ensureState('hourly_json', { en: 'Hourly values (JSON)', de: 'Stundenwerte (JSON)' }, 'string', 'json');
         }
     }
 
@@ -647,12 +620,12 @@ class WetterComAdapter extends utils.Adapter {
             const dayPath = `day_${index}`;
             const buffer: Promise<unknown>[] = [];
 
-            await this.ensureChannel(dayPath, { en: `Day ${index}`, de: `Tag ${index}` } as ioBroker.StringOrTranslated);
+            await this.ensureChannel(dayPath, { en: `Day ${index}`, de: `Tag ${index}` });
             await this.renderFields(dayPath, `Day ${index}: `, `Tag ${index}: `, DAY_FIELDS, day, ctx, buffer);
 
             if (this.config.enableAstro && day.astronomy) {
                 const astroPath = `${dayPath}.astro`;
-                await this.ensureChannel(astroPath, { en: 'Sun & moon', de: 'Sonne & Mond' } as ioBroker.StringOrTranslated);
+                await this.ensureChannel(astroPath, { en: 'Sun & moon', de: 'Sonne & Mond' });
                 await this.renderFields(astroPath, `Day ${index}: `, `Tag ${index}: `, ASTRO_FIELDS, day.astronomy, ctx, buffer);
             }
 
@@ -660,23 +633,15 @@ class WetterComAdapter extends utils.Adapter {
                 const spaceDay = spacesByDate.get(dayKeyIso);
                 if (spaceDay) {
                     const spacesPath = `${dayPath}.spaces`;
-                    await this.ensureChannel(spacesPath, { en: 'Day sections', de: 'Tagesabschnitte' } as ioBroker.StringOrTranslated);
+                    await this.ensureChannel(spacesPath, { en: 'Day sections', de: 'Tagesabschnitte' });
                     for (const segment of SPACE_SEGMENTS) {
                         const segmentData = spaceDay[segment];
                         if (!segmentData) {
                             continue;
                         }
                         const segmentPath = `${spacesPath}.${segment}`;
-                        await this.ensureChannel(segmentPath, SPACE_LABELS[segment] as ioBroker.StringOrTranslated);
-                        await this.renderFields(
-                            segmentPath,
-                            `Day ${index} ${SPACE_LABELS[segment].en}: `,
-                            `Tag ${index} ${SPACE_LABELS[segment].de}: `,
-                            SPACE_FIELDS,
-                            segmentData,
-                            ctx,
-                            buffer,
-                        );
+                        await this.ensureChannel(segmentPath, SPACE_LABELS[segment]);
+                        await this.renderFields(segmentPath, `Day ${index} ${SPACE_LABELS[segment].en}: `, `Tag ${index} ${SPACE_LABELS[segment].de}: `, SPACE_FIELDS, segmentData, ctx, buffer);
                     }
                 } else {
                     this.log.debug(`No day sections for ${dayKeyIso} in the API response.`);
@@ -685,7 +650,7 @@ class WetterComAdapter extends utils.Adapter {
 
             if (this.config.enableHourly && index < hourlyDays) {
                 const hourlyPath = `${dayPath}.hourly`;
-                await this.ensureChannel(hourlyPath, { en: 'Hourly', de: 'Stündlich' } as ioBroker.StringOrTranslated);
+                await this.ensureChannel(hourlyPath, { en: 'Hourly', de: 'Stündlich' });
                 const hours = hourlyByDate.get(dayKeyIso) ?? [];
                 const delivered = new Set<string>();
 
@@ -693,7 +658,7 @@ class WetterComAdapter extends utils.Adapter {
                     const label = hour.__hour ?? '00';
                     delivered.add(label);
                     const hourPath = `${hourlyPath}.${label}`;
-                    await this.ensureChannel(hourPath, { en: `${label}:00`, de: `${label}:00 Uhr` } as ioBroker.StringOrTranslated);
+                    await this.ensureChannel(hourPath, { en: `${label}:00`, de: `${label}:00 Uhr` });
                     await this.renderFields(hourPath, `Day ${index} ${label}:00: `, `Tag ${index} ${label}:00: `, HOUR_FIELDS, hour, ctx, buffer);
 
                     if (this.config.enableJson && index === 0) {
@@ -759,10 +724,7 @@ class WetterComAdapter extends utils.Adapter {
         }
 
         if (this.config.enableJson) {
-            await Promise.all([
-                this.setStateChangedAsync('forecast_json', { val: JSON.stringify(jsonDays), ack: true }),
-                this.setStateChangedAsync('hourly_json', { val: JSON.stringify(jsonHours), ack: true }),
-            ]);
+            await Promise.all([this.setStateChangedAsync('forecast_json', { val: JSON.stringify(jsonDays), ack: true }), this.setStateChangedAsync('hourly_json', { val: JSON.stringify(jsonHours), ack: true })]);
         }
 
         await this.cleanupObsoleteDays(maxDays);
@@ -798,6 +760,8 @@ class WetterComAdapter extends utils.Adapter {
      *
      * The day is resolved through `date_iso` instead of a fixed index — between
      * midnight and the first fetch of the day, "today" still lives in day_1.
+     *
+     * @param reason
      */
     private async updateCurrent(reason: string): Promise<void> {
         if (!this.config.enableCurrent) {
@@ -810,7 +774,7 @@ class WetterComAdapter extends utils.Adapter {
 
         try {
             const base = 'current';
-            await this.ensureChannel(base, { en: 'Current hour', de: 'Aktuelle Stunde' } as ioBroker.StringOrTranslated);
+            await this.ensureChannel(base, { en: 'Current hour', de: 'Aktuelle Stunde' });
 
             const hourFields = HOUR_FIELDS.filter((f) => this.groupEnabled(f.group));
             for (const field of hourFields) {
@@ -822,8 +786,8 @@ class WetterComAdapter extends utils.Adapter {
                 }
                 await this.ensureState(`${base}.${extra.id}`, this.fieldName(extra, 'Now: '), extra.type, extra.role, extra.unit);
             }
-            await this.ensureState(`${base}.source`, { en: 'Now: source state', de: 'Jetzt: Quell-Datenpunkt' } as ioBroker.StringOrTranslated, 'string', 'text');
-            await this.ensureState(`${base}.updated`, { en: 'Now: last copied', de: 'Jetzt: zuletzt übernommen' } as ioBroker.StringOrTranslated, 'string', 'text');
+            await this.ensureState(`${base}.source`, { en: 'Now: source state', de: 'Jetzt: Quell-Datenpunkt' }, 'string', 'text');
+            await this.ensureState(`${base}.updated`, { en: 'Now: last copied', de: 'Jetzt: zuletzt übernommen' }, 'string', 'text');
 
             const tzState = await this.getStateAsync('info.timezone');
             const tz = String(tzState?.val || '') || Intl.DateTimeFormat().resolvedOptions().timeZone;

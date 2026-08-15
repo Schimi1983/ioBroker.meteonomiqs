@@ -1,10 +1,10 @@
-![Logo](admin/wetter-com.png)
+![Logo](admin/meteonomiqs.png)
 
-# ioBroker.wetter-com
+# ioBroker.meteonomiqs
 
-[![NPM version](https://img.shields.io/npm/v/iobroker.wetter-com.svg)](https://www.npmjs.com/package/iobroker.wetter-com)
-[![Downloads](https://img.shields.io/npm/dm/iobroker.wetter-com.svg)](https://www.npmjs.com/package/iobroker.wetter-com)
-[![License](https://img.shields.io/github/license/Schimi1983/ioBroker.wetter-com)](LICENSE)
+[![NPM version](https://img.shields.io/npm/v/iobroker.meteonomiqs.svg)](https://www.npmjs.com/package/iobroker.meteonomiqs)
+[![Downloads](https://img.shields.io/npm/dm/iobroker.meteonomiqs.svg)](https://www.npmjs.com/package/iobroker.meteonomiqs)
+[![License](https://img.shields.io/github/license/Schimi1983/ioBroker.meteonomiqs)](LICENSE)
 
 Weather forecast from **wetter.com** via the [Meteonomiqs Public Weather API v4.0](https://doc.meteonomiqs.com/doc/forecast_v4_0.html).
 
@@ -97,7 +97,7 @@ On a Raspberry Pi, hourly values for one day is a sensible compromise.
 ## State tree
 
 ```
-wetter-com.0
+meteonomiqs.0
 ├── info
 │   ├── connection            Connected to the API
 │   ├── status                ok / no API key / HTTP 429 / …
