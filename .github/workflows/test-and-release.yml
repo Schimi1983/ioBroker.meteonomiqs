@@ -29,14 +29,17 @@ jobs:
           node-version: '22.x'
           lint: true
 
-  # Unit and integration tests on all supported platforms
+  # Unit and integration tests on all supported platforms.
+  # The matrix must not go below package.json "engines.node" (>=22).
   adapter-tests:
     if: contains(github.event.head_commit.message, '[skip ci]') == false
     needs: [check-and-lint]
     runs-on: ${{ matrix.os }}
     strategy:
+      # Show every failing combination instead of cancelling the rest.
+      fail-fast: false
       matrix:
-        node-version: [20.x, 22.x, 24.x]
+        node-version: [22.x, 24.x]
         os: [ubuntu-latest, windows-latest, macos-latest]
     steps:
       - uses: ioBroker/testing-action-adapter@v1
