@@ -43,11 +43,22 @@
       "uk": "Прогноз погоди від wetter.com через Meteonomiqs Public Weather API v4.0 — до 14 днів, частини доби, погодинні значення, поточна година, попередження про погоду та астрономія. З керуванням лімітом запитів API.",
       "zh-cn": "通过 Meteonomiqs Public Weather API v4.0 获取 wetter.com 天气预报——最多 14 天、时段预报、逐小时数据、当前小时、天气警报和天文数据，并内置 API 配额管理。"
     },
-    "authors": ["Schimi <szymon.haiduk@world-mg.de>"],
-    "keywords": ["weather", "forecast", "wetter", "vorhersage", "wetter.com", "meteonomiqs"],
-    "license": "MIT",
+    "authors": [
+      "Schimi <szymon.haiduk@world-mg.de>"
+    ],
+    "keywords": [
+      "weather",
+      "forecast",
+      "wetter",
+      "vorhersage",
+      "wetter.com",
+      "meteonomiqs"
+    ],
     "platform": "Javascript/Node.js",
-    "main": "build/main.js",
+    "licenseInformation": {
+      "license": "MIT",
+      "type": "free"
+    },
     "icon": "wetter-com.png",
     "enabled": true,
     "extIcon": "https://raw.githubusercontent.com/Schimi1983/ioBroker.wetter-com/main/admin/wetter-com.png",
@@ -73,8 +84,12 @@
       }
     ]
   },
-  "encryptedNative": ["apiKey"],
-  "protectedNative": ["apiKey"],
+  "encryptedNative": [
+    "apiKey"
+  ],
+  "protectedNative": [
+    "apiKey"
+  ],
   "native": {
     "apiKey": "",
     "useSystemLocation": true,
@@ -88,9 +103,18 @@
     "httpTimeout": 20,
     "maxRetries": 1,
     "updateTimes": [
-      { "time": "01:10", "tier": 1 },
-      { "time": "11:40", "tier": 2 },
-      { "time": "18:40", "tier": 3 }
+      {
+        "time": "01:10",
+        "tier": 1
+      },
+      {
+        "time": "11:40",
+        "tier": 2
+      },
+      {
+        "time": "18:40",
+        "tier": 3
+      }
     ],
     "enableSpaces": true,
     "enableHourly": true,

@@ -33,20 +33,12 @@
     "@iobroker/testing": "^5.0.0",
     "@tsconfig/node20": "^20.1.4",
     "@types/chai": "^4.3.16",
-    "@types/chai-as-promised": "^7.1.8",
     "@types/mocha": "^10.0.7",
     "@types/node": "^20.14.10",
-    "@types/proxyquire": "^1.3.31",
-    "@types/sinon": "^17.0.3",
-    "@types/sinon-chai": "^3.2.12",
     "chai": "^4.4.1",
-    "chai-as-promised": "^7.1.2",
     "eslint": "^9.9.0",
     "mocha": "^10.6.0",
-    "proxyquire": "^2.1.3",
     "rimraf": "^5.0.9",
-    "sinon": "^18.0.0",
-    "sinon-chai": "^3.7.0",
     "source-map-support": "^0.5.21",
     "ts-node": "^10.9.2",
     "typescript": "~5.5.3"
@@ -62,7 +54,6 @@
   "scripts": {
     "prebuild": "rimraf build",
     "build": "tsc -p tsconfig.build.json",
-    "prepare": "npm run build",
     "watch": "tsc -p tsconfig.build.json --watch",
     "test:ts": "mocha --config test/mocharc.custom.json src/**/*.test.ts",
     "test:package": "mocha test/package --exit",
@@ -71,7 +62,8 @@
     "check": "tsc --noEmit",
     "lint": "eslint src/",
     "translate": "translate-adapter",
-    "release": "release-script"
+    "release": "release-script",
+    "prepublishOnly": "npm run build"
   },
   "bugs": {
     "url": "https://github.com/Schimi1983/ioBroker.wetter-com/issues"

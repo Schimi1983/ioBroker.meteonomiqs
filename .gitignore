@@ -1,5 +1,4 @@
 node_modules/
-build/
 .idea/
 .vscode/
 *.code-workspace
@@ -11,3 +10,4 @@ coverage/
 npm-debug.log*
 .DS_Store
 .dev-server/
+.commitinfo

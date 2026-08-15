@@ -1,76 +1,64 @@
 name: Test and Release
 
+# Uses the official ioBroker testing actions. The repository checker expects
+# these (W3013 / W3015 / W3017) and they bring the whole matrix along.
+
 on:
   push:
-    branches: [main]
-    tags: ['v?[0-9]+.[0-9]+.[0-9]+*']
+    branches:
+      - '*'
+    tags:
+      # normal versions
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+      # pre-releases
+      - 'v[0-9]+.[0-9]+.[0-9]+-**'
   pull_request: {}
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
+  # Type check, lint and validate package files
   check-and-lint:
     if: contains(github.event.head_commit.message, '[skip ci]') == false
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: ioBroker/testing-action-check@v1
         with:
-          node-version: 20.x
-          cache: 'npm'
-      - run: npm ci
-      - run: npm run check
-      - run: npm run lint
+          node-version: '20.x'
+          lint: true
 
-  unit-tests:
-    if: contains(github.event.head_commit.message, '[skip ci]') == false
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        node-version: [20.x, 22.x]
-        os: [ubuntu-latest]
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: 'npm'
-      - run: npm ci
-      - run: npm run build
-      - run: npm run test:package
-      - run: npm run test:ts
-
+  # Unit and integration tests on all supported platforms
   adapter-tests:
     if: contains(github.event.head_commit.message, '[skip ci]') == false
+    needs: [check-and-lint]
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        node-version: [20.x]
-        os: [ubuntu-latest]
+        node-version: [20.x, 22.x, 24.x]
+        os: [ubuntu-latest, windows-latest, macos-latest]
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: ioBroker/testing-action-adapter@v1
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'npm'
-      - run: npm ci
-      - run: npm run build
-      - run: npm run test:integration
+          os: ${{ matrix.os }}
+          build: true
 
+  # Publish to npm on a version tag
   deploy:
-    needs: [check-and-lint, unit-tests, adapter-tests]
+    needs: [adapter-tests]
     if: |
       contains(github.event.head_commit.message, '[skip ci]') == false &&
       github.event_name == 'push' &&
       startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: ioBroker/testing-action-deploy@v1
         with:
-          node-version: 20.x
-          cache: 'npm'
-          registry-url: 'https://registry.npmjs.org'
-      - run: npm ci
-      - run: npm run build
-      - run: npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          node-version: '20.x'
+          build: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}
