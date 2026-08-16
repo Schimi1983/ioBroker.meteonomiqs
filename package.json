@@ -1,6 +1,6 @@
 {
   "name": "iobroker.meteonomiqs",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "Weather forecast from wetter.com (Meteonomiqs Public Weather API v4.0)",
   "author": {
     "name": "Schimi",
@@ -35,7 +35,7 @@
     "@iobroker/adapter-dev": "^1.5.0",
     "@iobroker/eslint-config": "^2.2.0",
     "@iobroker/testing": "^5.2.2",
-    "@types/node": "^20.14.10",
+    "@types/node": "^22.20.1",
     "rimraf": "^5.0.9",
     "source-map-support": "^0.5.21",
     "ts-node": "^10.9.2",

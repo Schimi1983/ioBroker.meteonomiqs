@@ -177,6 +177,10 @@ Weather data © [wetter.com GmbH / Meteonomiqs](https://www.meteonomiqs.com). Th
     Placeholder for the next version (at the beginning of the line):
     ### **WORK IN PROGRESS**
 -->
+### 0.2.4 (2026-08-16)
+
+- Raised the minimum admin version to 7.8.23 and `@types/node` to the major that matches `engines.node` — both proposed by the ioBroker bot
+
 ### 0.2.3 (2026-08-16)
 
 - Installing from GitHub works again without an install lifecycle script. The compiled `build/` folder is committed to the repository, which is what the repository checker asks for (`[E5019]`), so the `prepare` script added in 0.2.1 could be dropped again (`[E0092]`)
@@ -202,9 +206,7 @@ Weather data © [wetter.com GmbH / Meteonomiqs](https://www.meteonomiqs.com). Th
 
 - Removed `chai`, `@types/chai` and `@types/mocha` from the devDependencies — they come with `@iobroker/testing` and resolve fine without being declared. `mocha` has to stay declared because npm only links the binaries of direct dependencies, but its version now matches the range `@iobroker/testing` asks for, so a single copy is installed instead of the two that `^10` alongside `^11` used to produce (partly resolves `[E0063]`)
 
-### 0.1.6 (2026-08-16)
-
-- The fetch times now carry a per-installation offset of up to 15 minutes, derived from the ioBroker installation UUID. Every installation used to call the API in the very same minute; the offset is deterministic, so it survives restarts, and it is applied to all times equally, which leaves the gaps between them — and the cooldown check — untouched
+[Older changelogs can be found there](CHANGELOG_OLD.md)
 
 ---
 

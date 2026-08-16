@@ -1,5 +1,9 @@
 # Older changes
 
+### 0.1.6 (2026-08-16)
+
+- The fetch times now carry a per-installation offset of up to 15 minutes, derived from the ioBroker installation UUID. Every installation used to call the API in the very same minute; the offset is deterministic, so it survives restarts, and it is applied to all times equally, which leaves the gaps between them — and the cooldown check — untouched
+
 ### 0.1.5 (2026-08-15)
 
 - Values that match their default are no longer left with quality `0x20` ("substitute initial value"). A state created from `common.def` starts out substituted, and `setStateChanged` skipped the first write whenever the real value happened to be `0` or `false` — so states like `prec_sum`, `warn_active` or `sun_hours` stayed flagged as not-measured and showed up orange in the admin

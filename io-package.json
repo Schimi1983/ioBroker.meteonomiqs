@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "meteonomiqs",
-    "version": "0.2.3",
+    "version": "0.2.4",
     "news": {
+      "0.2.4": {
+        "en": "Raised the minimum admin version to 7.8.23 and `@types/node` to the major that matches `engines.node` — both proposed by the ioBroker bot",
+        "de": "Die Mindestversion von admin wurde auf 7.8.23 angehoben und `@types/node` auf die zu `engines.node` passende Hauptversion — beides Vorschläge des ioBroker-Bots.",
+        "ru": "Минимальная версия admin повышена до 7.8.23, а `@types/node` — до мажорной версии, соответствующей `engines.node`; оба изменения предложены ботом ioBroker.",
+        "pt": "A versão mínima do admin foi aumentada para 7.8.23 e `@types/node` para a versão principal correspondente a `engines.node`; ambas as alterações foram propostas pelo bot do ioBroker.",
+        "nl": "De minimale admin-versie is verhoogd naar 7.8.23 en `@types/node` naar de hoofdversie die bij `engines.node` past; beide voorgesteld door de ioBroker-bot.",
+        "fr": "La version minimale d'admin passe à 7.8.23 et `@types/node` à la version majeure correspondant à `engines.node` ; les deux ont été proposées par le bot ioBroker.",
+        "it": "La versione minima di admin è stata portata a 7.8.23 e `@types/node` alla major corrispondente a `engines.node`; entrambe le modifiche sono state proposte dal bot di ioBroker.",
+        "es": "La versión mínima de admin se ha elevado a 7.8.23 y `@types/node` a la versión principal que corresponde a `engines.node`; ambas fueron propuestas por el bot de ioBroker.",
+        "pl": "Minimalna wersja admin została podniesiona do 7.8.23, a `@types/node` do wersji głównej zgodnej z `engines.node`; obie zmiany zaproponował bot ioBroker.",
+        "uk": "Мінімальну версію admin піднято до 7.8.23, а `@types/node` — до основної версії, що відповідає `engines.node`; обидві зміни запропонував бот ioBroker.",
+        "zh-cn": "admin 的最低版本提升至 7.8.23，`@types/node` 提升至与 `engines.node` 匹配的主版本；两项均由 ioBroker 机器人提出。"
+      },
       "0.2.3": {
         "en": "GitHub installations work again without an install lifecycle script: the compiled `build/` folder is committed to the repository, so the `prepare` script could be removed (`[E0092]`, `[E5019]`). Older `common.news` entries were dropped, since the repository builder keeps only seven (`[E1032]`)",
         "de": "Die Installation von GitHub funktioniert wieder ohne Installations-Lifecycle-Skript: Der kompilierte Ordner `build/` liegt wieder im Repository, das `prepare`-Skript konnte deshalb entfallen (`[E0092]`, `[E5019]`). Ältere `common.news`-Einträge wurden entfernt, da der Repository-Builder nur sieben behält (`[E1032]`).",
@@ -80,19 +93,6 @@
         "pl": "Usunięto `chai`, `@types/chai` i `@types/mocha` z devDependencies — są one zawarte w `@iobroker/testing` i rozwiązują się poprawnie bez deklarowania. `mocha` musi pozostać zadeklarowana, ponieważ npm łączy tylko pliki binarne bezpośrednich zależności, ale jej wersja teraz pasuje do zakresu wymaganego przez `@iobroker/testing`, więc instalowana jest pojedyncza kopia zamiast dwóch, które były generowana przez `^10` wraz z `^11` (częściowo rozwiązuje to `[E0063]`)",
         "uk": "Видалено `chai`, `@types/chai` та `@types/mocha` з devDependencies — вони постачаються з `@iobroker/testing` та нормально вирішуються без оголошення. `mocha` має залишатися оголошеним, оскільки npm зв'язує лише бінарні файли прямих залежностей, але його версія тепер відповідає діапазону, який запитує `@iobroker/testing`, тому встановлюється одна копія замість двох, які раніше створювали `^10` разом з `^11` (частково вирішує `[E0063]`).",
         "zh-cn": "从 devDependencies 中移除了 `chai`、`@types/chai` 和 `@types/mocha`——它们包含在 `@iobroker/testing` 中，无需声明即可正常解析。`mocha` 必须保留声明，因为 npm 只链接直接依赖项的二进制文件，但它的版本现在与 `@iobroker/testing` 要求的版本范围匹配，因此只安装一个副本，而不是之前 `^10` 和 `^11` 一起安装的两个副本（部分解决了 `[E0063]` 问题）。"
-      },
-      "0.1.6": {
-        "en": "The fetch times now carry a per-installation offset of up to 15 minutes, derived from the ioBroker installation UUID. Every installation used to call the API in the very same minute; the offset is deterministic, so it survives restarts, and it is applied to all times equally, which leaves the gaps between them — and the cooldown check — untouched",
-        "de": "Die Abrufzeiten weisen nun einen installationsspezifischen Offset von bis zu 15 Minuten auf, der sich aus der ioBroker-Installations-UUID ergibt. Früher rief jede Installation die API in derselben Minute auf; der Offset ist deterministisch, bleibt also auch nach Neustarts erhalten und wird auf alle Zeiten gleichmäßig angewendet, wodurch die Lücken zwischen ihnen – und die Cooldown-Prüfung – unverändert bleiben.",
-        "ru": "Теперь время получения данных для каждой установки имеет смещение до 15 минут, определяемое на основе UUID установки ioBroker. Раньше каждая установка обращалась к API в одну и ту же минуту; теперь же смещение является детерминированным, поэтому оно сохраняется после перезапуска и применяется ко всем временам одинаково, что оставляет промежутки между ними — и проверку времени ожидания — без изменений.",
-        "pt": "Os tempos de busca agora incluem um deslocamento por instalação de até 15 minutos, derivado do UUID da instalação do ioBroker. Antes, todas as instalações chamavam a API exatamente no mesmo minuto; o deslocamento é determinístico, portanto, persiste mesmo após reinicializações, e é aplicado a todos os tempos igualmente, o que deixa as lacunas entre eles — e a verificação de tempo de espera — inalteradas.",
-        "nl": "De ophaaltijden hebben nu een offset per installatie van maximaal 15 minuten, afgeleid van de UUID van de ioBroker-installatie. Elke installatie riep de API voorheen op exact dezelfde minuut aan; de offset is deterministisch, dus deze blijft behouden na herstarts, en wordt gelijkmatig toegepast op alle tijden, waardoor de tussenliggende periodes – en de afkoelcontrole – ongewijzigd blijven.",
-        "fr": "Les temps de récupération des données sont désormais décalés de 15 minutes maximum par installation, en fonction de l'UUID de l'installation ioBroker. Auparavant, chaque installation appelait l'API à la même minute ; ce décalage étant déterministe, il persiste même après un redémarrage et s'applique à tous les temps de récupération de manière uniforme, laissant ainsi les intervalles entre les appels – et le délai d'attente – inchangés.",
-        "it": "I tempi di recupero ora includono un offset per installazione fino a 15 minuti, derivato dall'UUID dell'installazione di ioBroker. In precedenza, ogni installazione chiamava l'API nello stesso minuto; l'offset è deterministico, quindi persiste anche dopo i riavvii e viene applicato a tutti i tempi in modo uniforme, lasciando inalterati gli intervalli tra di essi e il controllo del cooldown.",
-        "es": "Los tiempos de obtención ahora tienen un desfase por instalación de hasta 15 minutos, derivado del UUID de instalación de ioBroker. Antes, todas las instalaciones llamaban a la API en el mismo minuto; el desfase es determinista, por lo que se mantiene tras los reinicios y se aplica a todos los tiempos por igual, lo que deja intactos los intervalos entre ellos y la comprobación del tiempo de espera.",
-        "pl": "Czasy pobierania mają teraz przesunięcie dla każdej instalacji wynoszące do 15 minut, wynikające z identyfikatora UUID instalacji ioBroker. Każda instalacja wywoływała API w tej samej minucie; przesunięcie jest deterministyczne, więc nie zanika po ponownym uruchomieniu i jest stosowane do wszystkich czasów w równym stopniu, co pozostawia przerwy między nimi – i kontrolę czasu odnowienia – nienaruszone.",
-        "uk": "Час отримання даних тепер має зсув до 15 хвилин для кожної установки, отриманий з UUID установки ioBroker. Кожна установка раніше викликала API в одну й ту саму хвилину; зсув є детермінованим, тому він переживає перезапуски та застосовується до всіх моментів часу однаково, що залишає проміжки між ними — і перевірку часу відновлення — недоторканими.",
-        "zh-cn": "现在，每次获取数据的时间都会根据 ioBroker 安装的 UUID 产生最多 15 分钟的偏移量。以前，每个安装都会在同一分钟内调用 API；这个偏移量是确定性的，因此即使重启也不会改变，并且对所有时间点都一视同仁，这样就不会影响到它们之间的时间间隔以及冷却时间检查。"
       }
     },
     "titleLang": {
@@ -158,7 +158,7 @@
     ],
     "globalDependencies": [
       {
-        "admin": ">=7.6.20"
+        "admin": ">=7.8.23"
       }
     ]
   },
