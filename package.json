@@ -1,6 +1,6 @@
 {
   "name": "iobroker.meteonomiqs",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Weather forecast from wetter.com (Meteonomiqs Public Weather API v4.0)",
   "author": {
     "name": "Schimi",
@@ -62,7 +62,8 @@
     "lint": "eslint src/",
     "translate": "translate-adapter",
     "release": "release-script",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "prepare": "npm run build"
   },
   "bugs": {
     "url": "https://github.com/Schimi1983/ioBroker.meteonomiqs/issues"

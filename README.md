@@ -177,6 +177,10 @@ Weather data © [wetter.com GmbH / Meteonomiqs](https://www.meteonomiqs.com). Th
     Placeholder for the next version (at the beginning of the line):
     ### **WORK IN PROGRESS**
 -->
+### 0.2.1 (2026-08-16)
+
+- The adapter can be installed straight from GitHub again. Since the compiled `build/` folder was removed from the repository (`[E5019]`), a GitHub installation had nothing to start; a `prepare` script now makes npm compile the TypeScript sources during such an installation. Installing from npm is unaffected — the published package already contains the compiled files
+
 ### 0.2.0 (2026-08-16)
 
 - All state and channel labels now carry all eleven ioBroker languages instead of only English and German. The object structure check of the repository asks for this (`[W1001]`); the labels are built in code, so they live in a new `src/lib/i18n.ts` rather than in `admin/i18n`
