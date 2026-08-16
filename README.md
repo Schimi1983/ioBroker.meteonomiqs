@@ -177,7 +177,7 @@ Weather data © [wetter.com GmbH / Meteonomiqs](https://www.meteonomiqs.com). Th
     Placeholder for the next version (at the beginning of the line):
     ### **WORK IN PROGRESS**
 -->
-### **WORK IN PROGRESS**
+### 0.1.9 (2026-08-16)
 
 - All state and channel labels now carry all eleven ioBroker languages instead of only English and German. The object structure check of the repository asks for this (`[W1001]`); the labels are built in code, so they live in a new `src/lib/i18n.ts` rather than in `admin/i18n`
 
