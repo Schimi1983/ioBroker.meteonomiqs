@@ -18,8 +18,10 @@
  */
 
 import * as utils from '@iobroker/adapter-core';
-import { ASTRO_FIELDS, CURRENT_EXTRA, DAY_FIELDS, HOUR_FIELDS, LEGACY_SPACE_FIELDS, SPACE_FIELDS, SPACE_LABELS, SPACE_SEGMENTS } from './lib/fields';
+import { ASTRO_FIELDS, CURRENT_EXTRA, DAY_FIELDS, HOUR_FIELDS, LEGACY_SPACE_FIELDS, SPACE_FIELDS, SPACE_SEGMENTS } from './lib/fields';
 import { budgetAllows, cloudsPercent, dayKey, extractValue, formatDate, getDayName, iconUrl, isoTime, localParts, monthKey, pad, round, scheduleOffsetMinutes, shiftMinutes, smallestGapHours, timeToMinutes } from './lib/helpers';
+import type { Translated } from './lib/i18n';
+import { NOW_PREFIX, dayHourPrefix, dayLabel, dayPrefix, daySegmentPrefix, hourLabel, label, prefixed, segmentLabel } from './lib/i18n';
 import type { TimerHandle } from './lib/scheduler';
 import { scheduleDaily, scheduleHourly } from './lib/scheduler';
 import type { ApiForecast, ApiHourlyItem, ApiSpacesDay, ApiSummaryItem, FetchReason, FieldDef, FieldGroup, RenderContext, UpdateTime } from './lib/types';
@@ -404,8 +406,8 @@ class WetterComAdapter extends utils.Adapter {
      * @param prefixDe German label prefix, e.g. "Jetzt: ".
      * @returns See return type.
      */
-    private fieldName(field: { name: string; nameDe: string }, prefixEn: string, prefixDe: string): ioBroker.StringOrTranslated {
-        return { en: `${prefixEn}${field.name}`, de: `${prefixDe}${field.nameDe}` };
+    private fieldName(field: { name: string; nameDe: string }, prefix: Translated): ioBroker.StringOrTranslated {
+        return prefixed(prefix, label(field.name, field.nameDe));
     }
 
     /**
@@ -419,11 +421,11 @@ class WetterComAdapter extends utils.Adapter {
      * @param ctx Language, time zone and icon base URL.
      * @param buffer Collects the pending writes so they can be awaited together.
      */
-    private async renderFields(basePath: string, prefixEn: string, prefixDe: string, fields: FieldDef[], source: unknown, ctx: RenderContext, buffer: Promise<unknown>[]): Promise<void> {
+    private async renderFields(basePath: string, prefix: Translated, fields: FieldDef[], source: unknown, ctx: RenderContext, buffer: Promise<unknown>[]): Promise<void> {
         const active = fields.filter((f) => this.groupEnabled(f.group));
 
         for (const field of active) {
-            await this.ensureState(`${basePath}.${field.id}`, { en: `${prefixEn}${field.name}`, de: `${prefixDe}${field.nameDe}` }, field.type, field.role, field.unit);
+            await this.ensureState(`${basePath}.${field.id}`, prefixed(prefix, label(field.name, field.nameDe)), field.type, field.role, field.unit);
         }
 
         for (const field of active) {
@@ -439,7 +441,7 @@ class WetterComAdapter extends utils.Adapter {
     }
 
     private async ensureInfoStates(): Promise<void> {
-        const s = (id: string, en: string, de: string, type: ioBroker.CommonType, role: string, unit?: string, write = false): Promise<void> => this.ensureState(`info.${id}`, { en, de }, type, role, unit, write);
+        const s = (id: string, en: string, de: string, type: ioBroker.CommonType, role: string, unit?: string, write = false): Promise<void> => this.ensureState(`info.${id}`, label(en, de), type, role, unit, write);
 
         await s('last_sync', 'Last update', 'Letztes Update', 'string', 'text');
         await s('last_sync_ts', 'Last update (timestamp)', 'Letztes Update (Timestamp)', 'number', 'value.time');
@@ -459,8 +461,8 @@ class WetterComAdapter extends utils.Adapter {
         await s('reset_counter', 'Reset monthly counter', 'Monatszähler zurücksetzen', 'boolean', 'button', undefined, true);
 
         if (this.config.enableJson) {
-            await this.ensureState('forecast_json', { en: 'Forecast (JSON)', de: 'Vorhersage (JSON)' }, 'string', 'json');
-            await this.ensureState('hourly_json', { en: 'Hourly values (JSON)', de: 'Stundenwerte (JSON)' }, 'string', 'json');
+            await this.ensureState('forecast_json', label('Forecast (JSON)'), 'string', 'json');
+            await this.ensureState('hourly_json', label('Hourly values (JSON)'), 'string', 'json');
         }
     }
 
@@ -766,28 +768,28 @@ class WetterComAdapter extends utils.Adapter {
             const dayPath = `day_${index}`;
             const buffer: Promise<unknown>[] = [];
 
-            await this.ensureChannel(dayPath, { en: `Day ${index}`, de: `Tag ${index}` });
-            await this.renderFields(dayPath, `Day ${index}: `, `Tag ${index}: `, DAY_FIELDS, day, ctx, buffer);
+            await this.ensureChannel(dayPath, dayLabel(index));
+            await this.renderFields(dayPath, dayPrefix(index), DAY_FIELDS, day, ctx, buffer);
 
             if (this.config.enableAstro && day.astronomy) {
                 const astroPath = `${dayPath}.astro`;
-                await this.ensureChannel(astroPath, { en: 'Sun & moon', de: 'Sonne & Mond' });
-                await this.renderFields(astroPath, `Day ${index}: `, `Tag ${index}: `, ASTRO_FIELDS, day.astronomy, ctx, buffer);
+                await this.ensureChannel(astroPath, label('Sun & moon'));
+                await this.renderFields(astroPath, dayPrefix(index), ASTRO_FIELDS, day.astronomy, ctx, buffer);
             }
 
             if (this.config.enableSpaces) {
                 const spaceDay = spacesByDate.get(dayKeyIso);
                 if (spaceDay) {
                     const spacesPath = `${dayPath}.spaces`;
-                    await this.ensureChannel(spacesPath, { en: 'Day sections', de: 'Tagesabschnitte' });
+                    await this.ensureChannel(spacesPath, label('Day sections'));
                     for (const segment of SPACE_SEGMENTS) {
                         const segmentData = spaceDay[segment];
                         if (!segmentData) {
                             continue;
                         }
                         const segmentPath = `${spacesPath}.${segment}`;
-                        await this.ensureChannel(segmentPath, SPACE_LABELS[segment]);
-                        await this.renderFields(segmentPath, `Day ${index} ${SPACE_LABELS[segment].en}: `, `Tag ${index} ${SPACE_LABELS[segment].de}: `, SPACE_FIELDS, segmentData, ctx, buffer);
+                        await this.ensureChannel(segmentPath, segmentLabel(segment));
+                        await this.renderFields(segmentPath, daySegmentPrefix(index, segment), SPACE_FIELDS, segmentData, ctx, buffer);
                     }
                 } else {
                     this.log.debug(`No day sections for ${dayKeyIso} in the API response.`);
@@ -796,16 +798,18 @@ class WetterComAdapter extends utils.Adapter {
 
             if (this.config.enableHourly && index < hourlyDays) {
                 const hourlyPath = `${dayPath}.hourly`;
-                await this.ensureChannel(hourlyPath, { en: 'Hourly', de: 'Stündlich' });
+                await this.ensureChannel(hourlyPath, label('Hourly'));
                 const hours = hourlyByDate.get(dayKeyIso) ?? [];
                 const delivered = new Set<string>();
 
                 for (const hour of hours) {
-                    const label = hour.__hour ?? '00';
-                    delivered.add(label);
-                    const hourPath = `${hourlyPath}.${label}`;
-                    await this.ensureChannel(hourPath, { en: `${label}:00`, de: `${label}:00 Uhr` });
-                    await this.renderFields(hourPath, `Day ${index} ${label}:00: `, `Tag ${index} ${label}:00: `, HOUR_FIELDS, hour, ctx, buffer);
+                    // Not named `label` any more: that now refers to the
+                    // translation helper imported from ./lib/i18n.
+                    const hourText = hour.__hour ?? '00';
+                    delivered.add(hourText);
+                    const hourPath = `${hourlyPath}.${hourText}`;
+                    await this.ensureChannel(hourPath, hourLabel(hourText));
+                    await this.renderFields(hourPath, dayHourPrefix(index, hourText), HOUR_FIELDS, hour, ctx, buffer);
 
                     if (this.config.enableJson && index === 0) {
                         jsonHours.push({
@@ -827,11 +831,11 @@ class WetterComAdapter extends utils.Adapter {
                 // Hours no longer covered by the forecast keep their values but
                 // are flagged, so bindings do not silently show stale data.
                 for (let h = 0; h < 24; h++) {
-                    const label = pad(h);
-                    if (delivered.has(label)) {
+                    const hourText = pad(h);
+                    if (delivered.has(hourText)) {
                         continue;
                     }
-                    const validId = `${hourlyPath}.${label}.valid`;
+                    const validId = `${hourlyPath}.${hourText}.valid`;
                     if (this.ensured.has(validId)) {
                         buffer.push(this.writeState(validId, false));
                     }
@@ -944,20 +948,20 @@ class WetterComAdapter extends utils.Adapter {
 
         try {
             const base = 'current';
-            await this.ensureChannel(base, { en: 'Current hour', de: 'Aktuelle Stunde' });
+            await this.ensureChannel(base, label('Current hour'));
 
             const hourFields = HOUR_FIELDS.filter((f) => this.groupEnabled(f.group));
             for (const field of hourFields) {
-                await this.ensureState(`${base}.${field.id}`, this.fieldName(field, 'Now: ', 'Jetzt: '), field.type, field.role, field.unit);
+                await this.ensureState(`${base}.${field.id}`, this.fieldName(field, NOW_PREFIX), field.type, field.role, field.unit);
             }
             for (const extra of CURRENT_EXTRA) {
                 if (extra.astro && !this.config.enableAstro) {
                     continue;
                 }
-                await this.ensureState(`${base}.${extra.id}`, this.fieldName(extra, 'Now: ', 'Jetzt: '), extra.type, extra.role, extra.unit);
+                await this.ensureState(`${base}.${extra.id}`, this.fieldName(extra, NOW_PREFIX), extra.type, extra.role, extra.unit);
             }
-            await this.ensureState(`${base}.source`, { en: 'Now: source state', de: 'Jetzt: Quell-Datenpunkt' }, 'string', 'text');
-            await this.ensureState(`${base}.updated`, { en: 'Now: last copied', de: 'Jetzt: zuletzt übernommen' }, 'string', 'text');
+            await this.ensureState(`${base}.source`, prefixed(NOW_PREFIX, label('Source state')), 'string', 'text');
+            await this.ensureState(`${base}.updated`, prefixed(NOW_PREFIX, label('Last copied')), 'string', 'text');
 
             const tzState = await this.getStateAsync('info.timezone');
             const tz = String(tzState?.val || '') || Intl.DateTimeFormat().resolvedOptions().timeZone;

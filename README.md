@@ -177,6 +177,10 @@ Weather data © [wetter.com GmbH / Meteonomiqs](https://www.meteonomiqs.com). Th
     Placeholder for the next version (at the beginning of the line):
     ### **WORK IN PROGRESS**
 -->
+### **WORK IN PROGRESS**
+
+- All state and channel labels now carry all eleven ioBroker languages instead of only English and German. The object structure check of the repository asks for this (`[W1001]`); the labels are built in code, so they live in a new `src/lib/i18n.ts` rather than in `admin/i18n`
+
 ### 0.1.8 (2026-08-16)
 
 - Corrected four state roles that are not part of the ioBroker role catalogue and were rejected by the object structure check (`[E1008]`): `weather.direction` → `weather.direction.wind`, `value.speed.wind.max` → `value.speed.max.wind` (note the word order), `value.precipitation.probability` → `value.precipitation.chance`, and `value.sun` → `value`, since the catalogue has no role for sunshine duration. Existing installations pick the change up on the next adapter start
