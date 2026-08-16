@@ -1,6 +1,6 @@
 {
   "name": "iobroker.meteonomiqs",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "Weather forecast from wetter.com (Meteonomiqs Public Weather API v4.0)",
   "author": {
     "name": "Schimi",
