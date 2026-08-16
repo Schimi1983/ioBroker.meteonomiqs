@@ -19,7 +19,7 @@
 
 import * as utils from '@iobroker/adapter-core';
 import { ASTRO_FIELDS, CURRENT_EXTRA, DAY_FIELDS, HOUR_FIELDS, LEGACY_SPACE_FIELDS, SPACE_FIELDS, SPACE_LABELS, SPACE_SEGMENTS } from './lib/fields';
-import { budgetAllows, cloudsPercent, dayKey, extractValue, formatDate, getDayName, iconUrl, isoTime, localParts, monthKey, pad, round, smallestGapHours, timeToMinutes } from './lib/helpers';
+import { budgetAllows, cloudsPercent, dayKey, extractValue, formatDate, getDayName, iconUrl, isoTime, localParts, monthKey, pad, round, scheduleOffsetMinutes, shiftMinutes, smallestGapHours, timeToMinutes } from './lib/helpers';
 import type { TimerHandle } from './lib/scheduler';
 import { scheduleDaily, scheduleHourly } from './lib/scheduler';
 import type { ApiForecast, ApiHourlyItem, ApiSpacesDay, ApiSummaryItem, FetchReason, FieldDef, FieldGroup, RenderContext, UpdateTime } from './lib/types';
@@ -35,6 +35,13 @@ const RETRY_DELAY_MS = 30000;
  * as disconnected rather than pretending the data is current.
  */
 const FORECAST_USABLE_FOR_MS = 26 * 60 * 60 * 1000;
+/**
+ * Every installation ships with the same default fetch times. Without a spread,
+ * all of them would call the API in the very same minute. Fifteen minutes either
+ * way distributes the load over half an hour and is far too small to matter for
+ * a weather forecast.
+ */
+const SCHEDULE_SPREAD_MINUTES = 15;
 
 class WetterComAdapter extends utils.Adapter {
     private timers: TimerHandle[] = [];
@@ -72,16 +79,26 @@ class WetterComAdapter extends utils.Adapter {
         this.subscribeStates('info.force_update');
         this.subscribeStates('info.reset_counter');
 
+        const offset = await this.resolveScheduleOffset();
+        const planned: string[] = [];
+
         for (const entry of times) {
             const minutes = timeToMinutes(entry.time);
             if (minutes === null) {
                 continue;
             }
-            const handle = scheduleDaily(this, Math.floor(minutes / 60), minutes % 60, () => {
+            // The same offset is applied to every time, so the gaps between the
+            // fetches - and with them the cooldown check - stay exactly as
+            // configured.
+            const shifted = shiftMinutes(minutes, offset);
+            planned.push(`${pad(Math.floor(shifted / 60))}:${pad(shifted % 60)} (tier ${entry.tier})`);
+            const handle = scheduleDaily(this, Math.floor(shifted / 60), shifted % 60, () => {
                 void this.fetchForecast('scheduled', entry.tier, entry.time);
             });
             this.timers.push(handle);
         }
+
+        this.log.info(`Fetch schedule: ${planned.join(', ')} - shifted by ${offset >= 0 ? '+' : ''}${offset} min against the configured times so that not every installation calls the API in the same minute.`);
 
         // Daily period roll so the counters flip over promptly in the UI. The
         // actual reset is additionally done lazily on every budget check, so a
@@ -99,6 +116,30 @@ class WetterComAdapter extends utils.Adapter {
         await this.updateCurrent('startup');
 
         await this.restoreConnectionAfterSkippedStartup();
+    }
+
+    /**
+     * Per-installation offset for the fetch times.
+     *
+     * Seeded with the ioBroker installation UUID so the value is stable across
+     * restarts but differs between users. Falls back to the namespace when the
+     * UUID cannot be read, which at least separates several instances on the
+     * same host.
+     *
+     * @returns Offset in minutes.
+     */
+    private async resolveScheduleOffset(): Promise<number> {
+        let seed = this.namespace;
+        try {
+            const meta = await this.getForeignObjectAsync('system.meta.uuid');
+            const uuid = meta?.native?.uuid;
+            if (typeof uuid === 'string' && uuid.length > 0) {
+                seed = uuid;
+            }
+        } catch (e) {
+            this.log.debug(`Could not read system.meta.uuid, falling back to the namespace: ${String(e)}`);
+        }
+        return scheduleOffsetMinutes(seed, SCHEDULE_SPREAD_MINUTES);
     }
 
     /**

@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { budgetAllows, cloudsPercent, dayLength, extractValue, formatDate, iconUrl, isoTime, localParts, parseApiDate, round, smallestGapHours, timeToMinutes } from './helpers';
+import { budgetAllows, cloudsPercent, dayLength, extractValue, formatDate, iconUrl, isoTime, localParts, parseApiDate, round, scheduleOffsetMinutes, shiftMinutes, smallestGapHours, timeToMinutes } from './helpers';
 
 const ICONS = 'https://cs3.wettercomassets.com/wcomv5/images/icons/weather';
 
@@ -116,6 +116,51 @@ describe('helpers', () => {
 
         it('detects the v2 scheduling bug: 04:15 and 15:15 are only 11 h apart', () => {
             expect(smallestGapHours([255, 915])).to.equal(11);
+        });
+    });
+
+    describe('scheduleOffsetMinutes() and shiftMinutes()', () => {
+        it('is stable for the same seed', () => {
+            const a = scheduleOffsetMinutes('4b1e0c2a-9d55-4f8e-a1c7-0b2d3e4f5a6b', 15);
+            const b = scheduleOffsetMinutes('4b1e0c2a-9d55-4f8e-a1c7-0b2d3e4f5a6b', 15);
+            expect(a).to.equal(b, 'a restart must not move the schedule');
+        });
+
+        it('stays inside the requested window', () => {
+            for (let i = 0; i < 500; i++) {
+                const offset = scheduleOffsetMinutes(`installation-${i}`, 15);
+                expect(offset).to.be.at.least(-15);
+                expect(offset).to.be.at.most(15);
+            }
+        });
+
+        it('spreads different installations over the whole window', () => {
+            const seen = new Set<number>();
+            for (let i = 0; i < 500; i++) {
+                seen.add(scheduleOffsetMinutes(`installation-${i}`, 15));
+            }
+            // 31 possible values; anything close to that means the hash is not
+            // clustering. A poor hash would collapse to a handful of buckets.
+            expect(seen.size).to.be.at.least(25, `only ${seen.size} distinct offsets`);
+        });
+
+        it('returns 0 when no spread is wanted', () => {
+            expect(scheduleOffsetMinutes('whatever', 0)).to.equal(0);
+        });
+
+        it('wraps around midnight in both directions', () => {
+            expect(shiftMinutes(10, -15)).to.equal(1435, '00:10 minus 15 min is 23:55');
+            expect(shiftMinutes(1435, 15)).to.equal(10, '23:55 plus 15 min is 00:10');
+            expect(shiftMinutes(70, 0)).to.equal(70);
+        });
+
+        it('keeps the gaps between the fetch times unchanged', () => {
+            const times = [70, 700, 1120]; // 01:10, 11:40, 18:40
+            const before = smallestGapHours(times);
+            for (const offset of [-15, -7, 0, 3, 15]) {
+                const shifted = times.map((t) => shiftMinutes(t, offset));
+                expect(smallestGapHours(shifted)).to.equal(before, `offset ${offset} changed the smallest gap`);
+            }
         });
     });
 

@@ -314,6 +314,46 @@ export function smallestGapHours(times: number[]): number {
 }
 
 /**
+ * Deterministic per-installation offset in minutes, within `spread` either way.
+ *
+ * Every installation runs the same default fetch times, so without an offset a
+ * few hundred adapters would hit the API in the same minute. The offset is
+ * derived from a stable seed (the ioBroker installation UUID) rather than drawn
+ * at random: it must survive restarts, or the cooldown would see a moved
+ * schedule and skip fetches.
+ *
+ * FNV-1a is used because it is short, has no dependencies and spreads short
+ * strings evenly — no cryptographic property is needed here.
+ *
+ * @param seed Stable identifier of the installation.
+ * @param spread Maximum deviation in minutes, in both directions.
+ * @returns Offset in minutes, between -spread and +spread.
+ */
+export function scheduleOffsetMinutes(seed: string, spread: number): number {
+    if (spread <= 0) {
+        return 0;
+    }
+    let hash = 0x811c9dc5;
+    for (let i = 0; i < seed.length; i++) {
+        hash ^= seed.charCodeAt(i);
+        hash = Math.imul(hash, 0x01000193) >>> 0;
+    }
+    const span = spread * 2 + 1;
+    return (hash % span) - spread;
+}
+
+/**
+ * Shifts a time given in minutes since midnight, wrapping around the 24 h clock.
+ *
+ * @param minutes Minutes since midnight.
+ * @param offset Offset in minutes, may be negative.
+ * @returns Minutes since midnight, always between 0 and 1439.
+ */
+export function shiftMinutes(minutes: number, offset: number): number {
+    return (((minutes + offset) % 1440) + 1440) % 1440;
+}
+
+/**
  * monthKey.
  *
  * @param date See parameter type.

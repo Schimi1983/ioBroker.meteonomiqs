@@ -60,6 +60,8 @@ Fetch times are a table of `HH:MM` plus a **priority**. The default:
 | 11:40 | 2 | Correction before the critical afternoon: thunderstorms, gusts, heat peak |
 | 18:40 | 3 | Night and tomorrow: frost, storms, outlook for the next morning |
 
+Each installation shifts these times by a fixed offset of up to 15 minutes, derived from the ioBroker installation UUID — otherwise every installation of this adapter would call the API in the same minute. The offset is the same for all three times, so the gaps between them stay exactly as configured. The times actually in use are written to the log on startup.
+
 **Minimum hours between updates** is a cooldown that protects against restart loops. It must be *smaller* than the shortest gap between two fetch times — otherwise one fetch is skipped every single day. The adapter checks this on startup and writes an error to the log if the numbers do not work out.
 
 ### API budget
@@ -175,6 +177,10 @@ Weather data © [wetter.com GmbH / Meteonomiqs](https://www.meteonomiqs.com). Th
     Placeholder for the next version (at the beginning of the line):
     ### **WORK IN PROGRESS**
 -->
+### **WORK IN PROGRESS**
+
+- The fetch times now carry a per-installation offset of up to 15 minutes, derived from the ioBroker installation UUID. Every installation used to call the API in the very same minute; the offset is deterministic, so it survives restarts, and it is applied to all times equally, which leaves the gaps between them — and the cooldown check — untouched
+
 ### 0.1.5 (2026-08-15)
 
 - Values that match their default are no longer left with quality `0x20` ("substitute initial value"). A state created from `common.def` starts out substituted, and `setStateChanged` skipped the first write whenever the real value happened to be `0` or `false` — so states like `prec_sum`, `warn_active` or `sun_hours` stayed flagged as not-measured and showed up orange in the admin
