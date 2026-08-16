@@ -1,6 +1,7 @@
 node_modules/
 .idea/
-.vscode/
+.vscode/*
+!.vscode/settings.json
 *.code-workspace
 nbproject/
 tmp/
