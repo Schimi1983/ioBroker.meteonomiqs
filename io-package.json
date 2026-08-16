@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "meteonomiqs",
-    "version": "0.1.6",
+    "version": "0.1.7",
     "news": {
+      "0.1.7": {
+        "en": "Removed `chai`, `@types/chai` and `@types/mocha` from the devDependencies — they come with `@iobroker/testing` and resolve fine without being declared. `mocha` has to stay declared because npm only links the binaries of direct dependencies, but its version now matches the range `@iobroker/testing` asks for, so a single copy is installed instead of the two that `^10` alongside `^11` used to produce (partly resolves `[E0063]`)",
+        "de": "Die Abhängigkeiten `chai`, `@types/chai` und `@types/mocha` wurden aus den devDependencies entfernt – sie sind in `@iobroker/testing` enthalten und lassen sich auch ohne Deklaration problemlos auflösen. `mocha` muss weiterhin deklariert bleiben, da npm nur die Binärdateien direkter Abhängigkeiten verlinkt. Da die Version von `mocha` nun dem von `@iobroker/testing` benötigten Bereich entspricht, wird nur noch eine Kopie installiert, anstatt der zwei, die zuvor `^10` und `^11` erzeugten (was den Fehler `[E0063]` teilweise behebt).",
+        "ru": "Удалены `chai`, `@types/chai` и `@types/mocha` из devDependencies — они поставляются с `@iobroker/testing` и корректно разрешаются без объявления. `mocha` должен оставаться объявленным, поскольку npm связывает только бинарные файлы прямых зависимостей, но его версия теперь соответствует диапазону, запрашиваемому `@iobroker/testing`, поэтому устанавливается одна копия вместо двух, которые раньше создавались при использовании `^10` вместе с `^11` (частично разрешает `[E0063]`).",
+        "pt": "Removi `chai`, `@types/chai` e `@types/mocha` das devDependencies — elas vêm com `@iobroker/testing` e são resolvidas corretamente sem serem declaradas. `mocha` precisa permanecer declarado porque o npm só vincula os binários das dependências diretas, mas sua versão agora corresponde ao intervalo exigido por `@iobroker/testing`, então uma única cópia é instalada em vez das duas que `^10` junto com `^11` costumavam produzir (resolve parcialmente `[E0063]`).",
+        "nl": "`chai`, `@types/chai` en `@types/mocha` zijn verwijderd uit de devDependencies — ze worden meegeleverd met `@iobroker/testing` en worden correct opgelost zonder te worden gedeclareerd. `mocha` moet wel gedeclareerd blijven, omdat npm alleen de binaire bestanden van directe afhankelijkheden linkt, maar de versie ervan komt nu overeen met het bereik dat `@iobroker/testing` vereist, waardoor er één exemplaar wordt geïnstalleerd in plaats van de twee die `^10` samen met `^11` voorheen produceerden (lost gedeeltelijk `[E0063]` op).",
+        "fr": "Les dépendances `chai`, `@types/chai` et `@types/mocha` ont été supprimées des dépendances de développement : elles sont incluses dans `@iobroker/testing` et peuvent être résolues sans être déclarées. `mocha` doit rester déclaré car npm ne lie que les binaires des dépendances directes, mais sa version correspond désormais à la plage requise par `@iobroker/testing`. Une seule copie est donc installée au lieu des deux que produisaient auparavant `^10` et `^11` (ce qui résout partiellement l'erreur `[E0063]`).",
+        "it": "Rimossi `chai`, `@types/chai` e `@types/mocha` dalle devDependencies: sono inclusi in `@iobroker/testing` e si risolvono correttamente anche senza essere dichiarati. `mocha` deve rimanere dichiarato perché npm collega solo i binari delle dipendenze dirette, ma la sua versione ora corrisponde all'intervallo richiesto da `@iobroker/testing`, quindi viene installata una singola copia invece delle due che `^10` insieme a `^11` producevano in precedenza (risolve parzialmente `[E0063]`).",
+        "es": "Se eliminaron `chai`, `@types/chai` y `@types/mocha` de las dependencias de desarrollo; vienen con `@iobroker/testing` y se resuelven correctamente sin necesidad de declararlas. `mocha` debe permanecer declarado porque npm solo enlaza los binarios de las dependencias directas, pero su versión ahora coincide con el rango que solicita `@iobroker/testing`, por lo que se instala una sola copia en lugar de las dos que solía producir `^10` junto con `^11` (resuelve parcialmente `[E0063]`).",
+        "pl": "Usunięto `chai`, `@types/chai` i `@types/mocha` z devDependencies — są one zawarte w `@iobroker/testing` i rozwiązują się poprawnie bez deklarowania. `mocha` musi pozostać zadeklarowana, ponieważ npm łączy tylko pliki binarne bezpośrednich zależności, ale jej wersja teraz pasuje do zakresu wymaganego przez `@iobroker/testing`, więc instalowana jest pojedyncza kopia zamiast dwóch, które były generowana przez `^10` wraz z `^11` (częściowo rozwiązuje to `[E0063]`)",
+        "uk": "Видалено `chai`, `@types/chai` та `@types/mocha` з devDependencies — вони постачаються з `@iobroker/testing` та нормально вирішуються без оголошення. `mocha` має залишатися оголошеним, оскільки npm зв'язує лише бінарні файли прямих залежностей, але його версія тепер відповідає діапазону, який запитує `@iobroker/testing`, тому встановлюється одна копія замість двох, які раніше створювали `^10` разом з `^11` (частково вирішує `[E0063]`).",
+        "zh-cn": "从 devDependencies 中移除了 `chai`、`@types/chai` 和 `@types/mocha`——它们包含在 `@iobroker/testing` 中，无需声明即可正常解析。`mocha` 必须保留声明，因为 npm 只链接直接依赖项的二进制文件，但它的版本现在与 `@iobroker/testing` 要求的版本范围匹配，因此只安装一个副本，而不是之前 `^10` 和 `^11` 一起安装的两个副本（部分解决了 `[E0063]` 问题）。"
+      },
       "0.1.6": {
         "en": "The fetch times now carry a per-installation offset of up to 15 minutes, derived from the ioBroker installation UUID. Every installation used to call the API in the very same minute; the offset is deterministic, so it survives restarts, and it is applied to all times equally, which leaves the gaps between them — and the cooldown check — untouched",
         "de": "Die Abrufzeiten weisen nun einen installationsspezifischen Offset von bis zu 15 Minuten auf, der sich aus der ioBroker-Installations-UUID ergibt. Früher rief jede Installation die API in derselben Minute auf; der Offset ist deterministisch, bleibt also auch nach Neustarts erhalten und wird auf alle Zeiten gleichmäßig angewendet, wodurch die Lücken zwischen ihnen – und die Cooldown-Prüfung – unverändert bleiben.",
@@ -80,19 +93,6 @@
         "pl": "Zmiana nazwy na meteonomiqs, porządki w ESLint i JSDoc",
         "uk": "Перейменовано на meteonomiqs, очищення ESLint і JSDoc",
         "zh-cn": "更名为 meteonomiqs，清理 ESLint 与 JSDoc"
-      },
-      "0.1.0": {
-        "en": "Initial release: forecast, day sections, hourly values, current hour, weather warnings, astronomy and API budget management",
-        "de": "Erstes Release: Vorhersage, Tagesabschnitte, Stundenwerte, aktuelle Stunde, Wetterwarnungen, Astronomie und API-Budgetverwaltung",
-        "ru": "Первый выпуск: прогноз, части дня, почасовые значения, текущий час, метеопредупреждения, астрономия и управление лимитом API",
-        "pt": "Versão inicial: previsão, períodos do dia, valores horários, hora atual, avisos meteorológicos, astronomia e gestão do limite da API",
-        "nl": "Eerste release: verwachting, dagdelen, uurwaarden, huidig uur, weerwaarschuwingen, astronomie en beheer van het API-limiet",
-        "fr": "Première version : prévisions, périodes de la journée, valeurs horaires, heure actuelle, alertes météo, astronomie et gestion du quota API",
-        "it": "Prima versione: previsioni, fasce orarie, valori orari, ora corrente, allerte meteo, astronomia e gestione del limite API",
-        "es": "Versión inicial: pronóstico, franjas del día, valores horarios, hora actual, avisos meteorológicos, astronomía y gestión del límite de la API",
-        "pl": "Pierwsze wydanie: prognoza, pory dnia, wartości godzinowe, bieżąca godzina, ostrzeżenia pogodowe, astronomia i zarządzanie limitem API",
-        "uk": "Перший випуск: прогноз, частини доби, погодинні значення, поточна година, попередження про погоду, астрономія та керування лімітом API",
-        "zh-cn": "首个版本：天气预报、时段预报、逐小时数据、当前小时、天气警报、天文数据以及 API 配额管理"
       }
     },
     "titleLang": {
