@@ -19,7 +19,7 @@
 
 import * as utils from '@iobroker/adapter-core';
 import { ASTRO_FIELDS, CURRENT_EXTRA, DAY_FIELDS, HOUR_FIELDS, LEGACY_SPACE_FIELDS, SPACE_FIELDS, SPACE_SEGMENTS } from './lib/fields';
-import { budgetAllows, cloudsPercent, dayKey, extractValue, formatDate, getDayName, iconUrl, isoTime, localParts, monthKey, pad, round, scheduleOffsetMinutes, shiftMinutes, smallestGapHours, timeToMinutes } from './lib/helpers';
+import { budgetAllows, cloudsPercent, coerceValue, dayKey, extractValue, formatDate, getDayName, iconUrl, isoTime, localParts, monthKey, pad, round, scheduleOffsetMinutes, shiftMinutes, smallestGapHours, timeToMinutes } from './lib/helpers';
 import type { Translated } from './lib/i18n';
 import { NOW_PREFIX, dayHourPrefix, dayLabel, dayPrefix, daySegmentPrefix, hourLabel, label, prefixed, segmentLabel } from './lib/i18n';
 import type { TimerHandle } from './lib/scheduler';
@@ -379,22 +379,6 @@ class WetterComAdapter extends utils.Adapter {
         return type === 'number' ? 0 : type === 'boolean' ? false : '';
     }
 
-    private static coerce(raw: unknown, field: FieldDef): ioBroker.StateValue {
-        if (field.type === 'number') {
-            return round(extractValue(raw), field.digits ?? 1);
-        }
-        if (field.type === 'boolean') {
-            return !!raw;
-        }
-        if (typeof raw === 'string') {
-            return raw;
-        }
-        if (typeof raw === 'number' || typeof raw === 'boolean') {
-            return String(raw);
-        }
-        return '';
-    }
-
     /**
      * Builds the translated state label.
      *
@@ -436,7 +420,7 @@ class WetterComAdapter extends utils.Adapter {
                 raw = null;
                 this.log.debug(`Field "${field.id}" could not be read: ${String(e)}`);
             }
-            buffer.push(this.writeState(`${basePath}.${field.id}`, WetterComAdapter.coerce(raw, field)));
+            buffer.push(this.writeState(`${basePath}.${field.id}`, coerceValue(raw, field)));
         }
     }
 

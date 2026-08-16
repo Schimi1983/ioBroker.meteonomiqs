@@ -3,7 +3,7 @@
  * is directly unit-testable (see helpers.test.ts).
  */
 
-import type { ApiWeather } from './types';
+import type { ApiWeather, FieldDef } from './types';
 
 /**
  * pad.
@@ -62,6 +62,32 @@ export function extractValue(value: unknown): number {
         return isNaN(parsed) ? 0 : parsed;
     }
     return 0;
+}
+
+/**
+ * Converts a raw getter result into the value that is written to the state.
+ *
+ * Lives here rather than in `main.ts` so the field tables can be tested without
+ * an adapter instance — getter and coercion together are what a user finally sees.
+ *
+ * @param raw Whatever the field's `get` returned.
+ * @param field The row the value belongs to; supplies target type and precision.
+ * @returns The value as it is written to the state.
+ */
+export function coerceValue(raw: unknown, field: Pick<FieldDef, 'type' | 'digits'>): ioBroker.StateValue {
+    if (field.type === 'number') {
+        return round(extractValue(raw), field.digits ?? 1);
+    }
+    if (field.type === 'boolean') {
+        return !!raw;
+    }
+    if (typeof raw === 'string') {
+        return raw;
+    }
+    if (typeof raw === 'number' || typeof raw === 'boolean') {
+        return String(raw);
+    }
+    return '';
 }
 
 /**

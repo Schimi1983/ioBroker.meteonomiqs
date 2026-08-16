@@ -373,21 +373,6 @@ class WetterComAdapter extends utils.Adapter {
     static initValue(type) {
         return type === 'number' ? 0 : type === 'boolean' ? false : '';
     }
-    static coerce(raw, field) {
-        if (field.type === 'number') {
-            return (0, helpers_1.round)((0, helpers_1.extractValue)(raw), field.digits ?? 1);
-        }
-        if (field.type === 'boolean') {
-            return !!raw;
-        }
-        if (typeof raw === 'string') {
-            return raw;
-        }
-        if (typeof raw === 'number' || typeof raw === 'boolean') {
-            return String(raw);
-        }
-        return '';
-    }
     /**
      * Builds the translated state label.
      *
@@ -427,7 +412,7 @@ class WetterComAdapter extends utils.Adapter {
                 raw = null;
                 this.log.debug(`Field "${field.id}" could not be read: ${String(e)}`);
             }
-            buffer.push(this.writeState(`${basePath}.${field.id}`, WetterComAdapter.coerce(raw, field)));
+            buffer.push(this.writeState(`${basePath}.${field.id}`, (0, helpers_1.coerceValue)(raw, field)));
         }
     }
     async ensureInfoStates() {
