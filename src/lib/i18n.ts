@@ -10,8 +10,50 @@
  * unchanged, which keeps the field tables free of translation noise.
  */
 
-/** Translated label, keyed by ioBroker language code. */
-export type Translated = Record<string, string>;
+/**
+ * The eleven language codes ioBroker supports, in the order the platform lists
+ * them. `ioBroker.Translated` is `{ en: string } & { [lang in Languages]?: string }`,
+ * so a plain `Record<string, string>` is *not* assignable to it: an index
+ * signature does not satisfy the declared, required `en` property.
+ */
+export const LANGUAGES = ['en', 'de', 'ru', 'pt', 'nl', 'fr', 'it', 'es', 'pl', 'uk', 'zh-cn'] as const;
+
+/** One of the eleven ioBroker language codes. */
+export type Language = (typeof LANGUAGES)[number];
+
+/**
+ * Translated label carrying all eleven languages.
+ *
+ * Every language is required, which makes the type assignable to
+ * `ioBroker.StringOrTranslated` and satisfies the object structure check
+ * ([W1001]) that wants a complete translation on every `common.name`.
+ */
+export type Translated = Record<Language, string>;
+
+/**
+ * Builds a translation map by asking the callback for every language.
+ *
+ * The keys are written out instead of filled in a loop so that TypeScript can
+ * see that the result really covers all eleven languages.
+ *
+ * @param build Returns the wording for one language.
+ * @returns The complete translation map.
+ */
+function forEachLanguage(build: (lang: Language) => string): Translated {
+    return {
+        en: build('en'),
+        de: build('de'),
+        ru: build('ru'),
+        pt: build('pt'),
+        nl: build('nl'),
+        fr: build('fr'),
+        it: build('it'),
+        es: build('es'),
+        pl: build('pl'),
+        uk: build('uk'),
+        'zh-cn': build('zh-cn'),
+    };
+}
 
 /**
  * Builds a translated label from the eleven values in platform order.
@@ -160,8 +202,9 @@ export function label(en: string, fallbackDe?: string): Translated {
         return { ...found };
     }
     // A label that has not been translated yet still has to produce a usable
-    // name rather than an empty one.
-    return { en, de: fallbackDe ?? en };
+    // name in every language rather than an incomplete one, so the English
+    // wording stands in everywhere except German.
+    return forEachLanguage(lang => (lang === 'de' ? (fallbackDe ?? en) : en));
 }
 
 /**
@@ -172,12 +215,10 @@ export function label(en: string, fallbackDe?: string): Translated {
  * @returns Combined translation map.
  */
 export function prefixed(prefix: Translated, name: Translated): Translated {
-    const out: Translated = {};
-    for (const lang of Object.keys(name)) {
-        const head = prefix[lang] ?? prefix.en ?? '';
-        out[lang] = head ? `${head}: ${name[lang]}` : name[lang];
-    }
-    return out;
+    return forEachLanguage(lang => {
+        const head = prefix[lang];
+        return head ? `${head}: ${name[lang]}` : name[lang];
+    });
 }
 
 /**
@@ -187,11 +228,7 @@ export function prefixed(prefix: Translated, name: Translated): Translated {
  * @returns Translation map.
  */
 export function dayLabel(index: number): Translated {
-    const out: Translated = {};
-    for (const lang of Object.keys(DAY_WORD)) {
-        out[lang] = lang === 'zh-cn' ? `第 ${index} 天` : `${DAY_WORD[lang]} ${index}`;
-    }
-    return out;
+    return forEachLanguage(lang => (lang === 'zh-cn' ? `第 ${index} 天` : `${DAY_WORD[lang]} ${index}`));
 }
 
 /**
@@ -214,11 +251,7 @@ export function dayPrefix(index: number): Translated {
 export function daySegmentPrefix(index: number, segment: string): Translated {
     const day = dayLabel(index);
     const seg = SEGMENT_LABELS[segment] ?? label(segment);
-    const out: Translated = {};
-    for (const lang of Object.keys(day)) {
-        out[lang] = `${day[lang]} ${seg[lang] ?? seg.en}`;
-    }
-    return out;
+    return forEachLanguage(lang => `${day[lang]} ${seg[lang]}`);
 }
 
 /**
@@ -230,11 +263,7 @@ export function daySegmentPrefix(index: number, segment: string): Translated {
  */
 export function dayHourPrefix(index: number, hour: string): Translated {
     const day = dayLabel(index);
-    const out: Translated = {};
-    for (const lang of Object.keys(day)) {
-        out[lang] = `${day[lang]} ${hour}:00`;
-    }
-    return out;
+    return forEachLanguage(lang => `${day[lang]} ${hour}:00`);
 }
 
 /**
@@ -254,11 +283,7 @@ export function segmentLabel(segment: string): Translated {
  * @returns Translation map.
  */
 export function hourLabel(hour: string): Translated {
-    const out: Translated = {};
-    for (const lang of Object.keys(DAY_WORD)) {
-        out[lang] = lang === 'de' ? `${hour}:00 Uhr` : `${hour}:00`;
-    }
-    return out;
+    return forEachLanguage(lang => (lang === 'de' ? `${hour}:00 Uhr` : `${hour}:00`));
 }
 
 /** Prefix used for every state inside the `current` folder. */

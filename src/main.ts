@@ -396,15 +396,14 @@ class WetterComAdapter extends utils.Adapter {
     }
 
     /**
-     * Builds the bilingual state label.
+     * Builds the translated state label.
      *
-     * Both prefixes must be passed separately — a single prefix would put the
-     * English wording into the German name.
+     * The prefix is translated as a whole rather than per language at the call
+     * site — otherwise the English wording would end up in the German name.
      *
      * @param field Field definition carrying the English and German label.
-     * @param prefixEn English label prefix, e.g. "Now: ".
-     * @param prefixDe German label prefix, e.g. "Jetzt: ".
-     * @returns See return type.
+     * @param prefix Translated label prefix, e.g. "Now" / "Jetzt".
+     * @returns The label in all supported languages.
      */
     private fieldName(field: { name: string; nameDe: string }, prefix: Translated): ioBroker.StringOrTranslated {
         return prefixed(prefix, label(field.name, field.nameDe));
@@ -414,8 +413,7 @@ class WetterComAdapter extends utils.Adapter {
      * Creates and writes all fields of a table in one place.
      *
      * @param basePath State prefix the fields are created under.
-     * @param prefixEn English label prefix, e.g. "Day 0: ".
-     * @param prefixDe German label prefix, e.g. "Tag 0: ".
+     * @param prefix Translated label prefix, e.g. "Day 0" / "Tag 0".
      * @param fields The field table to render.
      * @param source API object the getters read from.
      * @param ctx Language, time zone and icon base URL.
