@@ -402,6 +402,8 @@ class WetterComAdapter extends utils.Adapter {
      * site — otherwise the English wording would end up in the German name.
      *
      * @param field Field definition carrying the English and German label.
+     * @param field.name English label, which doubles as the translation key.
+     * @param field.nameDe German label, used when the key is not in the table.
      * @param prefix Translated label prefix, e.g. "Now" / "Jetzt".
      * @returns The label in all supported languages.
      */
