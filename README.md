@@ -177,10 +177,13 @@ Weather data © [wetter.com GmbH / Meteonomiqs](https://www.meteonomiqs.com). Th
     Placeholder for the next version (at the beginning of the line):
     ### **WORK IN PROGRESS**
 -->
+### 0.2.2 (2026-08-16)
+
+- Removed `mocha` from the devDependencies. It is a dependency of `@iobroker/testing`, so npm hoists it and the test scripts still find the binary — this clears the last error the repository checker reported (`[E0063]`)
+
 ### 0.2.1 (2026-08-16)
 
 - The adapter can be installed straight from GitHub again. Since the compiled `build/` folder was removed from the repository (`[E5019]`), a GitHub installation had nothing to start; a `prepare` script now makes npm compile the TypeScript sources during such an installation. Installing from npm is unaffected — the published package already contains the compiled files
-- Removed `mocha` from the devDependencies. It is a dependency of `@iobroker/testing`, so npm hoists it and the test scripts still find the binary — this clears the last error the repository checker reported (`[E0063]`)
 
 ### 0.2.0 (2026-08-16)
 

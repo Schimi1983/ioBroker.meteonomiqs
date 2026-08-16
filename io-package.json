@@ -1,20 +1,33 @@
 {
   "common": {
     "name": "meteonomiqs",
-    "version": "0.2.1",
+    "version": "0.2.2",
     "news": {
+      "0.2.2": {
+        "en": "`mocha` is no longer declared as a devDependency and now resolves through `@iobroker/testing`, which clears `[E0063]`",
+        "de": "`mocha` ist nicht mehr als devDependency deklariert und wird jetzt über `@iobroker/testing` aufgelöst, womit `[E0063]` erledigt ist.",
+        "ru": "`mocha` больше не объявлена в devDependencies и теперь разрешается через `@iobroker/testing`, что закрывает `[E0063]`.",
+        "pt": "`mocha` já não está declarada nas devDependencies e passa a ser resolvida através de `@iobroker/testing`, o que resolve `[E0063]`.",
+        "nl": "`mocha` staat niet langer in de devDependencies en wordt nu via `@iobroker/testing` opgelost, waarmee `[E0063]` is afgehandeld.",
+        "fr": "`mocha` n'est plus déclaré dans les devDependencies et se résout désormais via `@iobroker/testing`, ce qui clôt `[E0063]`.",
+        "it": "`mocha` non è più dichiarato tra le devDependencies e viene ora risolto tramite `@iobroker/testing`, il che chiude `[E0063]`.",
+        "es": "`mocha` ya no se declara en devDependencies y ahora se resuelve a través de `@iobroker/testing`, lo que cierra `[E0063]`.",
+        "pl": "`mocha` nie jest już zadeklarowana w devDependencies i jest teraz rozwiązywana przez `@iobroker/testing`, co zamyka `[E0063]`.",
+        "uk": "`mocha` більше не оголошена в devDependencies і тепер розв'язується через `@iobroker/testing`, що закриває `[E0063]`.",
+        "zh-cn": "`mocha` 不再声明为 devDependency，改由 `@iobroker/testing` 提供，从而解决了 `[E0063]`。"
+      },
       "0.2.1": {
-        "en": "The adapter can be installed straight from GitHub again. A `prepare` script makes npm compile the TypeScript sources during a GitHub installation; the published npm package already contains the compiled files and is unaffected `mocha` is no longer declared as a devDependency and now resolves through `@iobroker/testing`, which clears `[E0063]`",
-        "de": "Der Adapter lässt sich wieder direkt von GitHub installieren. Ein `prepare`-Skript sorgt dafür, dass npm die TypeScript-Quellen bei einer GitHub-Installation selbst übersetzt; das veröffentlichte npm-Paket enthält die übersetzten Dateien bereits und ist davon nicht betroffen. `mocha` ist nicht mehr als devDependency deklariert und wird jetzt über `@iobroker/testing` aufgelöst, womit `[E0063]` erledigt ist.",
-        "ru": "Адаптер снова можно установить напрямую с GitHub. Скрипт `prepare` заставляет npm компилировать исходники TypeScript во время установки с GitHub; опубликованный пакет npm уже содержит скомпилированные файлы и не затрагивается. `mocha` больше не объявлена в devDependencies и теперь разрешается через `@iobroker/testing`, что закрывает `[E0063]`.",
-        "pt": "O adaptador pode ser instalado novamente diretamente do GitHub. Um script `prepare` faz com que o npm compile as fontes TypeScript durante uma instalação a partir do GitHub; o pacote npm publicado já contém os ficheiros compilados e não é afetado. `mocha` já não está declarada nas devDependencies e passa a ser resolvida através de `@iobroker/testing`, o que resolve `[E0063]`.",
-        "nl": "De adapter kan weer rechtstreeks vanaf GitHub worden geïnstalleerd. Een `prepare`-script zorgt ervoor dat npm de TypeScript-bronnen tijdens een GitHub-installatie zelf compileert; het gepubliceerde npm-pakket bevat de gecompileerde bestanden al en verandert niet. `mocha` staat niet langer in de devDependencies en wordt nu via `@iobroker/testing` opgelost, waarmee `[E0063]` is afgehandeld.",
-        "fr": "L'adaptateur peut de nouveau être installé directement depuis GitHub. Un script `prepare` demande à npm de compiler les sources TypeScript lors d'une installation depuis GitHub ; le paquet npm publié contient déjà les fichiers compilés et n'est pas concerné. `mocha` n'est plus déclaré dans les devDependencies et se résout désormais via `@iobroker/testing`, ce qui clôt `[E0063]`.",
-        "it": "L'adapter può essere installato di nuovo direttamente da GitHub. Uno script `prepare` fa sì che npm compili i sorgenti TypeScript durante un'installazione da GitHub; il pacchetto npm pubblicato contiene già i file compilati e non è interessato. `mocha` non è più dichiarato tra le devDependencies e viene ora risolto tramite `@iobroker/testing`, il che chiude `[E0063]`.",
-        "es": "El adaptador se puede instalar de nuevo directamente desde GitHub. Un script `prepare` hace que npm compile las fuentes de TypeScript durante una instalación desde GitHub; el paquete npm publicado ya contiene los archivos compilados y no se ve afectado. `mocha` ya no se declara en devDependencies y ahora se resuelve a través de `@iobroker/testing`, lo que cierra `[E0063]`.",
-        "pl": "Adapter można ponownie zainstalować bezpośrednio z GitHuba. Skrypt `prepare` sprawia, że npm kompiluje źródła TypeScript podczas instalacji z GitHuba; opublikowany pakiet npm zawiera już skompilowane pliki i nie ulega zmianie. `mocha` nie jest już zadeklarowana w devDependencies i jest teraz rozwiązywana przez `@iobroker/testing`, co zamyka `[E0063]`.",
-        "uk": "Адаптер знову можна встановити безпосередньо з GitHub. Скрипт `prepare` змушує npm компілювати вихідні файли TypeScript під час встановлення з GitHub; опублікований пакет npm уже містить скомпільовані файли і не змінюється. `mocha` більше не оголошена в devDependencies і тепер розв'язується через `@iobroker/testing`, що закриває `[E0063]`.",
-        "zh-cn": "适配器又可以直接从 GitHub 安装了。`prepare` 脚本会让 npm 在 GitHub 安装过程中自行编译 TypeScript 源码；已发布的 npm 包本身就包含编译产物，不受影响。 `mocha` 不再声明为 devDependency，改由 `@iobroker/testing` 提供，从而解决了 `[E0063]`。"
+        "en": "The adapter can be installed straight from GitHub again. A `prepare` script makes npm compile the TypeScript sources during a GitHub installation; the published npm package already contains the compiled files and is unaffected",
+        "de": "Der Adapter lässt sich wieder direkt von GitHub installieren. Ein `prepare`-Skript sorgt dafür, dass npm die TypeScript-Quellen bei einer GitHub-Installation selbst übersetzt; das veröffentlichte npm-Paket enthält die übersetzten Dateien bereits und ist davon nicht betroffen.",
+        "ru": "Адаптер снова можно установить напрямую с GitHub. Скрипт `prepare` заставляет npm компилировать исходники TypeScript во время установки с GitHub; опубликованный пакет npm уже содержит скомпилированные файлы и не затрагивается.",
+        "pt": "O adaptador pode ser instalado novamente diretamente do GitHub. Um script `prepare` faz com que o npm compile as fontes TypeScript durante uma instalação a partir do GitHub; o pacote npm publicado já contém os ficheiros compilados e não é afetado.",
+        "nl": "De adapter kan weer rechtstreeks vanaf GitHub worden geïnstalleerd. Een `prepare`-script zorgt ervoor dat npm de TypeScript-bronnen tijdens een GitHub-installatie zelf compileert; het gepubliceerde npm-pakket bevat de gecompileerde bestanden al en verandert niet.",
+        "fr": "L'adaptateur peut de nouveau être installé directement depuis GitHub. Un script `prepare` demande à npm de compiler les sources TypeScript lors d'une installation depuis GitHub ; le paquet npm publié contient déjà les fichiers compilés et n'est pas concerné.",
+        "it": "L'adapter può essere installato di nuovo direttamente da GitHub. Uno script `prepare` fa sì che npm compili i sorgenti TypeScript durante un'installazione da GitHub; il pacchetto npm pubblicato contiene già i file compilati e non è interessato.",
+        "es": "El adaptador se puede instalar de nuevo directamente desde GitHub. Un script `prepare` hace que npm compile las fuentes de TypeScript durante una instalación desde GitHub; el paquete npm publicado ya contiene los archivos compilados y no se ve afectado.",
+        "pl": "Adapter można ponownie zainstalować bezpośrednio z GitHuba. Skrypt `prepare` sprawia, że npm kompiluje źródła TypeScript podczas instalacji z GitHuba; opublikowany pakiet npm zawiera już skompilowane pliki i nie ulega zmianie.",
+        "uk": "Адаптер знову можна встановити безпосередньо з GitHub. Скрипт `prepare` змушує npm компілювати вихідні файли TypeScript під час встановлення з GitHub; опублікований пакет npm уже містить скомпільовані файли і не змінюється.",
+        "zh-cn": "适配器又可以直接从 GitHub 安装了。`prepare` 脚本会让 npm 在 GitHub 安装过程中自行编译 TypeScript 源码；已发布的 npm 包本身就包含编译产物，不受影响。"
       },
       "0.2.0": {
         "en": "All state and channel labels now carry all eleven ioBroker languages instead of only English and German. The object structure check of the repository asks for this (`[W1001]`); the labels are built in code, so they live in a new `src/lib/i18n.ts` rather than in `admin/i18n`",
