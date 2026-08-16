@@ -177,6 +177,13 @@ Weather data © [wetter.com GmbH / Meteonomiqs](https://www.meteonomiqs.com). Th
     Placeholder for the next version (at the beginning of the line):
     ### **WORK IN PROGRESS**
 -->
+### 0.2.5 (2026-08-16)
+
+- The field tables are covered by tests now: 138 of them, running every getter against a hand-built API response, plus the structural rules — unique ids, both label languages, roles from the ioBroker catalogue, unit and precision only on numbers. Every leaf of the fixture carries a value that appears nowhere else, so a getter reading `min` where it should read `max` cannot pass
+- The admin translations moved to the short i18n form, `admin/i18n/<lang>.json` instead of `admin/i18n/<lang>/translations.json` (`[S5601]`)
+- Added `.vscode/settings.json` with the ioBroker JSON schemas for `io-package.json` and `jsonConfig.json` (`[S4036]`)
+- Nothing changes for an installation: no state, no role, no unit and no configuration option is affected
+
 ### 0.2.4 (2026-08-16)
 
 - Raised the minimum admin version to 7.8.23 and `@types/node` to the major that matches `engines.node` — both proposed by the ioBroker bot
@@ -201,10 +208,6 @@ Weather data © [wetter.com GmbH / Meteonomiqs](https://www.meteonomiqs.com). Th
 ### 0.1.8 (2026-08-16)
 
 - Corrected four state roles that are not part of the ioBroker role catalogue and were rejected by the object structure check (`[E1008]`): `weather.direction` → `weather.direction.wind`, `value.speed.wind.max` → `value.speed.max.wind` (note the word order), `value.precipitation.probability` → `value.precipitation.chance`, and `value.sun` → `value`, since the catalogue has no role for sunshine duration. Existing installations pick the change up on the next adapter start
-
-### 0.1.7 (2026-08-16)
-
-- Removed `chai`, `@types/chai` and `@types/mocha` from the devDependencies — they come with `@iobroker/testing` and resolve fine without being declared. `mocha` has to stay declared because npm only links the binaries of direct dependencies, but its version now matches the range `@iobroker/testing` asks for, so a single copy is installed instead of the two that `^10` alongside `^11` used to produce (partly resolves `[E0063]`)
 
 [Older changelogs can be found there](CHANGELOG_OLD.md)
 
