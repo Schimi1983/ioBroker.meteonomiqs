@@ -1,9 +1,9 @@
 {
   "common": {
     "name": "meteonomiqs",
-    "version": "0.1.9",
+    "version": "0.2.0",
     "news": {
-      "0.1.9": {
+      "0.2.0": {
         "en": "All state and channel labels now carry all eleven ioBroker languages instead of only English and German. The object structure check of the repository asks for this (`[W1001]`); the labels are built in code, so they live in a new `src/lib/i18n.ts` rather than in `admin/i18n`",
         "de": "Alle Status- und Kanalbezeichnungen unterstützen nun alle elf ioBroker-Sprachen anstatt nur Englisch und Deutsch. Die Objektstrukturprüfung des Repositorys fordert dies an (`[W1001]`); die Bezeichnungen sind im Code integriert und befinden sich daher in einer neuen Datei `src/lib/i18n.ts` anstatt in `admin/i18n`.",
         "ru": "Теперь все метки состояний и каналов содержат все одиннадцать языков ioBroker, а не только английский и немецкий. Проверка структуры объекта репозитория запрашивает это (`[W1001]`); метки создаются в коде, поэтому они находятся в новом файле `src/lib/i18n.ts`, а не в `admin/i18n`.",
