@@ -177,6 +177,12 @@ Weather data © [wetter.com GmbH / Meteonomiqs](https://www.meteonomiqs.com). Th
     Placeholder for the next version (at the beginning of the line):
     ### **WORK IN PROGRESS**
 -->
+### 0.2.6 (2026-08-16)
+
+- The buttons `info.force_update` and `info.reset_counter` are write-only now. A state with role `button` carries no value to read, and `read: true` made the admin offer it as a readable one (repository review)
+- The `warn_severity_int` states in the day, day-section and hourly subtrees carry the generic `value` role. `value.severity` is not part of the ioBroker role catalogue (repository review)
+- Both corrections reach existing installations on the next adapter start — the object metadata is compared and rewritten on drift
+
 ### 0.2.5 (2026-08-16)
 
 - The field tables are covered by tests now: 138 of them, running every getter against a hand-built API response, plus the structural rules — unique ids, both label languages, roles from the ioBroker catalogue, unit and precision only on numbers. Every leaf of the fixture carries a value that appears nowhere else, so a getter reading `min` where it should read `max` cannot pass
@@ -204,10 +210,6 @@ Weather data © [wetter.com GmbH / Meteonomiqs](https://www.meteonomiqs.com). Th
 ### 0.2.0 (2026-08-16)
 
 - All state and channel labels now carry all eleven ioBroker languages instead of only English and German. The object structure check of the repository asks for this (`[W1001]`); the labels are built in code, so they live in a new `src/lib/i18n.ts` rather than in `admin/i18n`
-
-### 0.1.8 (2026-08-16)
-
-- Corrected four state roles that are not part of the ioBroker role catalogue and were rejected by the object structure check (`[E1008]`): `weather.direction` → `weather.direction.wind`, `value.speed.wind.max` → `value.speed.max.wind` (note the word order), `value.precipitation.probability` → `value.precipitation.chance`, and `value.sun` → `value`, since the catalogue has no role for sunshine duration. Existing installations pick the change up on the next adapter start
 
 [Older changelogs can be found there](CHANGELOG_OLD.md)
 

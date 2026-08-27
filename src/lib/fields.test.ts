@@ -244,7 +244,6 @@ const KNOWN_ROLES = new Set([
     'value.precipitation',
     'value.precipitation.chance',
     'value.pressure',
-    'value.severity',
     'value.speed.max.wind',
     'value.speed.wind',
     'value.speed.wind.gust',

@@ -1,5 +1,9 @@
 # Older changes
 
+### 0.1.8 (2026-08-16)
+
+- Corrected four state roles that are not part of the ioBroker role catalogue and were rejected by the object structure check (`[E1008]`): `weather.direction` → `weather.direction.wind`, `value.speed.wind.max` → `value.speed.max.wind` (note the word order), `value.precipitation.probability` → `value.precipitation.chance`, and `value.sun` → `value`, since the catalogue has no role for sunshine duration. Existing installations pick the change up on the next adapter start
+
 ### 0.1.7 (2026-08-16)
 
 - Removed `chai`, `@types/chai` and `@types/mocha` from the devDependencies — they come with `@iobroker/testing` and resolve fine without being declared. `mocha` has to stay declared because npm only links the binaries of direct dependencies, but its version now matches the range `@iobroker/testing` asks for, so a single copy is installed instead of the two that `^10` alongside `^11` used to produce (partly resolves `[E0063]`)

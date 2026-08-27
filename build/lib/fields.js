@@ -48,7 +48,7 @@ exports.DAY_FIELDS = [
     { id: 'warn_group', name: 'Warning group', nameDe: 'Warnung Gruppe', type: 'string', role: 'text', group: 'warn', get: (d) => d.highestWarning?.group },
     { id: 'warn_text', name: 'Warning text', nameDe: 'Warnung Text', type: 'string', role: 'text', group: 'warn', get: (d) => d.highestWarning?.text },
     { id: 'warn_severity', name: 'Warning severity', nameDe: 'Warnung Schweregrad', type: 'string', role: 'text', group: 'warn', get: (d) => d.highestWarning?.severity },
-    { id: 'warn_severity_int', name: 'Warning severity (0-4)', nameDe: 'Warnung Schweregrad (0-4)', type: 'number', role: 'value.severity', digits: 0, group: 'warn', get: (d) => d.highestWarning?.severityInt },
+    { id: 'warn_severity_int', name: 'Warning severity (0-4)', nameDe: 'Warnung Schweregrad (0-4)', type: 'number', role: 'value', digits: 0, group: 'warn', get: (d) => d.highestWarning?.severityInt },
 ];
 /**
  * ASTRO_FIELDS.
@@ -98,7 +98,7 @@ exports.SPACE_FIELDS = [
     { id: 'fresh_snow_max', name: 'Fresh snow max.', nameDe: 'Neuschnee max.', type: 'number', role: 'value', unit: 'cm', digits: 1, group: 'snow', get: (s) => s.prec?.freshSnowRangeMax },
     { id: 'warn_active', name: 'Warning active', nameDe: 'Warnung aktiv', type: 'boolean', role: 'indicator.alarm', group: 'warn', get: (s) => !!s.highestWarning },
     { id: 'warn_text', name: 'Warning text', nameDe: 'Warnung Text', type: 'string', role: 'text', group: 'warn', get: (s) => s.highestWarning?.text },
-    { id: 'warn_severity_int', name: 'Warning severity (0-4)', nameDe: 'Warnung Schweregrad (0-4)', type: 'number', role: 'value.severity', digits: 0, group: 'warn', get: (s) => s.highestWarning?.severityInt },
+    { id: 'warn_severity_int', name: 'Warning severity (0-4)', nameDe: 'Warnung Schweregrad (0-4)', type: 'number', role: 'value', digits: 0, group: 'warn', get: (s) => s.highestWarning?.severityInt },
 ];
 /**
  * HOUR_FIELDS.
@@ -130,7 +130,7 @@ exports.HOUR_FIELDS = [
     { id: 'snowline', name: 'Snow line', nameDe: 'Schneefallgrenze', type: 'number', role: 'value', unit: 'm', digits: 0, group: 'snow', get: (h) => h.prec?.snowLine },
     { id: 'warn_active', name: 'Warning active', nameDe: 'Warnung aktiv', type: 'boolean', role: 'indicator.alarm', group: 'warn', get: (h) => !!h.highestWarning },
     { id: 'warn_text', name: 'Warning text', nameDe: 'Warnung Text', type: 'string', role: 'text', group: 'warn', get: (h) => h.highestWarning?.text },
-    { id: 'warn_severity_int', name: 'Warning severity (0-4)', nameDe: 'Warnung Schweregrad (0-4)', type: 'number', role: 'value.severity', digits: 0, group: 'warn', get: (h) => h.highestWarning?.severityInt },
+    { id: 'warn_severity_int', name: 'Warning severity (0-4)', nameDe: 'Warnung Schweregrad (0-4)', type: 'number', role: 'value', digits: 0, group: 'warn', get: (h) => h.highestWarning?.severityInt },
 ];
 /**
  * Extra fields in `current` that are copied from the day summary, not from the hour.

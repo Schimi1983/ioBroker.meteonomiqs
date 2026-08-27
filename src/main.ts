@@ -314,7 +314,11 @@ class WetterComAdapter extends utils.Adapter {
         if (this.ensured.has(id)) {
             return;
         }
-        const common = { name, type, role, unit: unit || undefined, read: true, write };
+        // A button is write-only. `common.read: true` on role "button" makes the
+        // admin offer it as a readable value as well, which the repository review
+        // rejects — the state carries no information, it only triggers an action.
+        const read = role !== 'button';
+        const common = { name, type, role, unit: unit || undefined, read, write };
         const existing = await this.getObjectAsync(id);
 
         if (!existing) {
@@ -325,7 +329,7 @@ class WetterComAdapter extends utils.Adapter {
             });
         } else {
             const c = existing.common ?? ({} as ioBroker.StateCommon);
-            const drifted = !WetterComAdapter.sameLabel(c.name, name) || c.type !== type || c.role !== role || (c.unit || undefined) !== common.unit || c.read !== true || c.write !== write;
+            const drifted = !WetterComAdapter.sameLabel(c.name, name) || c.type !== type || c.role !== role || (c.unit || undefined) !== common.unit || c.read !== read || c.write !== write;
             if (drifted) {
                 // Metadata is owned by the adapter. Without this, a corrected
                 // label, role or unit would only ever reach fresh installations.

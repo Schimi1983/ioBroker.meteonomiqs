@@ -51,7 +51,7 @@ export const DAY_FIELDS: FieldDef[] = [
     { id: 'warn_group', name: 'Warning group', nameDe: 'Warnung Gruppe', type: 'string', role: 'text', group: 'warn', get: (d: ApiSummaryItem) => d.highestWarning?.group },
     { id: 'warn_text', name: 'Warning text', nameDe: 'Warnung Text', type: 'string', role: 'text', group: 'warn', get: (d: ApiSummaryItem) => d.highestWarning?.text },
     { id: 'warn_severity', name: 'Warning severity', nameDe: 'Warnung Schweregrad', type: 'string', role: 'text', group: 'warn', get: (d: ApiSummaryItem) => d.highestWarning?.severity },
-    { id: 'warn_severity_int', name: 'Warning severity (0-4)', nameDe: 'Warnung Schweregrad (0-4)', type: 'number', role: 'value.severity', digits: 0, group: 'warn', get: (d: ApiSummaryItem) => d.highestWarning?.severityInt },
+    { id: 'warn_severity_int', name: 'Warning severity (0-4)', nameDe: 'Warnung Schweregrad (0-4)', type: 'number', role: 'value', digits: 0, group: 'warn', get: (d: ApiSummaryItem) => d.highestWarning?.severityInt },
 ];
 
 /**
@@ -106,7 +106,7 @@ export const SPACE_FIELDS: FieldDef[] = [
 
     { id: 'warn_active', name: 'Warning active', nameDe: 'Warnung aktiv', type: 'boolean', role: 'indicator.alarm', group: 'warn', get: (s: ApiSpaceItem) => !!s.highestWarning },
     { id: 'warn_text', name: 'Warning text', nameDe: 'Warnung Text', type: 'string', role: 'text', group: 'warn', get: (s: ApiSpaceItem) => s.highestWarning?.text },
-    { id: 'warn_severity_int', name: 'Warning severity (0-4)', nameDe: 'Warnung Schweregrad (0-4)', type: 'number', role: 'value.severity', digits: 0, group: 'warn', get: (s: ApiSpaceItem) => s.highestWarning?.severityInt },
+    { id: 'warn_severity_int', name: 'Warning severity (0-4)', nameDe: 'Warnung Schweregrad (0-4)', type: 'number', role: 'value', digits: 0, group: 'warn', get: (s: ApiSpaceItem) => s.highestWarning?.severityInt },
 ];
 
 /**
@@ -142,7 +142,7 @@ export const HOUR_FIELDS: FieldDef[] = [
 
     { id: 'warn_active', name: 'Warning active', nameDe: 'Warnung aktiv', type: 'boolean', role: 'indicator.alarm', group: 'warn', get: (h: ApiHourlyItem) => !!h.highestWarning },
     { id: 'warn_text', name: 'Warning text', nameDe: 'Warnung Text', type: 'string', role: 'text', group: 'warn', get: (h: ApiHourlyItem) => h.highestWarning?.text },
-    { id: 'warn_severity_int', name: 'Warning severity (0-4)', nameDe: 'Warnung Schweregrad (0-4)', type: 'number', role: 'value.severity', digits: 0, group: 'warn', get: (h: ApiHourlyItem) => h.highestWarning?.severityInt },
+    { id: 'warn_severity_int', name: 'Warning severity (0-4)', nameDe: 'Warnung Schweregrad (0-4)', type: 'number', role: 'value', digits: 0, group: 'warn', get: (h: ApiHourlyItem) => h.highestWarning?.severityInt },
 ];
 
 /**
