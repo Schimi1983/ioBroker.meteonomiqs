@@ -60,8 +60,7 @@
     "check": "tsc --noEmit",
     "lint": "eslint src/",
     "translate": "translate-adapter",
-    "release": "release-script",
-    "prepublishOnly": "npm run build"
+    "release": "release-script"
   },
   "bugs": {
     "url": "https://github.com/Schimi1983/ioBroker.meteonomiqs/issues"
