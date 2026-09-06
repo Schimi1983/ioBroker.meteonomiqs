@@ -5,7 +5,6 @@
 [![NPM version](https://img.shields.io/npm/v/iobroker.meteonomiqs.svg)](https://www.npmjs.com/package/iobroker.meteonomiqs)
 [![Downloads](https://img.shields.io/npm/dm/iobroker.meteonomiqs.svg)](https://www.npmjs.com/package/iobroker.meteonomiqs)
 ![Number of Installations](https://iobroker.live/badges/meteonomiqs-installed.svg)
-![Current version in stable repository](https://iobroker.live/badges/meteonomiqs-stable.svg)
 [![License](https://img.shields.io/github/license/Schimi1983/ioBroker.meteonomiqs)](LICENSE)
 [![Test and Release](https://github.com/Schimi1983/ioBroker.meteonomiqs/actions/workflows/test-and-release.yml/badge.svg)](https://github.com/Schimi1983/ioBroker.meteonomiqs/actions/workflows/test-and-release.yml)
 
