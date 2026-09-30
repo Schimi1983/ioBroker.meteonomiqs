@@ -45,3 +45,15 @@
 - JSON aggregates for VIS and jarvis
 - Budget management with priority tiers, cooldown and emergency reserve
 - Admin UI (JSON Config) in 11 languages
+## 0.2.3 (2026-08-16)
+
+- Installing from GitHub works again without an install lifecycle script. The compiled `build/` folder is committed to the repository, which is what the repository checker asks for (`[E5019]`), so the `prepare` script added in 0.2.1 could be dropped again (`[E0092]`)
+- Trimmed `common.news` in io-package.json to the seven entries the repository builder keeps (`[E1032]`); the older ones moved to CHANGELOG_OLD.md (`[W6020]`)
+
+## 0.2.2 (2026-08-16)
+
+- Removed `mocha` from the devDependencies. It is a dependency of `@iobroker/testing`, so npm hoists it and the test scripts still find the binary — this clears the last error the repository checker reported (`[E0063]`)
+
+[Older changelogs can be found there](CHANGELOG_OLD.md)
+
+---
