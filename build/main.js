@@ -89,6 +89,7 @@ class WetterComAdapter extends utils.Adapter {
         super({ ...options, name: 'meteonomiqs' });
         this.on('ready', this.onReady.bind(this));
         this.on('stateChange', this.onStateChange.bind(this));
+        this.on('objectChange', this.onObjectChange.bind(this));
         this.on('unload', this.onUnload.bind(this));
     }
     // ---------------------------------------------------------------- lifecycle
@@ -103,6 +104,12 @@ class WetterComAdapter extends utils.Adapter {
         await this.ensureInfoStates();
         this.subscribeStates('info.force_update');
         this.subscribeStates('info.reset_counter');
+        // `ensured` remembers which objects exist so they are not looked up
+        // again on every write. If someone deletes a state or a whole day in
+        // the object browser while the adapter runs, that memory has to be
+        // corrected, otherwise the object only comes back after a restart and
+        // every write in between ends up as "has no existing object".
+        this.subscribeObjects('*');
         const offset = await this.resolveScheduleOffset();
         const planned = [];
         for (const entry of times) {
@@ -182,6 +189,23 @@ class WetterComAdapter extends utils.Adapter {
         }
         await this.setStateAsync('info.connection', { val: true, ack: true });
         this.log.debug('Startup fetch skipped, but the stored forecast is still current — reporting as connected.');
+    }
+    /**
+     * Forgets deleted objects, so the next fetch creates them again.
+     *
+     * @param id Full object id.
+     * @param obj The object, or null/undefined when it was deleted.
+     */
+    onObjectChange(id, obj) {
+        if (obj) {
+            return;
+        }
+        const prefix = `${this.namespace}.`;
+        const relative = id.startsWith(prefix) ? id.slice(prefix.length) : id;
+        if (this.ensured.delete(relative)) {
+            this.pendingQualityFix.delete(relative);
+            this.log.debug(`Object deleted, will be recreated on the next fetch: ${relative}`);
+        }
     }
     onUnload(callback) {
         try {
