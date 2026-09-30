@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { budgetAllows, cloudsPercent, dayLength, extractValue, formatDate, iconUrl, isoTime, localParts, parseApiDate, round, scheduleOffsetMinutes, shiftMinutes, smallestGapHours, timeToMinutes } from './helpers';
+import { beaufort, budgetAllows, cloudsPercent, dayLength, extractValue, formatDate, iconUrl, isoTime, localParts, parseApiDate, round, scheduleOffsetMinutes, shiftMinutes, smallestGapHours, timeToMinutes } from './helpers';
 
 const ICONS = 'https://cs3.wettercomassets.com/wcomv5/images/icons/weather';
 
@@ -161,6 +161,56 @@ describe('helpers', () => {
                 const shifted = times.map((t) => shiftMinutes(t, offset));
                 expect(smallestGapHours(shifted)).to.equal(before, `offset ${offset} changed the smallest gap`);
             }
+        });
+    });
+
+    describe('beaufort()', () => {
+        it('follows the km/h table at every boundary', () => {
+            const table: [number, number][] = [
+                [0, 0],
+                [1, 1],
+                [5, 1],
+                [6, 2],
+                [11, 2],
+                [12, 3],
+                [19, 3],
+                [20, 4],
+                [28, 4],
+                [29, 5],
+                [38, 5],
+                [39, 6],
+                [49, 6],
+                [50, 7],
+                [61, 7],
+                [62, 8],
+                [74, 8],
+                [75, 9],
+                [88, 9],
+                [89, 10],
+                [102, 10],
+                [103, 11],
+                [117, 11],
+                [118, 12],
+                [250, 12],
+            ];
+            for (const [kmh, force] of table) {
+                expect(beaufort(kmh)).to.equal(force, `${kmh} km/h`);
+            }
+        });
+
+        it('rounds decimals instead of dropping them into the gap between two forces', () => {
+            expect(beaufort(5.4)).to.equal(1);
+            expect(beaufort(5.5)).to.equal(2);
+            expect(beaufort(0.4)).to.equal(0);
+            expect(beaufort(117.6)).to.equal(12);
+        });
+
+        it('reads the API value objects and survives garbage', () => {
+            expect(beaufort({ value: 38.6 })).to.equal(6);
+            expect(beaufort(null)).to.equal(0);
+            expect(beaufort(undefined)).to.equal(0);
+            expect(beaufort('windy')).to.equal(0);
+            expect(beaufort(-3)).to.equal(0);
         });
     });
 

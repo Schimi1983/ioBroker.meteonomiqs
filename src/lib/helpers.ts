@@ -226,6 +226,35 @@ export function iconUrl(weather: ApiWeather | null | undefined, iconBase: string
 }
 
 /**
+ * Lower bounds of Beaufort 1 to 12 in km/h, as in the usual table of the
+ * German weather service: 0 is below 1 km/h, 1 is 1-5, 2 is 6-11 … 12 is 118
+ * and above.
+ */
+const BEAUFORT_KMH = [1, 6, 12, 20, 29, 39, 50, 62, 75, 89, 103, 118];
+
+/**
+ * Converts a wind speed in km/h into the Beaufort scale (0-12).
+ *
+ * The table is defined on whole km/h, so the speed is rounded first. Without
+ * that, 5.5 km/h would fall into the gap between force 1 (1-5) and force 2
+ * (6-11). The API delivers decimals, so the gap is not theoretical.
+ *
+ * @param kmh Wind speed in km/h, plain or as one of the API's value objects.
+ * @returns Beaufort force from 0 to 12.
+ */
+export function beaufort(kmh: unknown): number {
+    const speed = Math.round(extractValue(kmh));
+    let force = 0;
+    for (const bound of BEAUFORT_KMH) {
+        if (speed < bound) {
+            break;
+        }
+        force++;
+    }
+    return force;
+}
+
+/**
  * Cloud coverage as a percentage. Hourly data arrives in oktas (`eights`).
  *
  * @param clouds See parameter type.

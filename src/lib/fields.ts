@@ -7,7 +7,7 @@
  */
 
 import type { ApiHourlyItem, ApiSpaceItem, ApiSummaryItem, FieldDef } from './types';
-import { cloudsPercent, dayLength, formatDate, getDayName, iconUrl, isoTime, lookupTable, MOON_PHASE, MOON_ZODIAC } from './helpers';
+import { beaufort, cloudsPercent, dayLength, formatDate, getDayName, iconUrl, isoTime, lookupTable, MOON_PHASE, MOON_ZODIAC } from './helpers';
 
 /**
  * DAY_FIELDS.
@@ -30,6 +30,7 @@ export const DAY_FIELDS: FieldDef[] = [
     { id: 'clouds', name: 'Cloud cover', nameDe: 'Bewölkung', type: 'number', role: 'value.clouds', unit: '%', digits: 1, get: (d: ApiSummaryItem) => cloudsPercent(d.clouds) },
     { id: 'humidity', name: 'Relative humidity', nameDe: 'Relative Feuchte', type: 'number', role: 'value.humidity', unit: '%', digits: 0, get: (d: ApiSummaryItem) => d.relativeHumidity },
     { id: 'wind_speed', name: 'Wind speed (avg)', nameDe: 'Windgeschwindigkeit (Ø)', type: 'number', role: 'value.speed.wind', unit: 'km/h', digits: 1, get: (d: ApiSummaryItem) => d.wind?.avg },
+    { id: 'wind_bft', name: 'Wind force (Beaufort)', nameDe: 'Windstärke (Beaufort)', type: 'number', role: 'value', unit: 'Bft', digits: 0, get: (d: ApiSummaryItem) => beaufort(d.wind?.avg) },
     { id: 'wind_speed_max', name: 'Max. wind speed', nameDe: 'Max. Windgeschwindigkeit', type: 'number', role: 'value.speed.max.wind', unit: 'km/h', digits: 1, get: (d: ApiSummaryItem) => d.wind?.max ?? d.wind?.avg },
     { id: 'wind_gusts', name: 'Wind gusts', nameDe: 'Windböen', type: 'number', role: 'value.speed.wind.gust', unit: 'km/h', digits: 1, get: (d: ApiSummaryItem) => d.wind?.gusts },
     { id: 'wind_direction', name: 'Wind direction', nameDe: 'Windrichtung', type: 'string', role: 'weather.direction.wind', get: (d: ApiSummaryItem) => d.wind?.direction },
@@ -88,6 +89,7 @@ export const SPACE_FIELDS: FieldDef[] = [
     { id: 'prec_prob', name: 'Precipitation probability', nameDe: 'Regenrisiko', type: 'number', role: 'value.precipitation.chance', unit: '%', digits: 0, get: (s: ApiSpaceItem) => s.prec?.probability },
     { id: 'prec_sum', name: 'Precipitation amount', nameDe: 'Niederschlagsmenge', type: 'number', role: 'value.precipitation', unit: 'mm', digits: 2, get: (s: ApiSpaceItem) => s.prec?.sum },
     { id: 'wind_speed', name: 'Wind speed', nameDe: 'Windgeschwindigkeit', type: 'number', role: 'value.speed.wind', unit: 'km/h', digits: 1, get: (s: ApiSpaceItem) => s.wind?.avg },
+    { id: 'wind_bft', name: 'Wind force (Beaufort)', nameDe: 'Windstärke (Beaufort)', type: 'number', role: 'value', unit: 'Bft', digits: 0, get: (s: ApiSpaceItem) => beaufort(s.wind?.avg) },
     { id: 'wind_gusts', name: 'Wind gusts', nameDe: 'Windböen', type: 'number', role: 'value.speed.wind.gust', unit: 'km/h', digits: 1, get: (s: ApiSpaceItem) => s.wind?.gusts },
     { id: 'wind_direction_short', name: 'Wind direction (short)', nameDe: 'Windrichtung (kurz)', type: 'string', role: 'weather.direction.wind', get: (s: ApiSpaceItem) => s.wind?.text },
     { id: 'wind_degree', name: 'Wind direction (degrees)', nameDe: 'Windrichtung (Grad)', type: 'number', role: 'value.direction.wind', unit: '°', digits: 0, get: (s: ApiSpaceItem) => s.wind?.degree },
@@ -125,6 +127,7 @@ export const HOUR_FIELDS: FieldDef[] = [
     { id: 'prec_prob', name: 'Precipitation probability', nameDe: 'Regenwahrscheinlichkeit', type: 'number', role: 'value.precipitation.chance', unit: '%', digits: 0, get: (h: ApiHourlyItem) => h.prec?.probability },
     { id: 'prec_sum', name: 'Precipitation amount', nameDe: 'Niederschlagsmenge', type: 'number', role: 'value.precipitation', unit: 'mm', digits: 2, get: (h: ApiHourlyItem) => h.prec?.sum },
     { id: 'wind_speed', name: 'Wind speed', nameDe: 'Windgeschwindigkeit', type: 'number', role: 'value.speed.wind', unit: 'km/h', digits: 1, get: (h: ApiHourlyItem) => h.wind?.avg },
+    { id: 'wind_bft', name: 'Wind force (Beaufort)', nameDe: 'Windstärke (Beaufort)', type: 'number', role: 'value', unit: 'Bft', digits: 0, get: (h: ApiHourlyItem) => beaufort(h.wind?.avg) },
     { id: 'wind_gusts', name: 'Wind gusts', nameDe: 'Windböen', type: 'number', role: 'value.speed.wind.gust', unit: 'km/h', digits: 1, get: (h: ApiHourlyItem) => h.wind?.gusts },
     { id: 'wind_dir', name: 'Wind direction', nameDe: 'Windrichtung', type: 'string', role: 'weather.direction.wind', get: (h: ApiHourlyItem) => h.wind?.direction },
     { id: 'wind_dir_short', name: 'Wind direction (short)', nameDe: 'Windrichtung (kurz)', type: 'string', role: 'weather.direction.wind', get: (h: ApiHourlyItem) => h.wind?.text },
