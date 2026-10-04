@@ -1,22 +1,31 @@
 # Older changes
 
-### 0.2.1 (2026-08-16)
+## 0.2.3 (2026-08-16)
+
+- Installing from GitHub works again without an install lifecycle script. The compiled `build/` folder is committed to the repository, which is what the repository checker asks for (`[E5019]`), so the `prepare` script added in 0.2.1 could be dropped again (`[E0092]`)
+- Trimmed `common.news` in io-package.json to the seven entries the repository builder keeps (`[E1032]`); the older ones moved to CHANGELOG_OLD.md (`[W6020]`)
+
+## 0.2.2 (2026-08-16)
+
+- Removed `mocha` from the devDependencies. It is a dependency of `@iobroker/testing`, so npm hoists it and the test scripts still find the binary — this clears the last error the repository checker reported (`[E0063]`)
+
+## 0.2.1 (2026-08-16)
 
 - The adapter can be installed straight from GitHub again. Since the compiled `build/` folder was removed from the repository (`[E5019]`), a GitHub installation had nothing to start; a `prepare` script now makes npm compile the TypeScript sources during such an installation. Installing from npm is unaffected — the published package already contains the compiled files
 
-### 0.1.8 (2026-08-16)
+## 0.1.8 (2026-08-16)
 
 - Corrected four state roles that are not part of the ioBroker role catalogue and were rejected by the object structure check (`[E1008]`): `weather.direction` → `weather.direction.wind`, `value.speed.wind.max` → `value.speed.max.wind` (note the word order), `value.precipitation.probability` → `value.precipitation.chance`, and `value.sun` → `value`, since the catalogue has no role for sunshine duration. Existing installations pick the change up on the next adapter start
 
-### 0.1.7 (2026-08-16)
+## 0.1.7 (2026-08-16)
 
 - Removed `chai`, `@types/chai` and `@types/mocha` from the devDependencies — they come with `@iobroker/testing` and resolve fine without being declared. `mocha` has to stay declared because npm only links the binaries of direct dependencies, but its version now matches the range `@iobroker/testing` asks for, so a single copy is installed instead of the two that `^10` alongside `^11` used to produce (partly resolves `[E0063]`)
 
-### 0.1.6 (2026-08-16)
+## 0.1.6 (2026-08-16)
 
 - The fetch times now carry a per-installation offset of up to 15 minutes, derived from the ioBroker installation UUID. Every installation used to call the API in the very same minute; the offset is deterministic, so it survives restarts, and it is applied to all times equally, which leaves the gaps between them — and the cooldown check — untouched
 
-### 0.1.5 (2026-08-15)
+## 0.1.5 (2026-08-15)
 
 - Values that match their default are no longer left with quality `0x20` ("substitute initial value"). A state created from `common.def` starts out substituted, and `setStateChanged` skipped the first write whenever the real value happened to be `0` or `false` — so states like `prec_sum`, `warn_active` or `sun_hours` stayed flagged as not-measured and showed up orange in the admin
 - `info.connection` is no longer reported as false after a restart whose startup fetch was skipped by the cooldown — a skipped fetch is not a failure, and the stored forecast stays usable for 26 hours
@@ -30,13 +39,13 @@
 - Restored `mocha` and `chai` in the devDependencies so `npm test` resolves the mocha binary
 - CI: `testing-action-check@v2`, type check enabled, and the 25 unit tests are no longer skipped
 
-### 0.1.1
+## 0.1.1
 
 - Renamed the adapter to `meteonomiqs` (npm blocks names similar to the existing `iobroker.wettercom`)
 - Resolved all ESLint errors: `no-base-to-string`, empty JSDoc blocks, unused type import
 - Restricted Dependabot to patch and minor updates
 
-### 0.1.0
+## 0.1.0
 
 - Initial release
 - Forecast for up to 14 days, day sections, hourly values
@@ -45,15 +54,3 @@
 - JSON aggregates for VIS and jarvis
 - Budget management with priority tiers, cooldown and emergency reserve
 - Admin UI (JSON Config) in 11 languages
-## 0.2.3 (2026-08-16)
-
-- Installing from GitHub works again without an install lifecycle script. The compiled `build/` folder is committed to the repository, which is what the repository checker asks for (`[E5019]`), so the `prepare` script added in 0.2.1 could be dropped again (`[E0092]`)
-- Trimmed `common.news` in io-package.json to the seven entries the repository builder keeps (`[E1032]`); the older ones moved to CHANGELOG_OLD.md (`[W6020]`)
-
-## 0.2.2 (2026-08-16)
-
-- Removed `mocha` from the devDependencies. It is a dependency of `@iobroker/testing`, so npm hoists it and the test scripts still find the binary — this clears the last error the repository checker reported (`[E0063]`)
-
-[Older changelogs can be found there](CHANGELOG_OLD.md)
-
----
