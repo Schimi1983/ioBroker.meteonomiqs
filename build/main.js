@@ -512,7 +512,11 @@ class WetterComAdapter extends utils.Adapter {
         if (cooldown > 0 && lastTs > 0) {
             const hours = (Date.now() - lastTs) / 3600000;
             if (hours < cooldown) {
-                this.log.debug(`Fetch skipped (cooldown). Last fetch ${hours.toFixed(1)} h ago, minimum ${cooldown} h.`);
+                // Info, not debug: a fetch swallowed by the cooldown used to be
+                // visible only as an info.last_sync that did not move (e.g. the
+                // first scheduled fetch after an update or a host restart).
+                const what = reason === 'startup' ? 'Startup fetch' : `Fetch "${label}"`;
+                this.log.info(`${what} skipped: last fetch ${hours.toFixed(1)} h ago, minimum gap is ${cooldown} h ("Minimum hours between updates").`);
                 return false;
             }
         }
@@ -591,7 +595,7 @@ class WetterComAdapter extends utils.Adapter {
             }
             const forecastDays = Math.max(1, Math.min(Math.round(Number(this.config.forecastDays) || 7), MAX_FORECAST_DAYS));
             const url = `${BASE_URL}/forecast/${location.lat}/${location.lon}`;
-            this.log.info(`Fetching forecast (${label || reason}) for ${location.lat}/${location.lon}, ${forecastDays} days.`);
+            this.log.debug(`Fetching forecast (${label || reason}) for ${location.lat}/${location.lon}, ${forecastDays} days.`);
             const maxRetries = Math.max(0, Math.round(Number(this.config.maxRetries) || 0));
             const reserve = Math.max(0, Number(this.config.reserveCalls) || 0);
             let payload = null;
@@ -671,7 +675,8 @@ class WetterComAdapter extends utils.Adapter {
                 ack: true,
             });
             await this.setStateAsync('info.last_sync_ts', { val: now.getTime(), ack: true });
-            await this.processForecast(payload, location.lang, forecastDays);
+            const processedDays = await this.processForecast(payload, location.lang, forecastDays);
+            this.log.info(`Forecast updated (${label || reason}): ${processedDays} days.`);
             await this.setStateAsync('info.status', { val: 'ok', ack: true });
             await this.setStateAsync('info.last_error', { val: '', ack: true });
             await this.setStateAsync('info.connection', { val: true, ack: true });
@@ -833,7 +838,7 @@ class WetterComAdapter extends utils.Adapter {
         await this.cleanupObsoleteDays(maxDays);
         await this.cleanupLegacySpaceFields(maxDays);
         await this.updateCurrent('after fetch');
-        this.log.info(`Update finished: ${maxDays} days processed.`);
+        return maxDays;
     }
     async cleanupObsoleteDays(activeDays) {
         for (let index = activeDays; index <= CLEANUP_UP_TO_DAY; index++) {
