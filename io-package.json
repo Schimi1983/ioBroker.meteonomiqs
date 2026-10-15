@@ -1,7 +1,7 @@
 {
   "common": {
     "name": "meteonomiqs",
-    "version": "0.2.8",
+    "version": "0.2.9",
     "news": {
       "0.2.9": {
         "en": "A fetch skipped because of the cooldown (\"Minimum hours between updates\") is now logged at info level, e.g. the first scheduled fetch after an update or a restart. Until now it only showed as an `info.last_sync` that did not move. The log is also quieter: one info line per fetch instead of two.",
@@ -93,19 +93,6 @@
         "pl": "Instalacja z GitHuba znów działa bez skryptu cyklu życia instalacji: skompilowany katalog `build/` ponownie znajduje się w repozytorium, więc skrypt `prepare` mógł zostać usunięty (`[E0092]`, `[E5019]`). Starsze wpisy `common.news` zostały usunięte, ponieważ generator repozytorium zachowuje tylko siedem (`[E1032]`).",
         "uk": "Встановлення з GitHub знову працює без скрипта життєвого циклу встановлення: скомпільована тека `build/` знову є в репозиторії, тому скрипт `prepare` було вилучено (`[E0092]`, `[E5019]`). Старіші записи `common.news` видалено, оскільки збирач репозиторію залишає лише сім (`[E1032]`).",
         "zh-cn": "从 GitHub 安装再次可用，且无需安装生命周期脚本：编译后的 `build/` 目录重新纳入仓库，因此可以移除 `prepare` 脚本（`[E0092]`、`[E5019]`）。较旧的 `common.news` 条目已删除，因为仓库构建器只保留七条（`[E1032]`）。"
-      },
-      "0.2.2": {
-        "en": "`mocha` is no longer declared as a devDependency and now resolves through `@iobroker/testing`, which clears `[E0063]`",
-        "de": "`mocha` ist nicht mehr als devDependency deklariert und wird jetzt über `@iobroker/testing` aufgelöst, womit `[E0063]` erledigt ist.",
-        "ru": "`mocha` больше не объявлена в devDependencies и теперь разрешается через `@iobroker/testing`, что закрывает `[E0063]`.",
-        "pt": "`mocha` já não está declarada nas devDependencies e passa a ser resolvida através de `@iobroker/testing`, o que resolve `[E0063]`.",
-        "nl": "`mocha` staat niet langer in de devDependencies en wordt nu via `@iobroker/testing` opgelost, waarmee `[E0063]` is afgehandeld.",
-        "fr": "`mocha` n'est plus déclaré dans les devDependencies et se résout désormais via `@iobroker/testing`, ce qui clôt `[E0063]`.",
-        "it": "`mocha` non è più dichiarato tra le devDependencies e viene ora risolto tramite `@iobroker/testing`, il che chiude `[E0063]`.",
-        "es": "`mocha` ya no se declara en devDependencies y ahora se resuelve a través de `@iobroker/testing`, lo que cierra `[E0063]`.",
-        "pl": "`mocha` nie jest już zadeklarowana w devDependencies i jest teraz rozwiązywana przez `@iobroker/testing`, co zamyka `[E0063]`.",
-        "uk": "`mocha` більше не оголошена в devDependencies і тепер розв'язується через `@iobroker/testing`, що закриває `[E0063]`.",
-        "zh-cn": "`mocha` 不再声明为 devDependency，改由 `@iobroker/testing` 提供，从而解决了 `[E0063]`。"
       }
     },
     "titleLang": {

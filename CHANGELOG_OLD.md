@@ -1,4 +1,7 @@
 # Older changes
+## 0.2.4 (2026-08-16)
+
+- Raised the minimum admin version to 7.8.23 and `@types/node` to the major that matches `engines.node` — both proposed by the ioBroker bot
 
 ## 0.2.3 (2026-08-16)
 
