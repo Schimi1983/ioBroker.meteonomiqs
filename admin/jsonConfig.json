@@ -187,6 +187,54 @@
           "md": 4,
           "lg": 3,
           "xl": 3
+        },
+        "_headerSupport": {
+          "type": "header",
+          "size": 4,
+          "text": "header_support",
+          "newLine": true,
+          "xs": 12,
+          "sm": 12,
+          "md": 12,
+          "lg": 12,
+          "xl": 12
+        },
+        "_textSupport": {
+          "type": "staticText",
+          "text": "support_text",
+          "newLine": true,
+          "xs": 12,
+          "sm": 12,
+          "md": 12,
+          "lg": 12,
+          "xl": 12
+        },
+        "_linkSponsor": {
+          "type": "staticLink",
+          "text": "link_sponsor",
+          "href": "https://github.com/sponsors/Schimi1983",
+          "button": true,
+          "variant": "outlined",
+          "icon": "favorite",
+          "newLine": true,
+          "xs": 12,
+          "sm": 6,
+          "md": 4,
+          "lg": 3,
+          "xl": 3
+        },
+        "_linkPaypal": {
+          "type": "staticLink",
+          "text": "link_paypal",
+          "href": "https://paypal.me/Schimi1983",
+          "button": true,
+          "variant": "outlined",
+          "newLine": false,
+          "xs": 12,
+          "sm": 6,
+          "md": 4,
+          "lg": 3,
+          "xl": 3
         }
       }
     },
