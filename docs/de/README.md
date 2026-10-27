@@ -155,3 +155,12 @@ Technische Details (Budget-Stufen, Zeitversatz, Funktionsweise von `current`) st
 ---
 
 Wetterdaten © [wetter.com GmbH / Meteonomiqs](https://www.meteonomiqs.com). Dieser Adapter steht in keiner Verbindung zu wetter.com.
+
+## Unterstützen
+
+Der Adapter ist kostenlos und bleibt es. Wenn er dir nützt und du Danke sagen willst, kannst du die Entwicklung unterstützen:
+
+[![GitHub Sponsors](https://img.shields.io/badge/GitHub%20Sponsors-Schimi1983-ea4aaa?logo=githubsponsors&logoColor=white)](https://github.com/sponsors/Schimi1983)
+[![PayPal](https://img.shields.io/badge/PayPal-Spenden-00457C?logo=paypal&logoColor=white)](https://paypal.me/Schimi1983)
+
+Fehlerberichte und Ideen in den [Issues](https://github.com/Schimi1983/ioBroker.meteonomiqs/issues) helfen genauso.

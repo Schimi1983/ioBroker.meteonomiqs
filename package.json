@@ -21,6 +21,16 @@
     "type": "git",
     "url": "https://github.com/Schimi1983/ioBroker.meteonomiqs.git"
   },
+  "funding": [
+    {
+      "type": "github",
+      "url": "https://github.com/sponsors/Schimi1983"
+    },
+    {
+      "type": "paypal",
+      "url": "https://paypal.me/Schimi1983"
+    }
+  ],
   "engines": {
     "node": ">=22"
   },
