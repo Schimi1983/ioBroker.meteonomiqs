@@ -242,7 +242,7 @@ Weather data © [wetter.com GmbH / Meteonomiqs](https://www.meteonomiqs.com). Th
 
 The MIT License (MIT)
 
-Copyright (c) 2026 Schimi <szymon.haiduk@world-mg.de>
+Copyright (c) 2026 Schimi <github@world-mg.de>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
