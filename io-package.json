@@ -1,7 +1,7 @@
 {
   "common": {
     "name": "meteonomiqs",
-    "version": "0.2.9",
+    "version": "0.2.10",
     "news": {
       "0.2.10": {
         "en": "Easier to set up: the settings page starts with a short \"Getting started\" box, all help texts are written in plain words, and rarely needed options only appear in expert mode. The tab \"API budget\" is now called \"Monthly limit\". New: optional links to support the development. Nothing changes for an existing installation.",
@@ -93,19 +93,6 @@
         "pl": "Minimalna wersja admin została podniesiona do 7.8.23, a `@types/node` do wersji głównej zgodnej z `engines.node`; obie zmiany zaproponował bot ioBroker.",
         "uk": "Мінімальну версію admin піднято до 7.8.23, а `@types/node` — до основної версії, що відповідає `engines.node`; обидві зміни запропонував бот ioBroker.",
         "zh-cn": "admin 的最低版本提升至 7.8.23，`@types/node` 提升至与 `engines.node` 匹配的主版本；两项均由 ioBroker 机器人提出。"
-      },
-      "0.2.3": {
-        "en": "GitHub installations work again without an install lifecycle script: the compiled `build/` folder is committed to the repository, so the `prepare` script could be removed (`[E0092]`, `[E5019]`). Older `common.news` entries were dropped, since the repository builder keeps only seven (`[E1032]`)",
-        "de": "Die Installation von GitHub funktioniert wieder ohne Installations-Lifecycle-Skript: Der kompilierte Ordner `build/` liegt wieder im Repository, das `prepare`-Skript konnte deshalb entfallen (`[E0092]`, `[E5019]`). Ältere `common.news`-Einträge wurden entfernt, da der Repository-Builder nur sieben behält (`[E1032]`).",
-        "ru": "Установка с GitHub снова работает без скрипта жизненного цикла установки: скомпилированная папка `build/` снова находится в репозитории, поэтому скрипт `prepare` удалён (`[E0092]`, `[E5019]`). Старые записи `common.news` удалены, так как сборщик репозитория оставляет только семь (`[E1032]`).",
-        "pt": "A instalação a partir do GitHub volta a funcionar sem um script de ciclo de vida de instalação: a pasta compilada `build/` está novamente no repositório, pelo que o script `prepare` pôde ser removido (`[E0092]`, `[E5019]`). As entradas `common.news` mais antigas foram removidas, uma vez que o construtor do repositório mantém apenas sete (`[E1032]`).",
-        "nl": "Installeren vanaf GitHub werkt weer zonder installatie-lifecycle-script: de gecompileerde map `build/` staat weer in de repository, waardoor het `prepare`-script kon vervallen (`[E0092]`, `[E5019]`). Oudere `common.news`-items zijn verwijderd, omdat de repository-builder er maar zeven bewaart (`[E1032]`).",
-        "fr": "L'installation depuis GitHub fonctionne de nouveau sans script de cycle de vie d'installation : le dossier compilé `build/` est de retour dans le dépôt, ce qui a permis de supprimer le script `prepare` (`[E0092]`, `[E5019]`). Les anciennes entrées `common.news` ont été supprimées, le générateur du dépôt n'en conservant que sept (`[E1032]`).",
-        "it": "L'installazione da GitHub funziona di nuovo senza script del ciclo di vita di installazione: la cartella compilata `build/` è di nuovo nel repository, quindi lo script `prepare` è stato rimosso (`[E0092]`, `[E5019]`). Le voci `common.news` più vecchie sono state eliminate, poiché il builder del repository ne conserva solo sette (`[E1032]`).",
-        "es": "La instalación desde GitHub vuelve a funcionar sin un script de ciclo de vida de instalación: la carpeta compilada `build/` está de nuevo en el repositorio, por lo que se pudo eliminar el script `prepare` (`[E0092]`, `[E5019]`). Se han eliminado las entradas `common.news` más antiguas, ya que el generador del repositorio solo conserva siete (`[E1032]`).",
-        "pl": "Instalacja z GitHuba znów działa bez skryptu cyklu życia instalacji: skompilowany katalog `build/` ponownie znajduje się w repozytorium, więc skrypt `prepare` mógł zostać usunięty (`[E0092]`, `[E5019]`). Starsze wpisy `common.news` zostały usunięte, ponieważ generator repozytorium zachowuje tylko siedem (`[E1032]`).",
-        "uk": "Встановлення з GitHub знову працює без скрипта життєвого циклу встановлення: скомпільована тека `build/` знову є в репозиторії, тому скрипт `prepare` було вилучено (`[E0092]`, `[E5019]`). Старіші записи `common.news` видалено, оскільки збирач репозиторію залишає лише сім (`[E1032]`).",
-        "zh-cn": "从 GitHub 安装再次可用，且无需安装生命周期脚本：编译后的 `build/` 目录重新纳入仓库，因此可以移除 `prepare` 脚本（`[E0092]`、`[E5019]`）。较旧的 `common.news` 条目已删除，因为仓库构建器只保留七条（`[E1032]`）。"
       }
     },
     "titleLang": {
