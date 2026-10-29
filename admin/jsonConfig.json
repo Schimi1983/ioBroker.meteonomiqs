@@ -7,6 +7,33 @@
       "label": "tab_general",
       "icon": "settings",
       "items": {
+        "_infoStart": {
+          "type": "infoBox",
+          "title": "info_start_title",
+          "text": "info_start",
+          "boxType": "info",
+          "closeable": true,
+          "newLine": true,
+          "xs": 12,
+          "sm": 12,
+          "md": 12,
+          "lg": 12,
+          "xl": 12
+        },
+        "_linkGuide": {
+          "type": "staticLink",
+          "text": "link_guide",
+          "href": "https://github.com/Schimi1983/ioBroker.meteonomiqs#readme",
+          "button": true,
+          "variant": "text",
+          "icon": "book",
+          "newLine": true,
+          "xs": 12,
+          "sm": 6,
+          "md": 4,
+          "lg": 3,
+          "xl": 3
+        },
         "_headerAccess": {
           "type": "header",
           "size": 2,
@@ -304,7 +331,8 @@
           "sm": 6,
           "md": 4,
           "lg": 3,
-          "xl": 3
+          "xl": 3,
+          "expertMode": true
         }
       }
     },
@@ -349,7 +377,8 @@
           "sm": 6,
           "md": 4,
           "lg": 3,
-          "xl": 3
+          "xl": 3,
+          "expertMode": true
         },
         "httpTimeout": {
           "type": "number",
@@ -363,7 +392,8 @@
           "sm": 6,
           "md": 4,
           "lg": 3,
-          "xl": 3
+          "xl": 3,
+          "expertMode": true
         },
         "maxRetries": {
           "type": "number",
@@ -377,7 +407,8 @@
           "sm": 6,
           "md": 4,
           "lg": 3,
-          "xl": 3
+          "xl": 3,
+          "expertMode": true
         }
       }
     },
