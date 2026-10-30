@@ -170,6 +170,7 @@ meteonomiqs.0
 
 - `day_N.spaces.night` is the night *after* that day.
 - The API marks strong wind in the icon (`d_w_60.svg`) independently of the official warnings; `wind_significant` shows when that is the case.
+- `day_0` carries the official forecast roles and is recognised as a weather forecast by the ioBroker type detector. Add it to a room or function in the *Enums* tab to use it in Material, iot or devices.
 - `info.force_update` fetches immediately and ignores the minimum gap and the priorities; only the monthly limit applies.
 
 ### How the monthly limit works
@@ -210,6 +211,13 @@ Weather data © [wetter.com GmbH / Meteonomiqs](https://www.meteonomiqs.com). Th
     Placeholder for the next version (at the beginning of the line):
     ### **WORK IN PROGRESS**
 -->
+### **WORK IN PROGRESS**
+
+- State roles follow the ioBroker role catalogue more closely. The day values carry the official forecast roles (`value.temperature.max.forecast.0` for today, `.forecast.1` for tomorrow, …), so the ioBroker type detector recognises `day_0` as a weather forecast (Material, iot, devices). In `current` the felt temperature is now recognised as well
+- Corrected roles: sunrise/sunset as "HH:MM" are `text` (a `date` role needs a full date; the `_iso` states keep `date.sunrise`/`date.sunset`), felt temperature `value.temperature.windchill`, weekday `dayofweek`, snow line `value.snowline`, fresh snow and snow amount `value.snow`, warning level `value.severity`, location `location`, JSON states `weather.json`. The short wind direction is `text`, so it no longer competes with the long one
+- Value ranges (`min`/`max`) for percentages, wind force (0–12), wind direction (0–360°) and warning level (0–4)
+- Existing installations take over the new roles automatically on the next start. Values and history are kept
+
 ### 0.2.10 (2026-10-29)
 - Easier to set up for beginners: the settings page starts with a short "Getting started" box, the help texts are written in plain words, and rarely needed options (minimum gap, waiting time, retries, reserve) only show in expert mode. The tab "API budget" is now called "Monthly limit". Nothing changes for an existing installation
 - README and German guide rewritten in plain words, with examples for everyday use; technical details moved to a collapsed section

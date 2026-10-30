@@ -212,7 +212,16 @@ export interface FieldDef {
     nameDe: string;
     type: ioBroker.CommonType;
     role: string;
+    /**
+     * Inside `day_N` the role gets the suffix `.forecast.N` (official forecast
+     * roles). Only valid for roles that the catalogue lists with that suffix.
+     */
+    forecast?: boolean;
     unit?: string;
+    /** Lowest possible value, stored as `common.min`. */
+    min?: number;
+    /** Highest possible value, stored as `common.max`. */
+    max?: number;
     /** Decimal places for numbers. Rounding removes float noise and avoids pointless writes. */
     digits?: number;
     group?: FieldGroup;

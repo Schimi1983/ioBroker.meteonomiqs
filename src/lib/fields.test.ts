@@ -17,7 +17,7 @@
  */
 
 import { expect } from 'chai';
-import { ASTRO_FIELDS, CURRENT_EXTRA, DAY_FIELDS, HOUR_FIELDS, LEGACY_SPACE_FIELDS, SPACE_FIELDS, SPACE_SEGMENTS } from './fields';
+import { ASTRO_FIELDS, CURRENT_EXTRA, DAY_FIELDS, HOUR_FIELDS, LEGACY_SPACE_FIELDS, roleFor, SPACE_FIELDS, SPACE_SEGMENTS } from './fields';
 import { coerceValue } from './helpers';
 import type { ApiAstronomy, ApiHourlyItem, ApiSpaceItem, ApiSummaryItem, FieldDef, RenderContext } from './types';
 
@@ -237,6 +237,7 @@ const KNOWN_ROLES = new Set([
     'date',
     'date.sunrise',
     'date.sunset',
+    'dayofweek',
     'indicator',
     'indicator.alarm',
     'text',
@@ -247,11 +248,37 @@ const KNOWN_ROLES = new Set([
     'value.precipitation',
     'value.precipitation.chance',
     'value.pressure',
+    'value.severity',
+    'value.snow',
+    'value.snowline',
     'value.speed.max.wind',
     'value.speed.wind',
     'value.speed.wind.gust',
     'value.temperature',
     'value.temperature.dewpoint',
+    'value.temperature.max',
+    'value.temperature.min',
+    'value.temperature.windchill',
+    'weather.direction.wind',
+    'weather.icon',
+    'weather.state',
+]);
+
+/**
+ * Roles the catalogue lists with the `.forecast.<n>` suffix (section "Weather").
+ * Only these may carry `forecast: true`.
+ */
+const FORECAST_ROLES = new Set([
+    'date',
+    'date.sunrise',
+    'date.sunset',
+    'dayofweek',
+    'value.direction.wind',
+    'value.humidity',
+    'value.precipitation',
+    'value.pressure',
+    'value.speed.wind',
+    'value.temperature',
     'value.temperature.max',
     'value.temperature.min',
     'weather.direction.wind',
@@ -287,6 +314,24 @@ describe('fields — structure', () => {
             it('uses roles from the ioBroker catalogue', () => {
                 for (const f of table) {
                     expect(KNOWN_ROLES.has(f.role), `${f.id} uses unknown role "${f.role}"`).to.equal(true);
+                }
+            });
+
+            it('uses the forecast suffix only where the catalogue defines it', () => {
+                for (const f of table.filter((x) => x.forecast)) {
+                    expect(FORECAST_ROLES.has(f.role), `${f.id} cannot carry a forecast role "${f.role}.forecast.N"`).to.equal(true);
+                }
+            });
+
+            it('gives min/max only to numbers and keeps min below max', () => {
+                for (const f of table) {
+                    if (f.min === undefined && f.max === undefined) {
+                        continue;
+                    }
+                    expect(f.type, `${f.id} has a range but is ${f.type}`).to.equal('number');
+                    if (f.min !== undefined && f.max !== undefined) {
+                        expect(f.min, `${f.id}`).to.be.below(f.max);
+                    }
                 }
             });
 
@@ -342,6 +387,35 @@ describe('fields — structure', () => {
             }
             expect(KNOWN_ROLES.has(extra.role), `${extra.id} uses unknown role "${extra.role}"`).to.equal(true);
         }
+    });
+});
+
+describe('fields — roleFor', () => {
+    const tempMax = DAY_FIELDS.find((f) => f.id === 'temp_max')!;
+    const date = DAY_FIELDS.find((f) => f.id === 'date')!;
+
+    it('adds the day index to forecast roles inside day_N', () => {
+        expect(roleFor(tempMax, 0)).to.equal('value.temperature.max.forecast.0');
+        expect(roleFor(tempMax, 6)).to.equal('value.temperature.max.forecast.6');
+    });
+
+    it('keeps the plain role outside a day', () => {
+        expect(roleFor(tempMax)).to.equal('value.temperature.max');
+    });
+
+    it('never touches fields without a forecast role', () => {
+        expect(roleFor(date, 0)).to.equal('text');
+    });
+
+    it('marks day_0 as a weather forecast for the type detector', () => {
+        // Required by @iobroker/type-detector (weatherForecast): icon, min and max of today.
+        const roles = DAY_FIELDS.map((f) => roleFor(f, 0));
+        expect(roles).to.include.members(['weather.icon.forecast.0', 'value.temperature.min.forecast.0', 'value.temperature.max.forecast.0']);
+    });
+
+    it('does not let a second day field collide with the precipitation amount of today', () => {
+        const mm = DAY_FIELDS.filter((f) => /^value\.precipitation(\.forecast\.0)?$/.test(roleFor(f, 0)) && f.unit === 'mm');
+        expect(mm.map((f) => f.id)).to.deep.equal(['prec_sum']);
     });
 });
 
