@@ -334,7 +334,7 @@ class WetterComAdapter extends utils.Adapter {
         }
         this.ensured.add(id);
     }
-    async ensureState(id, name, type, role, unit, write = false) {
+    async ensureState(id, name, type, role, unit, write = false, range = {}) {
         if (this.ensured.has(id)) {
             return;
         }
@@ -342,7 +342,7 @@ class WetterComAdapter extends utils.Adapter {
         // admin offer it as a readable value as well, which the repository review
         // rejects — the state carries no information, it only triggers an action.
         const read = role !== 'button';
-        const common = { name, type, role, unit: unit || undefined, read, write };
+        const common = { name, type, role, unit: unit || undefined, read, write, min: range.min, max: range.max };
         const existing = await this.getObjectAsync(id);
         if (!existing) {
             await this.setObjectNotExistsAsync(id, {
@@ -353,7 +353,7 @@ class WetterComAdapter extends utils.Adapter {
         }
         else {
             const c = existing.common ?? {};
-            const drifted = !WetterComAdapter.sameLabel(c.name, name) || c.type !== type || c.role !== role || (c.unit || undefined) !== common.unit || c.read !== read || c.write !== write;
+            const drifted = !WetterComAdapter.sameLabel(c.name, name) || c.type !== type || c.role !== role || (c.unit || undefined) !== common.unit || c.read !== read || c.write !== write || c.min !== common.min || c.max !== common.max;
             if (drifted) {
                 // Metadata is owned by the adapter. Without this, a corrected
                 // label, role or unit would only ever reach fresh installations.
@@ -425,11 +425,12 @@ class WetterComAdapter extends utils.Adapter {
      * @param source API object the getters read from.
      * @param ctx Language, time zone and icon base URL.
      * @param buffer Collects the pending writes so they can be awaited together.
+     * @param dayIndex Index N when rendered inside `day_N`; day fields then get the `.forecast.N` role.
      */
-    async renderFields(basePath, prefix, fields, source, ctx, buffer) {
+    async renderFields(basePath, prefix, fields, source, ctx, buffer, dayIndex) {
         const active = fields.filter((f) => this.groupEnabled(f.group));
         for (const field of active) {
-            await this.ensureState(`${basePath}.${field.id}`, (0, i18n_1.prefixed)(prefix, (0, i18n_1.label)(field.name, field.nameDe)), field.type, field.role, field.unit);
+            await this.ensureState(`${basePath}.${field.id}`, (0, i18n_1.prefixed)(prefix, (0, i18n_1.label)(field.name, field.nameDe)), field.type, (0, fields_1.roleFor)(field, dayIndex), field.unit, false, field);
         }
         for (const field of active) {
             let raw;
@@ -456,14 +457,14 @@ class WetterComAdapter extends utils.Adapter {
         await s('last_error', 'Last error', 'Letzter Fehler', 'string', 'text');
         await s('forecast_date', 'Forecast issued (API)', 'Vorhersage erstellt (API)', 'string', 'date');
         await s('next_update', 'Next API update', 'Nächstes API-Update', 'string', 'date');
-        await s('location', 'Location in use', 'Verwendeter Standort', 'string', 'text');
+        await s('location', 'Location in use', 'Verwendeter Standort', 'string', 'location');
         await s('timezone', 'Time zone of the location', 'Zeitzone des Standorts', 'string', 'text');
         await s('elevation', 'Elevation', 'Höhe über NN', 'number', 'value', 'm');
         await s('force_update', 'Update now', 'Jetzt aktualisieren', 'boolean', 'button', undefined, true);
         await s('reset_counter', 'Reset monthly counter', 'Monatszähler zurücksetzen', 'boolean', 'button', undefined, true);
         if (this.config.enableJson) {
-            await this.ensureState('forecast_json', (0, i18n_1.label)('Forecast (JSON)'), 'string', 'json');
-            await this.ensureState('hourly_json', (0, i18n_1.label)('Hourly values (JSON)'), 'string', 'json');
+            await this.ensureState('forecast_json', (0, i18n_1.label)('Forecast (JSON)'), 'string', 'weather.json');
+            await this.ensureState('hourly_json', (0, i18n_1.label)('Hourly values (JSON)'), 'string', 'weather.json');
         }
     }
     // ------------------------------------------------------------------- budget
@@ -736,11 +737,11 @@ class WetterComAdapter extends utils.Adapter {
             const dayPath = `day_${index}`;
             const buffer = [];
             await this.ensureChannel(dayPath, (0, i18n_1.dayLabel)(index));
-            await this.renderFields(dayPath, (0, i18n_1.dayPrefix)(index), fields_1.DAY_FIELDS, day, ctx, buffer);
+            await this.renderFields(dayPath, (0, i18n_1.dayPrefix)(index), fields_1.DAY_FIELDS, day, ctx, buffer, index);
             if (this.config.enableAstro && day.astronomy) {
                 const astroPath = `${dayPath}.astro`;
                 await this.ensureChannel(astroPath, (0, i18n_1.label)('Sun & moon'));
-                await this.renderFields(astroPath, (0, i18n_1.dayPrefix)(index), fields_1.ASTRO_FIELDS, day.astronomy, ctx, buffer);
+                await this.renderFields(astroPath, (0, i18n_1.dayPrefix)(index), fields_1.ASTRO_FIELDS, day.astronomy, ctx, buffer, index);
             }
             if (this.config.enableSpaces) {
                 const spaceDay = spacesByDate.get(dayKeyIso);
@@ -904,7 +905,7 @@ class WetterComAdapter extends utils.Adapter {
             await this.ensureChannel(base, (0, i18n_1.label)('Current hour'));
             const hourFields = fields_1.HOUR_FIELDS.filter((f) => this.groupEnabled(f.group));
             for (const field of hourFields) {
-                await this.ensureState(`${base}.${field.id}`, this.fieldName(field, i18n_1.NOW_PREFIX), field.type, field.role, field.unit);
+                await this.ensureState(`${base}.${field.id}`, this.fieldName(field, i18n_1.NOW_PREFIX), field.type, field.role, field.unit, false, field);
             }
             for (const extra of fields_1.CURRENT_EXTRA) {
                 if (extra.astro && !this.config.enableAstro) {
