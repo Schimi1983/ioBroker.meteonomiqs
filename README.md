@@ -211,7 +211,7 @@ Weather data © [wetter.com GmbH / Meteonomiqs](https://www.meteonomiqs.com). Th
     Placeholder for the next version (at the beginning of the line):
     ### **WORK IN PROGRESS**
 -->
-### **WORK IN PROGRESS**
+### 0.2.11 (2026-10-30)
 
 - State roles follow the ioBroker role catalogue more closely. The day values carry the official forecast roles (`value.temperature.max.forecast.0` for today, `.forecast.1` for tomorrow, …), so the ioBroker type detector recognises `day_0` as a weather forecast (Material, iot, devices). In `current` the felt temperature is now recognised as well
 - Corrected roles: sunrise/sunset as "HH:MM" are `text` (a `date` role needs a full date; the `_iso` states keep `date.sunrise`/`date.sunset`), felt temperature `value.temperature.windchill`, weekday `dayofweek`, snow line `value.snowline`, fresh snow and snow amount `value.snow`, warning level `value.severity`, location `location`, JSON states `weather.json`. The short wind direction is `text`, so it no longer competes with the long one
@@ -237,12 +237,6 @@ Weather data © [wetter.com GmbH / Meteonomiqs](https://www.meteonomiqs.com). Th
 ### 0.2.7 (2026-09-06)
 
 - Raised the required `@iobroker/adapter-core` to `^3.4.3` (`[W0034]`) and the release-script license plugin to `^5.2.2` (`[S0064]`). Both caret ranges already resolved to those versions; only the declared minimums lagged behind, so nothing changes at runtime
-
-### 0.2.6 (2026-08-16)
-
-- The buttons `info.force_update` and `info.reset_counter` are write-only now. A state with role `button` carries no value to read, and `read: true` made the admin offer it as a readable one (repository review)
-- The `warn_severity_int` states in the day, day-section and hourly subtrees carry the generic `value` role. `value.severity` is not part of the ioBroker role catalogue (repository review)
-- Both corrections reach existing installations on the next adapter start — the object metadata is compared and rewritten on drift
 
 [Older changelogs can be found there](CHANGELOG_OLD.md)
 

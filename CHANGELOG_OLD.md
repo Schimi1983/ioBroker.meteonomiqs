@@ -1,4 +1,10 @@
 # Older changes
+## 0.2.6 (2026-08-16)
+
+- The buttons `info.force_update` and `info.reset_counter` are write-only now. A state with role `button` carries no value to read, and `read: true` made the admin offer it as a readable one (repository review)
+- The `warn_severity_int` states in the day, day-section and hourly subtrees carry the generic `value` role. `value.severity` is not part of the ioBroker role catalogue (repository review)
+- Both corrections reach existing installations on the next adapter start — the object metadata is compared and rewritten on drift
+
 ## 0.2.5 (2026-08-16)
 
 - The field tables are covered by tests now: 138 of them, running every getter against a hand-built API response, plus the structural rules — unique ids, both label languages, roles from the ioBroker catalogue, unit and precision only on numbers. Every leaf of the fixture carries a value that appears nowhere else, so a getter reading `min` where it should read `max` cannot pass

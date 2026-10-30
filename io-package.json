@@ -1,7 +1,7 @@
 {
   "common": {
     "name": "meteonomiqs",
-    "version": "0.2.10",
+    "version": "0.2.11",
     "news": {
       "0.2.11": {
         "en": "Data points now follow the ioBroker role catalogue more closely. The day values carry the official forecast roles, so day_0 is recognised as a weather forecast in Material, iot and devices. Several roles were corrected (sunrise/sunset as text, felt temperature, weekday, snow line, warning level) and value ranges were added. Existing installations take over the changes automatically; values and history are kept.",
@@ -93,19 +93,6 @@
         "pl": "Wyłącznie zmiany wewnętrzne, dla instalacji nic się nie zmienia: tabele pól są teraz pokryte 138 testami, tłumaczenia admina używają krótkiego formatu i18n `admin/i18n/<lang>.json` (`[S5601]`), a w repozytorium znajduje się `.vscode/settings.json` ze schematami JSON ioBrokera (`[S4036]`).",
         "uk": "Лише внутрішні зміни, для встановлення нічого не змінюється: таблиці полів тепер покриті 138 тестами, переклади адмінки використовують короткий формат i18n `admin/i18n/<lang>.json` (`[S5601]`), а в репозиторії з'явився `.vscode/settings.json` зі схемами JSON ioBroker (`[S4036]`).",
         "zh-cn": "仅内部改动，对已安装的实例没有任何影响：字段表现已由 138 项测试覆盖，管理界面翻译改用简短的 i18n 形式 `admin/i18n/<lang>.json`（`[S5601]`），仓库中新增了带 ioBroker JSON 架构的 `.vscode/settings.json`（`[S4036]`）。"
-      },
-      "0.2.4": {
-        "en": "Raised the minimum admin version to 7.8.23 and `@types/node` to the major that matches `engines.node` — both proposed by the ioBroker bot",
-        "de": "Die Mindestversion von admin wurde auf 7.8.23 angehoben und `@types/node` auf die zu `engines.node` passende Hauptversion — beides Vorschläge des ioBroker-Bots.",
-        "ru": "Минимальная версия admin повышена до 7.8.23, а `@types/node` — до мажорной версии, соответствующей `engines.node`; оба изменения предложены ботом ioBroker.",
-        "pt": "A versão mínima do admin foi aumentada para 7.8.23 e `@types/node` para a versão principal correspondente a `engines.node`; ambas as alterações foram propostas pelo bot do ioBroker.",
-        "nl": "De minimale admin-versie is verhoogd naar 7.8.23 en `@types/node` naar de hoofdversie die bij `engines.node` past; beide voorgesteld door de ioBroker-bot.",
-        "fr": "La version minimale d'admin passe à 7.8.23 et `@types/node` à la version majeure correspondant à `engines.node` ; les deux ont été proposées par le bot ioBroker.",
-        "it": "La versione minima di admin è stata portata a 7.8.23 e `@types/node` alla major corrispondente a `engines.node`; entrambe le modifiche sono state proposte dal bot di ioBroker.",
-        "es": "La versión mínima de admin se ha elevado a 7.8.23 y `@types/node` a la versión principal que corresponde a `engines.node`; ambas fueron propuestas por el bot de ioBroker.",
-        "pl": "Minimalna wersja admin została podniesiona do 7.8.23, a `@types/node` do wersji głównej zgodnej z `engines.node`; obie zmiany zaproponował bot ioBroker.",
-        "uk": "Мінімальну версію admin піднято до 7.8.23, а `@types/node` — до основної версії, що відповідає `engines.node`; обидві зміни запропонував бот ioBroker.",
-        "zh-cn": "admin 的最低版本提升至 7.8.23，`@types/node` 提升至与 `engines.node` 匹配的主版本；两项均由 ioBroker 机器人提出。"
       }
     },
     "titleLang": {
